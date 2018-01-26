@@ -1,0 +1,273 @@
+@import url('https://fonts.googleapis.com/css?family=Lato:400,700');
+
+body {
+	margin: 0;
+	padding: 0;
+	background-color: #efefef;
+	color: #828282;
+	text-align: center;
+}
+
+a {
+	text-decoration: none;
+	color: inherit;
+	display: block;
+}
+
+ul {
+	list-style-type: none;
+	padding: 0;
+}
+
+input[type="submit"] {
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+.global {
+	font-family: 'Lato', sans-serif;
+}
+
+.top-bar {
+	background-color: white;
+	color: white;
+	margin-bottom: 10px;
+	text-align: left;
+}
+
+.top-bar a {
+	display: inline;
+}
+
+.welcome {
+	text-align: center;
+	color: #828282;
+}
+
+.header-main {
+	font-size: 24px;
+	margin: 0;
+	font-weight: 700;
+	padding-left: 15px;
+	padding-right: 15px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	color: white;
+	background-color: #ff3b3f;
+	display: inline-block;
+}
+
+.search-container {
+	width: 100%;
+}
+
+.search-form {
+	text-align: center;
+	margin-bottom: 10px;
+}
+
+.search-input {
+	height: 25px;
+	width: 250px;
+	font-size: 14px;
+	border: 1px solid #ff3b3f;
+	border-right: none;
+	border-bottom-left-radius: 5px;
+	border-top-left-radius: 5px;
+	padding-left: 5px;
+	padding-right: 5px;
+	-webkit-transition: box-shadow 500ms;
+	transition: box-shadow 500ms;
+}
+
+.search-input-with-results {
+	border-bottom-left-radius: 0;
+}
+
+.search-input:focus {
+	outline: none;
+	box-shadow: 0 0 3px 0 #ff3b3f;
+}
+
+.search-submit {
+	height: 29px;
+	font-size: 16px;
+	padding: 0;
+	padding-left: 10px;
+	padding-right: 10px;
+	border: 1px solid #ff3b3f;
+	border-bottom-right-radius: 5px;
+	border-top-right-radius: 5px;
+	font-weight: 500;
+	color: white;
+	background-color: #ff3b3f;
+	cursor: pointer;
+	-webkit-transition: background-color 150ms, color 150ms;
+    transition: background-color 150ms, color 150ms;
+}
+
+.search-submit:hover {
+	background-color: white;
+	color: #ff3b3f;
+}
+
+.search-submit:focus {
+	outline: none;
+}
+
+.search-prompt {
+	text-align: center;
+	font-style: italic;
+}
+
+.search-result-list {
+	width: 600px;
+	margin: 0 auto;
+	margin-top: 15px;
+}
+
+.search-result-category {
+}
+
+.search-result-category-title {
+	font-size: 18px;
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+.search-result {
+	color: black;
+	text-align: left;
+	background-color: white;
+	padding: 5px;
+	margin-bottom: 5px;
+	border: 1px solid #ff3b3f;
+	cursor: pointer;
+}
+
+.search-result-title {
+	font-weight: bold;
+}
+
+.search-result-subtitle {
+	font-style: italic;
+}
+
+.search-result:hover {
+	box-shadow: 0 0 5px 0 #ff3b3f;
+}
+
+.search-result-none {
+	text-align: center;
+	font-style: italic;
+	margin-top: 15px;
+}
+
+.info-page {
+	min-width: 620px;
+	display: inline-block;
+	text-align: left;
+	margin: 0 auto;
+	margin-top: 30px;
+	background-color: white;
+	padding: 10px;
+	box-shadow: 0 0 5px 0 #ff3b3f;
+	color: black;
+}
+
+.info-title {
+	font-size: 18px;
+	font-weight: bold;
+}
+
+.info-page-header {
+
+}
+
+.info-page-table {
+	width: 100%;
+	border: 1px solid black;
+	border-collapse: collapse;
+	margin-top: 15px;
+}
+
+.info-page-table tr:nth-child(even) {
+	background-color: #efefef;
+}
+
+.info-page-table td {
+	text-align: center;
+	border-left: 1px solid #828282;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	padding-right: 5px;
+	padding-left: 5px;
+}
+
+.info-page-table td.is-link {
+	cursor: pointer;
+}
+
+.info-page-table tr:not(.info-page-table-first-row) td:hover {
+	background-color: black;
+	color: white;
+}
+
+.info-page-table tr:not(.info-page-table-first-row):hover {
+	background-color: #828282;
+	color: white;
+}
+
+.info-page-table-first-row td {
+	font-weight: bold;
+	border-bottom: 1px solid black;
+}
+
+.quick-result-list {
+	position: absolute;
+	background-color: white;
+	margin: 0;
+	width: 260px;
+	border: 1px solid #ff3b3f;
+	border-top: none;
+	text-align: left;
+	font-size: 13px;
+}
+
+.quick-result {
+	padding-top: 2px;
+	padding-bottom: 2px;
+	border-bottom: 1px solid #efefef;
+	color: black;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.quick-result.focus {
+	background-color: #fcfbe3;
+}
+
+.quick-result:hover {
+	background-color: #fcfbe3;
+}
+
+.quick-result-title {
+	font-weight: bold;
+}
+
+.quick-result-subtitle {
+	font-style: italic;
+}
+
+.quick-result-list a:last-of-type .quick-result {
+	border-bottom: none;
+}
+
+.search-input-container {
+	display: inline-block;
+}
+
+.bold {
+	font-weight: bold;
+}

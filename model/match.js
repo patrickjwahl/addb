@@ -1,0 +1,63 @@
+'use strict';
+
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+
+var MatchSchema = new Schema({
+	search1: String,
+	search2: String,
+	search3: String,
+	year: String,
+	round: String,
+	region: String,
+	state: String,
+	date: String,
+	site: String,
+	events: {
+		math: Boolean,
+		music: Boolean,
+		econ: Boolean,
+		science: Boolean,
+		lit: Boolean,
+		art: Boolean,
+		socialScience: Boolean,
+		essay: Boolean,
+		speech: Boolean,
+		interview: Boolean,
+		objs: Boolean,
+		subs: Boolean
+	},
+	students: [
+		{
+			school: String,
+			team: String,
+			gpa: String,
+			decathlete: String,
+			math: String,
+			music: String,
+			econ: String,
+			science: String,
+			lit: String,
+			art: String,
+			socialScience: String,
+			essay: String,
+			speech: String,
+			interview: String,
+			overall: String,
+			objs: String,
+			subs: String
+		}
+	],
+	teams: [
+		{
+			rank: Number,
+			school: String,
+			overall: String,
+			objs: String,
+			subs: String,
+			id: String
+		}
+	]
+});
+
+module.exports = mongoose.model('Match', MatchSchema);
