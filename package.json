@@ -4,11 +4,15 @@
   "private": true,
   "dependencies": {
     "axios": "^0.16.2",
+    "bcrypt": "^3.0.2",
     "body-parser": "^1.17.2",
     "classnames": "^2.2.5",
+    "concurrently": "^4.1.0",
     "csv-parse": "^1.2.1",
     "express": "^4.15.4",
+    "express-session": "^1.15.6",
     "foreman": "^2.0.0",
+    "jsonwebtoken": "^8.4.0",
     "marked": "^0.3.6",
     "mongoose": "^4.11.8",
     "multer": "^1.3.0",
@@ -20,6 +24,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "client": "cd src && npm run start",
+    "server": "node server.js",
     "start-dev": "nf start -p 3000",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
@@ -27,6 +33,8 @@
   },
   "devDependencies": {
     "classnames": "^2.2.5",
-    "react-inline": "^0.8.2"
-  }
+    "react-inline": "^0.8.2",
+    "concurrently": "^4.0.1"
+  },
+  "proxy": "http://localhost:3001/"
 }

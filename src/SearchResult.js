@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import './styles.css';
-import axios from 'axios';
+import API from './API';
 import {Link} from 'react-router-dom';
 
 export class SearchResult extends Component {
@@ -13,8 +13,8 @@ export class SearchResult extends Component {
 	performSearch() {
 		let query = this.props.location.search;
 		if (!query) return;
-		let address = `http://${window.location.hostname}:3001/api/search${query}`;
-		axios.get(address)
+		
+		API.search(query)
 		.then(res => {
 			this.setState({result: res});
 		})
@@ -36,7 +36,8 @@ export class SearchResult extends Component {
 	render() {
 		let retval;
 
-		let schoolResults;
+		let schoolResults = (null);
+		let peopleResults = (null);
 
 		let resultsFound = false;
 
@@ -52,8 +53,29 @@ export class SearchResult extends Component {
 							this.state.result.data.schools.map((school) => (
 								<Link to={`/school/${school._id}`} key={school._id}>
 									<li className='search-result'>
-										<div className='search-result-title'>{school.name}</div>
-										<div className='search-result-subtitle'>{school.city}, {school.state}</div>
+										<div className='search-result-title'>{school.fullName || school.name}</div>
+										<div className='search-result-subtitle'>{school.city ? school.city + ', ' : ''}{school.state}</div>
+									</li>
+								</Link>
+							))
+						}
+						</ul>
+					</div>
+				);
+				resultsFound = true;
+			}
+
+			if (this.state.result.data.people.length > 0) {
+				peopleResults = (
+					<div className='search-result-category'>
+						<div className='search-result-category-title'>People</div>
+						<ul className='search-result-sublist'>
+						{
+							this.state.result.data.people.map((person) => (
+								<Link to={`/person/${person._id}`} key={person._id}>
+									<li className='search-result'>
+										<div className='search-result-title'>{person.name}</div>
+										<div className='search-result-subtitle'>{person.school + (person.city ? `, ${person.city}` : '') + (person.state ? `, ${person.state}` : '')}</div>
 									</li>
 								</Link>
 							))
@@ -68,6 +90,7 @@ export class SearchResult extends Component {
 				retval = (
 					<div className='search-result-list'>
 						{schoolResults}
+						{peopleResults}
 					</div>
 				);
 			} else {

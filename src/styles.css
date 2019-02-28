@@ -1,17 +1,34 @@
 @import url('https://fonts.googleapis.com/css?family=Lato:400,700');
 
+html {
+	height: 100%;
+}
+
 body {
 	margin: 0;
 	padding: 0;
 	background-color: #efefef;
 	color: #828282;
 	text-align: center;
+	height: 100%;
+}
+
+#root {
+	height: 100%;
 }
 
 a {
 	text-decoration: none;
 	color: inherit;
 	display: block;
+}
+
+.page-link {
+	font-size: 14px;
+	cursor: pointer;
+	text-decoration: underline;
+	margin-top: 10px;
+	display: inline;
 }
 
 ul {
@@ -27,6 +44,22 @@ input[type="submit"] {
 
 .global {
 	font-family: 'Lato', sans-serif;
+	min-height: 100%;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+}
+
+.small-header {
+	left: 0;
+	margin-left: 10px;
+	font-size: 12px;
+	position: absolute;
+	color: #828282;
+}
+
+.main-part {
+	flex: 1;
 }
 
 .top-bar {
@@ -56,10 +89,18 @@ input[type="submit"] {
 	color: white;
 	background-color: #ff3b3f;
 	display: inline-block;
+	transition: color 150ms, background-color 150ms;
+	-webkit-transition: background-color 150ms, color 150ms;
+}
+
+.header-main:hover {
+	background-color: white;
+	color: #ff3b3f;
 }
 
 .search-container {
 	width: 100%;
+	margin-bottom: 20px;
 }
 
 .search-form {
@@ -69,7 +110,7 @@ input[type="submit"] {
 
 .search-input {
 	height: 25px;
-	width: 250px;
+	width: 375px;
 	font-size: 14px;
 	border: 1px solid #ff3b3f;
 	border-right: none;
@@ -77,8 +118,10 @@ input[type="submit"] {
 	border-top-left-radius: 5px;
 	padding-left: 5px;
 	padding-right: 5px;
-	-webkit-transition: box-shadow 500ms;
-	transition: box-shadow 500ms;
+}
+
+.search-input::placeholder {
+	opacity: 0.5
 }
 
 .search-input-with-results {
@@ -87,7 +130,7 @@ input[type="submit"] {
 
 .search-input:focus {
 	outline: none;
-	box-shadow: 0 0 3px 0 #ff3b3f;
+	box-shadow: 0 0 5px 0 #ff3b3f;
 }
 
 .search-submit {
@@ -169,6 +212,7 @@ input[type="submit"] {
 	display: inline-block;
 	text-align: left;
 	margin: 0 auto;
+	position: relative;
 	margin-top: 30px;
 	background-color: white;
 	padding: 10px;
@@ -182,14 +226,25 @@ input[type="submit"] {
 }
 
 .info-page-header {
+	text-align: center;
+	margin-bottom: 10px;
+}
 
+.info-page-section {
+	font-weight: bold;
+	font-size: 20px;
+	margin-top: 20px;
+}
+
+.info-page-subhead {
+	margin-bottom: 5px;
 }
 
 .info-page-table {
 	width: 100%;
 	border: 1px solid black;
 	border-collapse: collapse;
-	margin-top: 15px;
+	margin-top: 5px;
 }
 
 .info-page-table tr:nth-child(even) {
@@ -198,7 +253,7 @@ input[type="submit"] {
 
 .info-page-table td {
 	text-align: center;
-	border-left: 1px solid #828282;
+	border-left: 1px solid black;
 	padding-top: 2px;
 	padding-bottom: 2px;
 	padding-right: 5px;
@@ -207,6 +262,14 @@ input[type="submit"] {
 
 .info-page-table td.is-link {
 	cursor: pointer;
+}
+
+.table-cell-small {
+	width: 50px;
+}
+
+.table-cell-large {
+	max-width: 150px;
 }
 
 .info-page-table tr:not(.info-page-table-first-row) td:hover {
@@ -225,10 +288,11 @@ input[type="submit"] {
 }
 
 .quick-result-list {
+	z-index: 63;
 	position: absolute;
 	background-color: white;
 	margin: 0;
-	width: 260px;
+	width: 384px;
 	border: 1px solid #ff3b3f;
 	border-top: none;
 	text-align: left;
@@ -246,6 +310,12 @@ input[type="submit"] {
 
 .quick-result.focus {
 	background-color: #fcfbe3;
+}
+
+.quick-result-type {
+	float: right;
+	font-weight: normal;
+	font-style: italic;
 }
 
 .quick-result:hover {
@@ -270,4 +340,170 @@ input[type="submit"] {
 
 .bold {
 	font-weight: bold;
+}
+
+.with-cursor {
+	cursor: pointer;
+}
+
+.separator-row {
+	border-top: 1px solid black;
+}
+
+.edited-row {
+	background-color: #ffb3b3 !important;
+}
+
+.header-links {
+	color: black;
+	font-size: 14px;
+	text-align: center;
+	width: 100%;
+	margin-bottom: 10px;
+}
+
+.divisions-button {
+	display: inline;
+	border: 1px solid black;
+	cursor: pointer;
+	border-radius: 4px;
+	margin: 0 5px;
+}
+
+.divisions-button:hover {
+	background-color: black;
+	color: white;
+}
+
+.divisions-button:focus {
+	outline: none;
+}
+
+.form-container {
+	display: inline-block;
+	margin-top: 30px;
+	width: 300px;
+	background-color: white;
+	padding: 10px;
+	box-shadow: 0 0 5px 0 #ff3b3f;
+	color: black;
+	margin-bottom: 20px;
+}
+
+.form-label {
+	display: block;
+	text-align: left;
+	font-size: 12px;
+	text-transform: uppercase;
+	margin-bottom: 2px;
+}
+
+.form-text-input {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 5px;
+	border: 1px solid black;
+	border-radius: 5px;
+	font-size: 18px;
+}
+
+.form-text-input:focus {
+	-moz-box-shadow: inset 0 0 3px #ff3b3f;
+   	-webkit-box-shadow: inset 0 0 3px #ff3b3f;
+   	box-shadow: 0 0 5px 0 #ff3b3f;
+	outline: none;
+}
+
+.form-field {
+	margin-bottom: 12px;
+}
+
+.form-submit {
+	width: 100%;
+	font-size: 16px;
+	cursor: pointer;
+	padding: 5px;
+	color: white;
+	background-color: #ff3b3f;
+	border: 1px solid #ff3b3f;
+	font-weight: 500;
+	border-radius: 5px;
+	margin-bottom: 5px;
+	-webkit-transition: background-color 150ms, color 150ms, border 150ms;
+    transition: background-color 150ms, color 150ms, border 150ms;
+}
+
+.form-submit:hover {
+	color: black;
+	background-color: white; 
+	border: 1px solid black;
+}
+
+
+.form-submit:focus {
+	outline: none;
+}
+
+.form-cancel {
+	width: 100%;
+	font-size: 16px;
+	cursor: pointer;
+	color: black;
+	background-color: lightgray; 
+	border: 1px solid lightgray;
+	padding: 5px;
+	font-weight: 500;
+	border-radius: 5px;
+	margin-bottom: 5px;
+	-webkit-transition: background-color 150ms, color 150ms, border 150ms;
+    transition: background-color 150ms, color 150ms, border 150ms;
+}
+
+.form-cancel:hover {
+	color: black;
+	background-color: white;
+	border: 1px solid black;
+}
+
+
+.form-cancel:focus {
+	outline: none;
+}
+
+.form-select {
+	width: 100%;
+	border: 1px solid black;
+	padding: 5px;
+	appearance: none;
+	background-color: white;
+	cursor: pointer;
+	font-size: 18px;
+}
+
+.form-select:hover {
+	background-image: linear-gradient(#eee, #ddd, #ccc, #ddd, #eee);
+}
+
+.form-select:focus {
+	outline: none;
+}
+
+.selected-school {
+	text-align: left;
+	font-size: 14px;
+}
+
+.selected-school-button {
+	margin: 0 5px;
+	border: 1px solid black;
+	cursor: pointer;
+	border-radius: 50%;
+}
+
+.selected-school-button:hover {
+	background-color: red;
+}
+
+.selected-school-button:focus {
+	outline: none;
 }

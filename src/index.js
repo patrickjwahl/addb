@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {BrowserRouter} from 'react-router-dom';
+import {BrowserRouter, Route} from 'react-router-dom';
 import {Page} from './Page';
 
 ReactDOM.render(
 	(
 		<BrowserRouter>
-			<Page />
+			<Route component={Page} />
 		</BrowserRouter>
 	), document.getElementById('root'));

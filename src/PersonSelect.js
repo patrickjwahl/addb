@@ -5,7 +5,7 @@ import './styles.css';
 var mouseDownHappened = false;
 var intervalId = 0;
 
-export class SchoolSelect extends Component {
+export class PersonSelect extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {query: '', result: '', focus: -1, selected: ''};
@@ -18,14 +18,14 @@ export class SchoolSelect extends Component {
 		this.quickSearch = this.quickSearch.bind(this);
 	}
 
-	handleResultClick(schoolId, e) {
+	handleResultClick(personId, e) {
 		e.stopPropagation();
 		mouseDownHappened = true;
 		this.handleOnBlur();
-		let school = this.state.result.data.schools.filter(function(obj) {
-			return obj._id === schoolId;
+		let person = this.state.result.data.people.filter(function(obj) {
+			return obj._id === personId;
 		})[0];
-		this.props.selectSchool({id: this.props.selectId, school: school});
+		this.props.selectPerson({id: this.props.selectId, person: person});
 	}
 
 	clearQuickResult(e) {
@@ -51,7 +51,7 @@ export class SchoolSelect extends Component {
 
 			if (keynum === 40) {
 				let focus = this.state.focus;
-				if (focus < this.state.result.data.schools.length - 1) {
+				if (focus < this.state.result.data.people.length - 1) {
 					this.setState({focus: focus + 1});
 					e.preventDefault();
 				}
@@ -66,7 +66,7 @@ export class SchoolSelect extends Component {
 					e.preventDefault();
 					this.handleOnBlur();
 
-					this.props.selectSchool({id: this.props.selectId, school: this.state.result.data.schools[this.state.focus]});
+					this.props.selectPerson({id: this.props.selectId, person: this.state.result.data.people[this.state.focus]});
 				}
 			} else {
 				this.setState({focus: -1});
@@ -80,7 +80,7 @@ export class SchoolSelect extends Component {
 			let address = `http://${window.location.hostname}:3001/api/search?query=${query}`;
 			axios.get(address)
 			.then(res => {
-				if (res.data.schools.length > 0) {
+				if (res.data.people.length > 0) {
 					this.setState({result: res});
 				} else {
 					this.setState({result: ''})
@@ -111,7 +111,7 @@ export class SchoolSelect extends Component {
 			quickResult = (
 				<ul className='quick-result-list'>
 				{
-					this.state.result.data.schools.map((school, index) => {
+					this.state.result.data.people.map((person, index) => {
 						let liClass;
 						if (index === this.state.focus) {
 							liClass = 'quick-result focus';
@@ -119,9 +119,9 @@ export class SchoolSelect extends Component {
 							liClass = 'quick-result';
 						}
 						return (
-							<li className={liClass} key={school._id} onMouseDown={this.handleResultClick.bind(this, school._id)}>
-								<div className='quick-result-title'>{school.fullName || school.name}</div>
-								<div className='quick-result-subtitle'>{school.city ? school.city + ', ' : ''}{school.state}</div>
+							<li className={liClass} key={person._id} onMouseDown={this.handleResultClick.bind(this, person._id)}>
+								<div className='quick-result-title'>{person.name}</div>
+								<div className='quick-result-subtitle'>{person.fullSchool || person.school}</div>
 							</li>
 						);
 					})
@@ -132,27 +132,27 @@ export class SchoolSelect extends Component {
 			quickResult = (null);
 		}
 
-		let selectedSchool;
+		let selectedPerson;
 		if (this.props.selectedName) {
-			selectedSchool = (
+			selectedPerson = (
 				<div>
-					<div className='selected-school'>{this.props.selectedName} ({this.props.selectedCity ? `${this.props.selectedCity}, ${this.props.selectedState}` : this.props.selectedState})
-					<button className='selected-school-button' type="button" onClick={() => {this.props.unselectSchool(this.props.selectId)}}>x</button>
+					<div className='selected-school'>{this.props.selectedName} ({this.props.selectedFullSchool || this.props.selectedSchool})
+					<button className='selected-school-button' type="button" onClick={() => {this.props.unselectPerson(this.props.selectId)}}>x</button>
 					</div>
 				</div>
 			);
 		} else {
-			selectedSchool = (null);
+			selectedPerson = (null);
 		}
 
 		return (
 			<div className='form-field'>
-				<label className='form-label'>{this.props.schoolname}</label>
-				<div className='search-input-container' style={{width:'100%'}} tabIndex='0' onBlur={this.handleOnBlur}>
+				<label className='form-label'>{this.props.personName}</label>
+				<div tabIndex='0' onBlur={this.handleOnBlur}>
 					<input className='form-text-input' type='text' value={this.state.query} onChange={this.handleQueryChanged} onKeyDown={this.handleInputOnKeyDown} />
 					{quickResult}
 				</div>
-				{selectedSchool}
+				{selectedPerson}
 			</div>
 		);
 	}

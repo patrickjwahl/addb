@@ -1,15 +1,29 @@
 import React, {Component} from 'react';
 import {withRouter, Link} from 'react-router-dom';
 import './styles.css';
-import axios from 'axios';
+import API from './API';
 
 var mouseDownHappened = false;
 var intervalId = 0;
 
+var possiblyShorten = str => {
+	if (str.length > 37) {
+		return str.slice(0, 50) + '...';
+	}
+	return str;
+};
+
+var roundMap = {
+	roundone: 'Round One',
+	regionals: 'Regionals',
+	state: 'State',
+	nationals: 'Nationals'
+};
+
 class SearchForm extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {query: '', result: '', focus: -1};
+		this.state = {query: '', result: '', focus: -1, quickResultNum: 0};
 		this.handleQueryChanged = this.handleQueryChanged.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.clearQuickResult = this.clearQuickResult.bind(this);
@@ -29,15 +43,12 @@ class SearchForm extends Component {
 	quickSearch(newQuery) {
 		return (function() {
 			let query = newQuery;
-			let address = `http://${window.location.hostname}:3001/api/search?query=${query}`;
-			axios.get(address)
+			API.quickSearch(query)
 			.then(res => {
-				for (let key in res.data) {
-					if (res.data[key].length > 0) {
-						this.setState({result: res});
-						return;
-					}
-					this.setState({result: ''});
+				if (res.data.people.length + res.data.schools.length + res.data.matches.length > 0) {
+					this.setState({result: res, quickResultNum: (Math.min(res.data.people.length, 3) + Math.min(res.data.schools.length, 3) + Math.min(res.data.matches.length, 3))});
+				} else {
+					this.setState({result: '', quickResultNum: 0});
 				}
 			})
 			.catch(err => {
@@ -48,17 +59,17 @@ class SearchForm extends Component {
 
 	handleQueryChanged(e) {
 		var query = e.target.value;
-		clearInterval(intervalId);
-		this.setState({query: query});
-		if (query.length < 2) {
-			this.setState({result: ''});
+		clearTimeout(intervalId);
+		if (query.length < 3) {
+			this.setState({result: '', query: query});
 			return;
 		}
-		intervalId = setInterval(this.quickSearch(query), 100);
+		this.setState({query: query});
+		intervalId = setTimeout(this.quickSearch(query), 200);
 	}
 
 	handleOnBlur() {
-		clearInterval(intervalId);
+		clearTimeout(intervalId);
 		if (!mouseDownHappened) {
 			this.setState({result: '', focus: -1});
 		}
@@ -67,7 +78,7 @@ class SearchForm extends Component {
 
 	handleSubmit(e) {
 		e.preventDefault();
-		if (this.state.query.length < 2) return;
+		if (this.state.query.length < 3) return;
 		this.handleOnBlur();
 		this.props.history.push(`/search?query=${this.state.query}`);
 	}
@@ -83,7 +94,7 @@ class SearchForm extends Component {
 
 			if (keynum === 40) {
 				let focus = this.state.focus;
-				if (focus < this.state.result.data.schools.length - 1) {
+				if (focus < this.state.quickResultNum - 1) {
 					this.setState({focus: focus + 1});
 					e.preventDefault();
 				}
@@ -116,6 +127,7 @@ class SearchForm extends Component {
 				<ul className='quick-result-list'>
 				{
 					this.state.result.data.schools.map((school, index) => {
+						if (index > 2) return (null);
 						let liClass;
 						if (index === this.state.focus) {
 							liClass = 'quick-result focus';
@@ -125,12 +137,47 @@ class SearchForm extends Component {
 						return (
 							<Link to={`/school/${school._id}`} key={school._id} onMouseDown={this.registerMouseDown} onClick={this.clearQuickResult}>
 								<li className={liClass}>
-									<div className='quick-result-title'>{school.name}</div>
-									<div className='quick-result-subtitle'>{school.city}, {school.state}</div>
+									<div className='quick-result-type'>School</div>
+									<div className='quick-result-title'>{possiblyShorten(school.fullName || school.name)}</div>
+									<div className='quick-result-subtitle'>{school.city ? school.city + (school.state ? ', ' : '') : ''}{school.state}</div>
 								</li>
 							</Link>
 						);
-					})
+					}).concat(this.state.result.data.people.map((person, index) => {
+						if (index > 2) return (null);
+						let liClass;
+						if (index === this.state.focus - Math.min(this.state.result.data.schools.length, 3)) {
+							liClass = 'quick-result focus';
+						} else {
+							liClass = 'quick-result';
+						}
+						return (
+							<Link to={`/person/${person._id}`} key={person._id} onMouseDown={this.registerMouseDown} onClick={this.clearQuickResult}>
+								<li className={liClass}>
+									<div className='quick-result-type'>Decathlete</div>
+									<div className='quick-result-title'>{possiblyShorten(person.name)}</div>
+									<div className='quick-result-subtitle'>{person.school + (person.city ? `, ${person.city}` : '') + (person.state ? `, ${person.state}` : '')}</div>
+								</li>
+							</Link>
+						);
+					})).concat(this.state.result.data.matches.map((match, index) => {
+						if (index > 2) return (null);
+						let liClass;
+						if (index === this.state.focus - Math.min(this.state.result.data.schools.length, 3) - Math.min(this.state.result.data.people.length, 3)) {
+							liClass = 'quick-result focus';
+						} else {
+							liClass = 'quick-result';
+						}
+						return (
+							<Link to={`/match/${match._id}`} key={match._id} onMouseDown={this.registerMouseDown} onClick={this.clearQuickResult}>
+								<li className={liClass}>
+									<div className='quick-result-type'>Match</div>
+									<div className='quick-result-title'>{possiblyShorten(match.year + ' ' + roundMap[match.round])}</div>
+									<div className='quick-result-subtitle'>{match.state} {match.region}</div>
+								</li>
+							</Link>
+						);
+					}))
 				}
 				</ul>
 			);
@@ -143,7 +190,7 @@ class SearchForm extends Component {
 			<div>
 				<form className="search-form" onSubmit={this.handleSubmit}>
 					<div className='search-input-container' tabIndex='0' onBlur={this.handleOnBlur}>
-						<input className={formClass} type="text" onChange={this.handleQueryChanged} value={this.state.query} onKeyDown={this.handleInputOnKeyDown} />
+						<input className={formClass} placeholder="Look for schools, people, and matches" type="text" onChange={this.handleQueryChanged} value={this.state.query} onKeyDown={this.handleInputOnKeyDown} />
 						{quickResult}
 					</div>
 					<input className="search-submit" type="submit" value="Search" />

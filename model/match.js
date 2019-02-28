@@ -13,6 +13,9 @@ var MatchSchema = new Schema({
 	state: String,
 	date: String,
 	site: String,
+	incompleteData: Boolean,
+	hasDivisions: Boolean,
+	access: Number,
 	events: {
 		math: Boolean,
 		music: Boolean,
@@ -29,6 +32,7 @@ var MatchSchema = new Schema({
 	},
 	students: [
 		{
+			id: String,
 			school: String,
 			team: String,
 			gpa: String,
@@ -55,7 +59,8 @@ var MatchSchema = new Schema({
 			overall: String,
 			objs: String,
 			subs: String,
-			id: String
+			id: String,
+			division: String
 		}
 	]
 });

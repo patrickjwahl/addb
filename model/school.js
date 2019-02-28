@@ -5,6 +5,7 @@ var Schema = mongoose.Schema;
 
 var SchoolSchema = new Schema({
 	name: String,
+	fullName: String,
 	city: String,
 	state: String,
 	region: String,
@@ -12,14 +13,14 @@ var SchoolSchema = new Schema({
 	seasons: [
 		{
 			year: String,
-			roundOne: String,
-			roundOneId: String,
-			regional: String,
-			regionalId: String,
+			roundone: String,
+			roundoneId: String,
+			regionals: String,
+			regionalsId: String,
 			state: String,
 			stateId: String,
-			national: String,
-			nationalId: String
+			nationals: String,
+			nationalsId: String
 		}
 	]
 });

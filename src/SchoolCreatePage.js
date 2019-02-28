@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import axios from 'axios';
+import API from './API';
+import schoolImg from './assets/img/school.jpg';
 
 class SchoolCreatePage extends Component {
 	constructor(props) {
@@ -7,6 +8,7 @@ class SchoolCreatePage extends Component {
 		this.state = {
 			schoolData: {
 				name: '',
+				fullName: '',
 				city: '',
 				state: '',
 				region: '',
@@ -28,10 +30,7 @@ class SchoolCreatePage extends Component {
 
 	handleSubmit(e) {
 		e.preventDefault();
-		let address = `http://${window.location.hostname}:3001/api/school`;
-		axios.post(address, {
-			school: this.state.schoolData
-		})
+		API.createSchool(this.state.schoolData)
 		.then(res => {
 			this.setState({done: true});
 		})
@@ -47,30 +46,33 @@ class SchoolCreatePage extends Component {
 			retval = <div>School added!</div>;
 		} else {
 			retval = (
-				<form onSubmit={this.handleSubmit}>
-					<div>
-						<label>Name:</label>
-						<input type='text' id='name' onChange={this.handleTextChanged} value={this.state.schoolData.name} />
+				<form className='form-container' onSubmit={this.handleSubmit}>
+					<img src={schoolImg} width={150} style={{margin:'10px 0'}} />
+					<div className='form-field'>
+						<label className='form-label'>Name</label>
+						<input className='form-text-input' type='text' id='name' onChange={this.handleTextChanged} value={this.state.schoolData.name} />
 					</div>
-					<div>
-						<label>City:</label>
-						<input type='text' id='city' onChange={this.handleTextChanged} value={this.state.schoolData.city} />
+					<div className='form-field'>
+						<label className='form-label'>Full Name</label>
+						<input className='form-text-input' type='text' id='fullName' onChange={this.handleTextChanged} value={this.state.schoolData.fullName} />
 					</div>
-					<div>
-						<label>State:</label>
-						<input type='text' id='state' onChange={this.handleTextChanged} value={this.state.schoolData.state} />
+					<div className='form-field'>
+						<label className='form-label'>City</label>
+						<input className='form-text-input' type='text' id='city' onChange={this.handleTextChanged} value={this.state.schoolData.city} />
 					</div>
-					<div>
-						<label>Region:</label>
-						<input type='text' id='region' onChange={this.handleTextChanged} value={this.state.schoolData.region} />
+					<div className='form-field'>
+						<label className='form-label'>State</label>
+						<input className='form-text-input' type='text' id='state' onChange={this.handleTextChanged} value={this.state.schoolData.state} />
 					</div>
-					<div>
-						<label>District:</label>
-						<input type='text' id='district' onChange={this.handleTextChanged} value={this.state.schoolData.district} />
+					<div className='form-field'>
+						<label className='form-label'>Region</label>
+						<input className='form-text-input' type='text' id='region' onChange={this.handleTextChanged} value={this.state.schoolData.region} />
 					</div>
-					<div>
-						<input type='submit' value='Create' />
+					<div className='form-field'>
+						<label className='form-label'>District</label>
+						<input className='form-text-input' type='text' id='district' onChange={this.handleTextChanged} value={this.state.schoolData.district} />
 					</div>
+					<input className='form-submit' type='submit' value='Create' />
 				</form>
 			);
 		}

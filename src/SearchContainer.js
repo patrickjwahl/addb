@@ -3,7 +3,10 @@ import {Switch, Route, Redirect} from 'react-router-dom';
 import SearchForm from './SearchForm';
 import {SearchResult} from './SearchResult';
 import {SchoolResult} from './SchoolResult';
+import {PersonResult} from './PersonResult';
 import MatchResult from './MatchResult';
+import PrivateRoute from './PrivateRoute';
+import EditsPage from './EditsPage';
 
 export class SearchContainer extends Component {
 	constructor(props) {
@@ -16,6 +19,7 @@ export class SearchContainer extends Component {
 			<div className='search-container'>
 				<SearchForm />
 				<Switch>
+					<PrivateRoute exact path='/edits' component={EditsPage} req={4} />
 					<Route exact path='/' render={(props) => (
 						<Redirect to={{pathname: '/search'}} />
 					)}/>
@@ -23,7 +27,19 @@ export class SearchContainer extends Component {
 						<SearchResult {...props} />
 					)}/>
 					<Route path='/school/:id' component={SchoolResult} />
-					<Route path='/match/:id' component={MatchResult} />
+					<Route path='/person/:id' component={PersonResult} />
+					<Route path='/match/:id' render={props => (
+						<MatchResult {...props} specific={false} />
+					)} />
+					<Route exact path='/:round/:state/:year' render={props => (
+						<MatchResult {...props} specific={true} />
+					)} />
+					<Route path='/:round/:state/:region/:year' render={props => (
+						<MatchResult {...props} specific={true} />
+					)} />
+					<Route render={props => (
+						<h1>No fucking page here dumbass!</h1>
+					)} />
 				</Switch>
 			</div>
 		);

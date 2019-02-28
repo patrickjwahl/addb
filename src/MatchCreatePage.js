@@ -1,17 +1,22 @@
 import React, {Component} from 'react';
 import {SchoolSelectPage} from './SchoolSelectPage';
 import axios from 'axios';
+import API from './API';
+import matchImg from './assets/img/match.png';
 
 export class MatchCreatePage extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			year: '',
-			round: 'roundOne',
+			round: 'roundone',
 			region: '',
 			state: '',
 			date: '',
 			site: '',
+			hasDivisions: false,
+			incompleteData: false,
+			access: 1,
 			numObjs: 7,
 			numSubs: 3,
 			events: {
@@ -33,6 +38,9 @@ export class MatchCreatePage extends Component {
 
 		this.handleTextChange = this.handleTextChange.bind(this);
 		this.handleRoundChange = this.handleRoundChange.bind(this);
+		this.handleDivisionsChange = this.handleDivisionsChange.bind(this);
+		this.handleAccessChange = this.handleAccessChange.bind(this);
+		this.handleIncompleteChange = this.handleIncompleteChange.bind(this);
 		this.handleEventCheck = this.handleEventCheck.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
 	}
@@ -44,6 +52,18 @@ export class MatchCreatePage extends Component {
 
 	handleRoundChange(e) {
 		this.setState({round: e.target.value});
+	}
+
+	handleDivisionsChange(e) {
+		this.setState({hasDivisions: (e.target.value === 'divisions')});
+	}
+
+	handleAccessChange(e) {
+		this.setState({access: (e.target.value)});
+	}
+
+	handleIncompleteChange(e) {
+		this.setState({incompleteData: !this.state.incompleteData});
 	}
 
 	handleEventCheck(e) {
@@ -79,31 +99,33 @@ export class MatchCreatePage extends Component {
 		let formData = new FormData();
 		let studentData = document.querySelector('#student-data').files[0];
 		let teamData = document.querySelector('#team-data').files[0];
+		let overallData;
+		if (this.state.incompleteData) overallData = document.querySelector('#overall-data').files[0];
 		let address = `http://${window.location.hostname}:3001/api/matchcreate`;
-
-		console.log(this.state.date);
 
 		formData.append('studentData', studentData);
 		formData.append('teamData', teamData);
+		if (this.state.incompleteData) formData.append('overallData', overallData);
 		formData.append('year', this.state.year);
 		formData.append('round', this.state.round);
 		formData.append('region', this.state.region);
 		formData.append('state', this.state.state);
 		formData.append('date', this.state.date);
 		formData.append('site', this.state.site);
+		formData.append('hasDivisions', this.state.hasDivisions);
+		formData.append('access', this.state.access);
+		formData.append('incompleteData', this.state.incompleteData);
 
 		let events = this.state.events;
 		for (let key in events) {
 			formData.append(key, events[key]);
 		}
 
-		axios.post(address, formData, {
-		    headers: {
-		      'Content-Type': 'multipart/form-data'
-		    }
-		}).then(res => {
+		API.createMatch(formData)
+		.then(res => {
 			this.setState({serverData: res.data});
-		}).catch(err => {
+		})
+		.catch(err => {
 			console.log(err);
 		});
 	}
@@ -111,21 +133,21 @@ export class MatchCreatePage extends Component {
 	render() {
 
 		let regionSelect;
-		if (this.state.round !== 'state' && this.state.round !== 'national') {
+		if (this.state.round !== 'state' && this.state.round !== 'nationals') {
 			regionSelect = (
-				<div>
-					<label>Region:</label>
-					<input id='region' type='text' onChange={this.handleTextChange} value={this.state.region} />
+				<div className='form-field'>
+					<label className='form-label'>Region</label>
+					<input className='form-text-input' id='region' type='text' onChange={this.handleTextChange} value={this.state.region} />
 				</div>
 			);
 		}
 
 		let stateSelect;
-		if (this.state.round !== 'national') {
+		if (this.state.round !== 'nationals') {
 			stateSelect = (
-				<div>
-					<label>State:</label>
-					<input id='state' type='text' onChange={this.handleTextChange} value={this.state.state} />
+				<div className='form-field'>
+					<label className='form-label'>State</label>
+					<input className='form-text-input' id='state' type='text' onChange={this.handleTextChange} value={this.state.state} />
 				</div>
 			);
 		}
@@ -133,83 +155,107 @@ export class MatchCreatePage extends Component {
 		let retval;
 		if (!this.state.serverData) {
 			retval = (
-				<form onSubmit={this.handleSubmit}>
-					<div>
-						<label>Year:</label>
-						<input id='year' type='text' onChange={this.handleTextChange} value={this.state.year} />
+				<form className='form-container' onSubmit={this.handleSubmit}>
+					<img src={matchImg} width={200} style={{margin:'10px 0'}} />
+					<div className='form-field'>
+						<label className='form-label'>Year</label>
+						<input className='form-text-input' id='year' type='text' onChange={this.handleTextChange} value={this.state.year} />
 					</div>
-					<div>
-						<label>Round:</label>
-						<select id='round' onChange={this.handleRoundChange}>
-							<option value="roundOne">Round One</option>
-							<option value="regional">Regional</option>
+					<div className='form-field'>
+						<label className='form-label'>Round</label>
+						<select className='form-select' id='round' onChange={this.handleRoundChange}>
+							<option value="roundone">Round One</option>
+							<option value="regionals">Regionals</option>
 							<option value="state">State</option>
-							<option value="national">National</option>
+							<option value="nationals">Nationals</option>
 						</select>
 					</div>
 					{regionSelect}
 					{stateSelect}
-					<div>
-						<label>Date:</label>
-						<input id='date' type='text' onChange={this.handleTextChange} value={this.state.date} />
+					<div className='form-field'>
+						<label className='form-label'>Date</label>
+						<input className='form-text-input' id='date' type='text' onChange={this.handleTextChange} value={this.state.date} />
 					</div>
-					<div>
-						<label>Site:</label>
-						<input id='site' type='text' onChange={this.handleTextChange} value={this.state.site} />
+					<div className='form-field'>
+						<label className='form-label'>Site</label>
+						<input className='form-text-input' id='site' type='text' onChange={this.handleTextChange} value={this.state.site} />
 					</div>
-					<div>
+					<div style={{textAlign:'left'}} className='form-field'>
 						<div>
-							<label htmlFor='math'>Math</label>
+							<label style={{display:'inline-block', margin:'0 5px'}} className='form-label' htmlFor='math'>Math</label>
 							<input value='obj' type='checkbox' checked={this.state.events.math} id='math' onChange={this.handleEventCheck} />
 						</div>
 						<div>
-							<label htmlFor='music'>Music</label>
+							<label style={{display:'inline', margin:'0 5px'}} className='form-label' htmlFor='music'>Music</label>
 							<input value='obj' type='checkbox' checked={this.state.events.music} id='music' onChange={this.handleEventCheck} />
 						</div>
 						<div>
-							<label htmlFor='econ'>Econ</label>
+							<label style={{display:'inline', margin:'0 5px'}} className='form-label' htmlFor='econ'>Econ</label>
 							<input value='obj' type='checkbox' checked={this.state.events.econ} id='econ' onChange={this.handleEventCheck} />
 						</div>
 						<div>
-							<label htmlFor='science'>Science</label>
+							<label style={{display:'inline', margin:'0 5px'}} className='form-label' htmlFor='science'>Science</label>
 							<input value='obj' type='checkbox' checked={this.state.events.science} id='science' onChange={this.handleEventCheck} />
 						</div>
 						<div>
-							<label htmlFor='lit'>Lit</label>
+							<label style={{display:'inline-block', margin:'0 5px'}} className='form-label' htmlFor='lit'>Lit</label>
 							<input value='obj' type='checkbox' checked={this.state.events.lit} id='lit' onChange={this.handleEventCheck} />
 						</div>
 						<div>
-							<label htmlFor='art'>Art</label>
+							<label style={{display:'inline-block', margin:'0 5px'}} className='form-label' htmlFor='art'>Art</label>
 							<input value='obj' type='checkbox' checked={this.state.events.art} id='art' onChange={this.handleEventCheck} />
 						</div>
 						<div>
-							<label htmlFor='socialScience'>Social Science</label>
+							<label style={{display:'inline-block', margin:'0 5px'}} className='form-label' htmlFor='socialScience'>Social Science</label>
 							<input value='obj' type='checkbox' checked={this.state.events.socialScience} id='socialScience' onChange={this.handleEventCheck} />
 						</div>
 						<div>
-							<label htmlFor='essay'>Essay</label>
+							<label style={{display:'inline-block', margin:'0 5px'}} className='form-label' htmlFor='essay'>Essay</label>
 							<input value='sub' type='checkbox' checked={this.state.events.essay} id='essay' onChange={this.handleEventCheck} />
 						</div>
 						<div>
-							<label htmlFor='speech'>Speech</label>
+							<label style={{display:'inline-block', margin:'0 5px'}} className='form-label' htmlFor='speech'>Speech</label>
 							<input value='sub' type='checkbox' checked={this.state.events.speech} id='speech' onChange={this.handleEventCheck} />
 						</div>
 						<div>
-							<label htmlFor='interview'>Interview</label>
+							<label style={{display:'inline-block', margin:'0 5px'}} className='form-label' htmlFor='interview'>Interview</label>
 							<input value='sub' type='checkbox' checked={this.state.events.interview} id='interview' onChange={this.handleEventCheck} />
 						</div>
 					</div>
-					<div>
-						<label>Upload Student Data:</label>
+					<div className='form-field'>
+						<label className='form-label'>Divisions</label>
+						<select className='form-select' id='divs' value={this.state.hasDivisions ? 'divisions': 'na'} onChange={this.handleDivisionsChange}>
+							<option value="na">N/A</option>
+							<option value="divisions">Divisions</option>
+						</select>
+					</div>
+					<div className='form-field'>
+						<label className='form-label'>Access Level</label>
+						<select className='form-select' id='acce' onChange={this.handleAccessChange} value={this.state.access}>
+							<option value='1'>1 - Public</option>
+							{API.accessLevel() > 1 ? <option value='2'>2 - Privileged</option> : (null)}
+							{API.accessLevel() > 2 ? <option value='3'>3 - Secret</option> : (null)}
+						</select>
+					</div>
+					<div className='form-field'>
+						<label style={{display:'inline-block', margin:'0 5px', width:'75%'}} className='form-label' className='form-label' htmlFor='incom'>Does this competition have incomplete student event data?</label>
+						<input type='checkbox' checked={this.state.incompleteData} id='incom' onChange={this.handleIncompleteChange} />
+					</div>
+					<div className='form-field'>
+						<label className='form-label'>Upload Student Breakdown Data:</label>
 						<input id='student-data' type='file' accept='.csv' />
 					</div>
-					<div>
-						<label>Upload Team Data:</label>
+					{this.state.incompleteData ? (
+						<div className='form-field'>
+							<label className='form-label'>Upload Student Overall Data:</label>
+							<input id='overall-data' type='file' accept='.csv' />
+						</div> ): (null)
+					}
+					<div className='form-field'>
+						<label className='form-label'>Upload Team Data:</label>
 						<input id='team-data' type='file' accept='.csv' />
 					</div>
-					<div>
-						<input type='submit' value='Submit' />
-					</div>
+					<input className='form-submit' type='submit' value='Continue' />
 				</form>
 			);
 		} else {
