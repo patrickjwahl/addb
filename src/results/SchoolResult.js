@@ -1,8 +1,7 @@
 import React, {Component} from 'react';
-import './styles.css';
+import '../styles.css';
 import {Link} from 'react-router-dom';
-import axios from 'axios';
-import API from './API';
+import API from '../API';
 
 export class SchoolResult extends Component {
 	constructor(props) {
@@ -23,7 +22,7 @@ export class SchoolResult extends Component {
 	}
 
 	getSchool() {
-		axios.get(`http://localhost:3001/api/school/${this.props.match.params.id}`)
+		API.getSchool(this.props.match.params.id)
 			.then(res => {
 				let school = res.data;
 				let newEdits = {
@@ -33,6 +32,15 @@ export class SchoolResult extends Component {
 					city: school.city,
 					region: school.region,
 					district: school.district
+				};
+				for (let i = 0; i < res.data.teams.length; i++) {
+					res.data.teams[i].seasons = res.data.teams[i].seasons.sort((a, b) => {
+						let no1 = parseFloat(a.year);
+						let no2 = parseFloat(b.year);
+			
+						let result = (no1 > no2) ? -1 : 1;
+						return result;
+					});
 				}
 				this.setState({result: res, edits: newEdits});
 			})
@@ -130,62 +138,67 @@ export class SchoolResult extends Component {
 
 		if (this.state.result.data._id) {
 			let school = this.state.result.data;
-			let seasonData;
-			if (school.seasons.length > 0) {
-				seasonData = (
+			let teamData;
+			if (school.teams.length > 0) {
+				teamData = (
 					<div>
 					<div className='info-page-section'>Match Results</div>
-					<table className='info-page-table'>
-					<tbody>
-						<tr className='info-page-table-first-row'>
-							<td>Year</td>
-							<td>Round One</td>
-							<td>Regionals</td>
-							<td>State</td>
-							<td>Nationals</td>
-						</tr>
-					{
-						school.seasons.map((season) => {
-							let roundone = (season.roundone) ? 
-								(<td className='is-link'>
-									<Link to={`/match/${season.roundoneId}?school=${school._id}`}>{season.roundone}</Link>
-								</td>
-								) : (<td>-</td>);
+					{school.teams.map(team => (
+					<div key={team.teamName}>
+						<div className='info-page-subsection'>{team.teamName}</div>
+						<table className='info-page-table'>
+						<tbody>
+							<tr className='info-page-table-first-row'>
+								<td>Year</td>
+								<td>Round One</td>
+								<td>Regionals</td>
+								<td>State</td>
+								<td>Nationals</td>
+							</tr>
+						{
+							team.seasons.map((season) => {
+								let roundone = (season.roundone) ? 
+									(<td className='is-link'>
+										<Link to={`/match/${season.roundoneId}?school=${school._id}`}>{season.roundone}</Link>
+									</td>
+									) : (<td>-</td>);
 
-							let regionals = (season.regionals) ? 
-								(<td className='is-link'>
-									<Link to={`/match/${season.regionalsId}?school=${school._id}`}>{season.regionals}</Link>
-								</td>
-								) : (<td>-</td>);
+								let regionals = (season.regionals) ? 
+									(<td className='is-link'>
+										<Link to={`/match/${season.regionalsId}?school=${school._id}`}>{season.regionals}</Link>
+									</td>
+									) : (<td>-</td>);
 
-							let state = (season.state) ? 
-								(<td className='is-link'>
-									<Link to={`/match/${season.stateId}?school=${school._id}`}>{season.state}</Link>
-								</td>
-								) : (<td>-</td>);
+								let state = (season.state) ? 
+									(<td className='is-link'>
+										<Link to={`/match/${season.stateId}?school=${school._id}`}>{season.state}</Link>
+									</td>
+									) : (<td>-</td>);
 
-							let nationals = (season.nationals) ? 
-								(<td className='is-link'>
-									<Link to={`/match/${season.nationalsId}?school=${school._id}`}>{season.nationals}</Link>
-								</td>
-								) : (<td>-</td>);
+								let nationals = (season.nationals) ? 
+									(<td className='is-link'>
+										<Link to={`/match/${season.nationalsId}?school=${school._id}`}>{season.nationals}</Link>
+									</td>
+									) : (<td>-</td>);
 
 
-							return (<tr key={season.year}>
-								<td>{season.year}</td>
-								{roundone}
-								{regionals}
-								{state}
-								{nationals}
-							</tr>);
-						})
-					}
+								return (<tr key={season.year}>
+									<td>{season.year}</td>
+									{roundone}
+									{regionals}
+									{state}
+									{nationals}
+								</tr>);
+							})
+						}
 					</tbody>
 					</table>
 					</div>
+					))}
+					</div>
 				);
 			} else {
-				seasonData = <div className='search-result-none'>No season data yet!</div>
+				teamData = <div className='search-result-none'>No season data yet!</div>
 			}
 
 			let title;
@@ -230,7 +243,7 @@ export class SchoolResult extends Component {
 						<div className='info-third-title'>{thirdTitle}</div>
 						{editButtons}
 					</div>
-					{seasonData}
+					{teamData}
 				</div>
 			);
 		}

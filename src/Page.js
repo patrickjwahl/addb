@@ -1,15 +1,16 @@
 import React, {Component} from 'react';
 import './styles.css';
 import {Link, Switch, Route} from 'react-router-dom';
-import {SearchContainer} from './SearchContainer';
-import {MatchCreatePage} from './MatchCreatePage';
-import {PeopleMerger} from './PeopleMerger';
-import SchoolCreatePage from './SchoolCreatePage';
+import {SearchContainer} from './results/SearchContainer';
+import {MatchCreatePage} from './admin/MatchCreatePage';
+import {PeopleMerger} from './admin/PeopleMerger';
+import SchoolCreatePage from './admin/SchoolCreatePage';
 import Login from './Login';
 import API from './API';
 import PrivateRoute from './PrivateRoute';
-import CreateUser from './CreateUser';
+import CreateUser from './admin/CreateUser';
 import Register from './Register';
+import EditingGuide from './admin/EditingGuide';
 
 export class Page extends Component {
 	render() {
@@ -23,7 +24,10 @@ export class Page extends Component {
 					<Link to='/schoolcreate' className='page-link'>New School</Link>
 					{' ○ '}
 					<Link to='/peoplemerger' className='page-link'>PeopleMerger-9000</Link>
-					{' ○ '} </div> ) : (null)} {API.accessLevel() === 4 ? (<div style={{display: 'inline'}}>
+					{' ○ '}
+					<Link to='/editingguide' className='page-link'>Editing Guide</Link>
+					{' ○ '}
+					 </div> ) : (null)} {API.accessLevel() === 4 ? (<div style={{display: 'inline'}}>
 						<Link to='/edits' className='page-link'>Recent Edits</Link>
 						{' ○ '}
 					</div>) : (null)}
@@ -56,18 +60,19 @@ export class Page extends Component {
 					<PrivateRoute exact path='/matchcreate' component={MatchCreatePage} req='edit' />
 					<PrivateRoute exact path='/schoolcreate' component={SchoolCreatePage} req='edit' />
 					<PrivateRoute exact path='/peoplemerger' component={PeopleMerger} req='edit' />
+					<PrivateRoute exact path='/editingguide' component={EditingGuide} req='edit' />
 					<Route exact path='/login' component={Login} />
 					<Route exact path='/register' component={Register} />
 					<Route render={(props) => (
 						<div>
-							<h2 className='welcome'>Welcome to the AD-DB!</h2>
+							<h2 className='welcome'>The AcDec Database</h2>
 							<SearchContainer />
 						</div>
 					)} />
 				</Switch>
 				</div>
 				<div className='header-links'>
-					© 2019 MassDecathlon ○ {loginLink}
+					{loginLink}
 				</div>
 			</div>
 		);

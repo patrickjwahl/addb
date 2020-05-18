@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import {SchoolSelect} from './SchoolSelect';
 import { Link } from 'react-router-dom';
-import './styles.css';
-import API from './API';
+import '../styles.css';
+import API from '../API';
 
 export class SchoolSelectPage extends Component {
 	constructor(props) {
@@ -11,7 +11,7 @@ export class SchoolSelectPage extends Component {
 		let schools = [];
 		for (let i = 0; i < props.data.teamData.length; i++) {
 			schools.push({
-				name: props.data.teamData[i].school,
+				teamName: props.data.teamData[i].teamName,
 				suggestion: props.data.teamData[i].suggestion,
 				selected: '',
 				selectedName: '',
@@ -20,12 +20,6 @@ export class SchoolSelectPage extends Component {
 			});
 		}
 		
-		props.data.studentData.forEach(student => {
-			if (student.team === '53') {
-				console.log(student);
-			}
-		});
-
 		this.state = {schools: schools, done: false, matchId: ''};
 
 		this.selectSchool = this.selectSchool.bind(this);
@@ -57,9 +51,9 @@ export class SchoolSelectPage extends Component {
 
 	unselectSchool = (id) => {
 		let schools = this.state.schools;
-		let schoolName = schools[id].name;
+		let teamName = schools[id].teamName;
 		const newData = {
-			name: schoolName,
+			teamName: teamName,
 			selected: '',
 			selectedName: '',
 			selectedCity: '',
@@ -79,10 +73,10 @@ export class SchoolSelectPage extends Component {
 		let schools = this.state.schools;
 
 		for (let i = 0; i < schools.length; i++) {
-			let name = schools[i].name;
+			let name = schools[i].teamName;
 			let matchingTeamIndex = 0;
 			for (let j = 0; j < teamData.length; j++) {
-				if (teamData[j].school === name) {
+				if (teamData[j].teamName === name) {
 					matchingTeamIndex = j;
 					break;
 				}
@@ -90,6 +84,7 @@ export class SchoolSelectPage extends Component {
 			let matchingTeam = teamData[matchingTeamIndex];
 			if (schools[i].selected) {
 				matchingTeam.id = schools[i].selected._id;
+				matchingTeam.school = schools[i].selectedName;
 			} else {
 				matchingTeam.id = undefined;
 			}
@@ -110,7 +105,7 @@ export class SchoolSelectPage extends Component {
 		let schoolForm = (
 			<form className='form-container' onSubmit={this.handleSubmit}>
 			{
-				this.state.schools.map((school, index) => (<SchoolSelect key={index} schoolname={school.name} suggestion={school.suggestion} selectId={index} 
+				this.state.schools.map((school, index) => (<SchoolSelect key={index} schoolname={school.teamName} suggestion={school.suggestion} selectId={index} shouldColor
 					selectedName={school.selectedName} selectedCity={school.selectedCity} selectedState={school.selectedState} selectSchool={this.selectSchool} unselectSchool={this.unselectSchool} />))
 			}
 				<input className='form-submit' type='submit' value='Create Match' />

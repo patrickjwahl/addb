@@ -76,6 +76,7 @@ input[type="submit"] {
 .welcome {
 	text-align: center;
 	color: #828282;
+	font-size: 22px;
 }
 
 .header-main {
@@ -234,6 +235,12 @@ input[type="submit"] {
 	font-weight: bold;
 	font-size: 20px;
 	margin-top: 20px;
+}
+
+.info-page-subsection {
+	font-size: 13px;
+	text-transform: uppercase;
+	margin-top: 15px;
 }
 
 .info-page-subhead {
@@ -416,6 +423,9 @@ input[type="submit"] {
 
 .form-field {
 	margin-bottom: 12px;
+	padding-left: 3px;
+	padding: 3px;
+	border-radius: 5px;
 }
 
 .form-submit {
@@ -486,6 +496,7 @@ input[type="submit"] {
 
 .form-select:focus {
 	outline: none;
+	box-shadow: 0 0 5px 0 #ff3b3f;
 }
 
 .selected-school {
@@ -506,4 +517,57 @@ input[type="submit"] {
 
 .selected-school-button:focus {
 	outline: none;
+}
+
+.state-result-list {
+	display: flex;
+	margin-top: 20px;
+	margin-left: 100px;
+	margin-right: 100px;
+}
+
+.flex-column {
+	flex-grow: 1;
+	flex-basis: 0;
+	margin: 0 10px;
+}
+
+.flex-column-big {
+	flex-grow: 3;
+	flex-basis: 0;
+	margin: 0 10px;
+}
+
+.centered {
+	text-align: center;
+}
+
+.state-list-container {
+	margin-top: 16px;
+}
+
+.state-list-object {
+	color: black;
+	text-align: center;
+	width: 200px;
+	float: left;
+	margin: 0 5px;
+	background-color: white;
+	padding: 5px;
+	margin-bottom: 5px;
+	border: 1px solid #ff3b3f;
+	cursor: pointer;
+}
+
+.state-list-object:hover {
+	box-shadow: 0 0 5px 0 #ff3b3f;
+}
+
+.state-list-object img { 
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+.state-button-title {
+	font-size: 16px;
 }

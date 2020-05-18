@@ -11,7 +11,7 @@ var MatchSchema = new Schema({
 	round: String,
 	region: String,
 	state: String,
-	date: String,
+	date: Date,
 	site: String,
 	incompleteData: Boolean,
 	hasDivisions: Boolean,
@@ -34,6 +34,7 @@ var MatchSchema = new Schema({
 		{
 			id: String,
 			school: String,
+			teamName: String,
 			team: String,
 			gpa: String,
 			decathlete: String,
@@ -55,6 +56,7 @@ var MatchSchema = new Schema({
 	teams: [
 		{
 			rank: Number,
+			teamName: String,
 			school: String,
 			overall: String,
 			objs: String,

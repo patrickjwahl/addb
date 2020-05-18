@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
-import API from './API';
-import schoolImg from './assets/img/school.jpg';
+import API from '../API';
+import schoolImg from '../assets/img/school.jpg';
+import { stateNames } from '../util/consts';
 
 class SchoolCreatePage extends Component {
 	constructor(props) {
@@ -10,7 +11,7 @@ class SchoolCreatePage extends Component {
 				name: '',
 				fullName: '',
 				city: '',
-				state: '',
+				state: stateNames[0],
 				region: '',
 				district: ''
 			},
@@ -19,6 +20,7 @@ class SchoolCreatePage extends Component {
 
 		this.handleTextChanged = this.handleTextChanged.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
+		this.handleStateChanged = this.handleStateChanged.bind(this);
 	}
 
 	handleTextChanged(e) {
@@ -26,6 +28,10 @@ class SchoolCreatePage extends Component {
 		let id = e.target.id;
 		schoolData[id] = e.target.value;
 		this.setState({schoolData: schoolData});
+	}
+
+	handleStateChanged(e) {
+		this.setState({state: e.target.value});
 	}
 
 	handleSubmit(e) {
@@ -50,7 +56,7 @@ class SchoolCreatePage extends Component {
 					<img src={schoolImg} width={150} style={{margin:'10px 0'}} />
 					<div className='form-field'>
 						<label className='form-label'>Name</label>
-						<input className='form-text-input' type='text' id='name' onChange={this.handleTextChanged} value={this.state.schoolData.name} />
+						<input className='form-text-input' type='text' id='name' onChange={this.handleTextChanged} value={this.state.schoolData.name} autoFocus />
 					</div>
 					<div className='form-field'>
 						<label className='form-label'>Full Name</label>
@@ -62,7 +68,13 @@ class SchoolCreatePage extends Component {
 					</div>
 					<div className='form-field'>
 						<label className='form-label'>State</label>
-						<input className='form-text-input' type='text' id='state' onChange={this.handleTextChanged} value={this.state.schoolData.state} />
+						<select className='form-select' id='state' onChange={this.handleStateChanged} value={this.state.state}>
+							{
+								stateNames.map(name => (
+									<option key={name} value={name}>{name}</option>
+								))
+							}
+						</select>
 					</div>
 					<div className='form-field'>
 						<label className='form-label'>Region</label>

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {withRouter, Link} from 'react-router-dom';
-import './styles.css';
-import API from './API';
+import '../styles.css';
+import API from '../API';
 
 var mouseDownHappened = false;
 var intervalId = 0;

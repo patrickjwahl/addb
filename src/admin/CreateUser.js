@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
-import API from './API';
-import { Redirect } from 'react-router-dom';
+import API from '../API';
 
 class CreateUser extends Component {
     constructor(props) {

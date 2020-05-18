@@ -1,10 +1,9 @@
 import axios from 'axios';
 
 class API {
-    constructor(domain) {
-        this.apiEndpoint = domain + '/api';
+    constructor() {
         this.axios = axios.create({
-            baseURL: this.apiEndpoint
+            baseURL: '/api/'
         });
     }
 
@@ -21,11 +20,11 @@ class API {
                 }
                 localStorage.setItem('authToken', res.data.token);
                 localStorage.setItem('expiresAt', res.data.expiresIn + new Date().getTime());
-                localStorage.setItem('canEdit', res.data.canEdit);
+                localStorage.setItem('canEdit', res.data.canEdit.toString());
                 localStorage.setItem('access', res.data.access);
                 localStorage.setItem('username', res.data.username);
                 this.axios = axios.create({
-                    baseURL: this.apiEndpoint,
+                    baseURL: '/api/',
                     headers: {
                         'x-access-token': res.data.token
                     }
@@ -58,7 +57,7 @@ class API {
         localStorage.removeItem('canEdit');
         localStorage.removeItem('username');
         this.axios = axios.create({
-            baseURL: this.apiEndpoint
+            baseURL: '/api/'
         });
     };
 
@@ -84,7 +83,7 @@ class API {
             let expiresAt = localStorage.getItem('expiresAt');
             if (new Date().getTime() < expiresAt) {
                 this.axios = axios.create({
-                    baseURL: this.apiEndpoint,
+                    baseURL: '/api/',
                     headers: {
                         'x-access-token': token
                     }
@@ -135,6 +134,14 @@ class API {
         });
     };
 
+    getSchool = id => {
+        return this.axios.get(`/school/${id}`);
+    };
+
+    getPerson = id => {
+        return this.axios.get(`/person/${id}`);
+    }
+
     mergePeople = (godId, peonId) => {
         return this.axios.post(`/mergepeople/${godId}/${peonId}`);
     };
@@ -163,6 +170,14 @@ class API {
     getMatchSpecific = (round, region, state, year) => {
         return this.axios.get(`/match/${round}/${state ? state + '/': ''}${region ? region + '/' : ''}${year}`);
     };
+
+    getRecentMatches = () => {
+        return this.axios.get('/recent');
+    };
+
+    getStateResults = (state) => {
+        return this.axios.get(`/state/${state}`);
+    }
 
     updatePerson = (id, edits) => {
         return this.axios.post(`/person/${id}`, {
@@ -198,5 +213,5 @@ class API {
     };
 }
 
-const api = new API('http://localhost:3001');
+const api = new API();
 export default api;

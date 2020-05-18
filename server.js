@@ -4,7 +4,7 @@ var express = require('express');
 var mongoose = require('mongoose');
 const path = require('path');
 var multer = require('multer');
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcrypt-nodejs');
 var jwt = require('jsonwebtoken');
 var parse = require('csv-parse/lib/sync');
 var bodyParser = require('body-parser');
@@ -120,9 +120,9 @@ router.route('/user')
 		let username = req.body.username;
 		let password = req.body.password;
 		let access = req.body.access;
-		let canEdit = req.body.canEdit === 'true';
+		let canEdit = req.body.canEdit;
 
-		bcrypt.hash(password, 10, function(err, hash) {
+		bcrypt.hash(password, null, null, function(err, hash) {
 			let user = new User();
 			user.username = username;
 			user.passhash = hash;
@@ -262,18 +262,49 @@ router.route('/matchcreate')
 			});
 			return;
 		}
-		let studentCols = ['school', 'team', 'gpa', 'decathlete'];
+
+		const requiredFields = ['year', 'round', 'region', 'state', 'date'];
+		let missingFields = requiredFields.filter(field => {
+			if (!req.body[field]) {
+				return true;
+			} else {
+				return false;
+			}
+		});
+
+		if (missingFields.length > 0) {
+			res.json({
+				success: false,
+				message: `Missing ${missingFields.join(', ')}`
+			});
+			return;
+		}
+
+		if (!req.files['studentData'] || !req.files['studentData'] || ((req.body.incompleteData === 'true') && !req.files['overallData'])) {
+			res.json({
+				success: false,
+				message: "Missing one or more required csv files."
+			});
+			return;
+		}
+
+		let studentCols = ['teamName', 'team', 'gpa', 'decathlete'];
 		for (let i = 0; i < categories.length; i++) {
 			if (req.body[categories[i]] == 'true') {
 				studentCols.push(categories[i]);
 			}
 		}
-		let studentData = parse(req.files['studentData'][0].buffer.toString(), {columns: studentCols});
+
+		let studentData = [];
+		if (req.files['studentData']) {
+			studentData = parse(req.files['studentData'][0].buffer.toString(), {columns: studentCols});
+		}
+		
 		let studentMapping = {};
 		studentData.forEach(row => {
-			studentMapping[`${row.decathlete}...${row.school}`] = true;
+			studentMapping[`${row.decathlete}...${row.teamName}`] = true;
 		});
-		let teamCols = ['rank', 'school', 'overall'];
+		let teamCols = ['rank', 'teamName', 'overall'];
 		if (!(req.body.incompleteData === 'true')) {
 			teamCols.push('objs');
 			teamCols.push('subs');
@@ -285,10 +316,10 @@ router.route('/matchcreate')
 
 		let overallData = [], overallMapping = {};
 		if (req.body.incompleteData === 'true') {
-			let overallCols = ['gpa', 'decathlete', 'school', 'overall'];
+			let overallCols = ['gpa', 'decathlete', 'teamName', 'overall'];
 			overallData = parse(req.files['overallData'][0].buffer.toString(), {columns: overallCols});
 			overallData.forEach(row => {
-				overallMapping[`${row.decathlete}...${row.school}`] = row.overall;
+				overallMapping[`${row.decathlete}...${row.teamName}`] = row.overall;
 			});
 		}
 		studentData.forEach(student => {
@@ -307,18 +338,19 @@ router.route('/matchcreate')
 			if (!(req.body.incompleteData === 'true')) {
 				student.overall = Math.round(overall * 10) / 10;
 			} else {
-				student.overall = overallMapping[`${student.decathlete}...${student.school}`];
+				student.overall = overallMapping[`${student.decathlete}...${student.teamName}`];
 			}
 			student.objs = Math.round(objs * 10) /10;
 			student.subs = Math.round(subs * 10) / 10;
 			student.gpa = gpaMap[student.gpa] || student.gpa;
+			student.teamName = student.teamName.trim();
 		});
 
 		overallData.forEach(row => {
-			if (!studentMapping[`${row.decathlete}...${row.school}`]) {
+			if (!studentMapping[`${row.decathlete}...${row.teamName}`]) {
 				studentData.push({
 					decathlete: row.decathlete,
-					school: row.school,
+					teamName: row.teamName,
 					overall: row.overall,
 					gpa: row.gpa
 				});
@@ -327,12 +359,12 @@ router.route('/matchcreate')
 
 		let dbCalls = [];
 		teamData.forEach(team => {
+			team.teamName = team.teamName.trim();
 			['overall', 'objs', 'subs'].forEach(category => {
 				team[category] = numberWithCommas(parseFloat(team[category]));
 			});
 			dbCalls.push(School.findOne({$or: [
-					{'name': {'$regex': `^${team.school}`, '$options': 'i'}},
-					{'fullName': {'$regex': `^${team.school}`, '$options': 'i'}}
+					{'name': team.teamName}
 				]}));
 		});
 
@@ -358,7 +390,8 @@ router.route('/match/:id')
 				res.send(err);
 				return;
 			}
-			if (req.access < match.access) {
+			console.log('right he');
+			if (match != null && req.access < match.access) {
 				match = removeBreakdownsFromMatch(match);
 			}
 			res.json(match);
@@ -414,7 +447,7 @@ router.route('/match/:id')
 				let edit = new Edit();
 				edit.user = req.username;
 				edit.datetime = new Date();
-				edit.summary = `CREATE MATCH: ${match.year} ${match.round}`;
+				edit.summary = `DELETE MATCH: ${match.year} ${match.round}`;
 				edit.summary += ((match.round !== 'nationals') ? ' ' + match.state : '')
 				edit.summary += ((match.round !== 'nationals' && match.round !== 'state') ? ' ' + match.region : '');
 				edit.save(function(err) {
@@ -447,7 +480,7 @@ router.route('/match/:round/:state/:param1/:param2?')
 			searchTerm.region = region.replace('_', ' ');
 		}
 		Match.findOne(searchTerm, function(err, match) {
-			if (err) {
+			if (err || !match) {
 				res.send(err);
 				return;
 			}
@@ -476,7 +509,7 @@ router.route('/match')
 		match.round = matchData.round;
 		match.region = matchData.region;
 		match.state = matchData.state;
-		match.date = matchData.date;
+		match.date = new Date(matchData.date);
 		match.site = matchData.site;
 		match.hasDivisions = matchData.hasDivisions === 'true';
 		match.access = matchData.access;
@@ -506,24 +539,28 @@ router.route('/match')
 		let newSchools = [];
 		let newIndices = [];
 
+		// For every team, if the team's school is not specified by the user, add it to the list of schools to be created
 		match.teams.forEach((team, i) => {
 			if (!team.id) {
 				let school = {};
-				school.name = team.school;
+				school.name = team.teamName;
 				school.city = '';
 				school.state = (match.round !== 'nationals') ? match.state : '';
 				school.region = (match.round !== 'state' && match.round !== 'nationals') ? match.region : '';
 				school.district = '';
-				school.seasons = [{
-					year: match.year, 
-					roundone: '',
-					roundoneId: '',
-					regionals: '',
-					regionalsId: '',
-					state: '',
-					stateId: '',
-					nationals: '',
-					nationalsId: ''
+				school.teams = [{
+					teamName: team.teamName,
+					seasons: [{
+						year: match.year, 
+						roundone: '',
+						roundoneId: '',
+						regionals: '',
+						regionalsId: '',
+						state: '',
+						stateId: '',
+						nationals: '',
+						nationalsId: ''
+					}]
 				}];
 
 				newSchools.push(school);
@@ -531,21 +568,37 @@ router.route('/match')
 			}
 		});
 
+		// Create all the schools. Assign the newly created school IDs to the corresponding teams.
 		School.create(newSchools, function(err, schools) {
 			newIndices.forEach((index, i) => {
 				match.teams[index].id = schools[i].id;
+				match.teams[index].school = schools[i].name;
 			});
 
+			// Get a mapping of team names to IDs.
 			let schoolToId = {};
 			match.teams.forEach(team => {
 				schoolToId[team.school] = team.id;
 			});
 
+			// Get a mapping of team names to schools
+			let teamNameToSchool = {};
+			match.teams.forEach(team => {
+				teamNameToSchool[team.teamName] = team.school;
+			});
+
+			// Assign each student to a school based on their team name
+			match.students.forEach(student => {
+				student.school = teamNameToSchool[student.teamName];
+			});
+
+			// Create a DB call for each student, to find a person who already exists (with matching and school ID)
 			let studentCalls = [];
 			match.students.forEach(student => {
 				studentCalls.push(Person.findOne({'name': student.decathlete, 'schoolId': schoolToId[student.school]}));
 			});
 			
+			// Make try to find the students. Then 
 			Promise.all(studentCalls).then(result => {
 				for (let i = 0; i < match.students.length; i++) {
 					if (result[i]) {
@@ -588,7 +641,6 @@ router.route('/match')
 				});
 				Promise.all(schoolFinding).then(result => {
 					for (let i = 0; i < newPeople.length; i++) {
-						console.log(result[i]);
 						newPeople[i].city = result[i].city;
 						newPeople[i].state = result[i].state;
 						newPeople[i].fullSchool = result[i].fullName;
@@ -598,10 +650,21 @@ router.route('/match')
 						match.students[index].id = people[i].id;
 					});
 					match.save(function(err, match) {
+						if (err) console.log(err);
 						let id = match.id;
 						for (let i = 0; i < match.teams.length; i++) {
 							School.findOne({'_id': match.teams[i].id}, function(err, school) {
-								let seasons = school.seasons;
+								let teams = school.teams;
+								let teamIdx = -1;
+								for (let j = 0; j < teams.length; j++) {
+									if (teams[j].teamName === match.teams[i].teamName) {
+										teamIdx = j;
+									}
+								}
+
+								let teamToModify = teamIdx === -1 ? {teamName: match.teams[i].teamName, seasons: []} : teams[teamIdx];
+
+								let seasons = teamToModify.seasons;
 								let yearExists = false;
 								for (let j = 0; j < seasons.length; j++) {
 									if (seasons[j].year === match.year) {
@@ -628,7 +691,12 @@ router.route('/match')
 									seasons.push(newSeason);
 
 								}
-								school.seasons = seasons;
+								teamToModify.seasons = seasons;
+								if (teamIdx === -1) {
+									school.teams.push(teamToModify);
+								} else {
+									school.teams[teamIdx] = teamToModify;
+								}
 								school.save(function(err) {
 									if (err) {
 										console.log('err');
@@ -757,8 +825,17 @@ router.route('/matchstudent/:id')
 							res.send(500, {error: err});
 							return;
 						}
-						res.json({
-							success: true
+						let edit = new Edit();
+						edit.user = req.username;
+						edit.datetime = new Date();
+						edit.summary = `EDIT MATCH: ${match.year} ${match.round}`;
+						edit.summary += ((match.round !== 'nationals') ? ' ' + match.state : '')
+						edit.summary += ((match.round !== 'nationals' && match.round !== 'state') ? ' ' + match.region : '');
+						edit.summary += ` STUDENT: ${person.name}`;
+						edit.save(function(err) {
+							res.json({
+								success: true
+							});
 						});
 					});
 				});
@@ -780,16 +857,18 @@ router.route('/matchteam/:id')
 			let year = match.year;
 			let round = match.round;
 			let index = req.body.index;
+			let oldTeamName = teams[index].teamName;
 			teams[index].id = req.body.edits.id;
+			teams[index].teamName = req.body.edits.teamName;
 			teams[index].overall = req.body.edits.overall;
 			teams[index].objs = req.body.edits.objs;
 			teams[index].subs = req.body.edits.subs;
 			School.findOne({'_id': req.body.edits.id}, function(err, school) {
 				let students = [...match.students];
 				for (let i = 0; i < students.length; i++) {
-					if (students[i].school === teams[index].school) {
-						console.log(students[i].decathlete);
+					if (students[i].teamName === oldTeamName) {
 						students[i].school = school.name;
+						students[i].teamName = req.body.edits.teamName;
 					}
 				}
 				teams[index].school = school.name;
@@ -798,19 +877,69 @@ router.route('/matchteam/:id')
 						res.send(500, {error: err});
 						return;
 					}
-					let seasons = school.seasons;
-					seasons.forEach(season => {
+					let teamIdx = -1;
+					for (let i = 0; i < school.teams.length; i++) {
+						if (school.teams[i].teamName === req.body.edits.teamName) {
+							teamIdx = i;
+						} else if (oldTeamName !== req.body.edits.teamName && school.teams[i].teamName === oldTeamName) {
+							school.teams[i].seasons.forEach(season => {
+								if (season.year === match.year) {
+									season[match.round] = '';
+									season[`${match.round}Id`] = '';
+								}
+							});
+						}
+					}
+					let teamToModify = teamIdx === -1 ? {teamName: req.body.edits.teamName, seasons: [{
+							year: match.year, 
+							roundone: '',
+							roundoneId: '',
+							regionals: '',
+							regionalsId: '',
+							state: '',
+							stateId: '',
+							nationals: '',
+							nationalsId: ''
+						}]} : school.teams[teamToModify];
+					
+					teamToModify.seasons.forEach(season => {
 						if (season.year === year) {
-							season[round] = req.body.edits.overall
+							season[round] = req.body.edits.overall;
+							season[`${round}Id`] = req.params.id;
 						}
 					});
-					School.findOneAndUpdate({'_id': req.body.edits.id}, {seasons: seasons}, function(err, documents) {
+					if (teamIdx === -1) {
+						school.teams.push(teamToModify);
+					} else {
+						school.teams[teamIdx] = teamToModify;
+					}
+
+					// Clean up the school, removing teams with no seasons
+					let newTeams = [];
+					school.teams.forEach(team => {
+						if (team.seasons.length > 0) {
+							if (team.seasons.length > 1 || team.seasons[0].roundone || team.seasons[0].regionals || team.seasons[0].state || team.seasons[0].nationals) {
+								newTeams.push(team);
+							}
+						}
+					});
+
+					School.findOneAndUpdate({'_id': req.body.edits.id}, {teams: newTeams}, function(err, documents) {
 						if (err) {
 							res.send(500, {error: err});
 							return;
 						}
-						res.json({
-							success: true
+						let edit = new Edit();
+						edit.user = req.username;
+						edit.datetime = new Date();
+						edit.summary = `EDIT MATCH: ${match.year} ${match.round}`;
+						edit.summary += ((match.round !== 'nationals') ? ' ' + match.state : '')
+						edit.summary += ((match.round !== 'nationals' && match.round !== 'state') ? ' ' + match.region : '');
+						edit.summary += ` TEAM: ${school.name}`;
+						edit.save(function(err) {
+							res.json({
+								success: true
+							});
 						});
 					});
 				});
@@ -1001,7 +1130,7 @@ router.route('/school')
 		school.state = body.state;
 		school.region = body.region;
 		school.district = body.district;
-		school.seasons = [];
+		school.teams = [];
 
 		school.save(function(err) {
 			if (err) {
@@ -1042,6 +1171,58 @@ router.route('/edits')
 			res.json({
 				success: true,
 				edits: results
+			});
+		});
+	});
+
+router.route('/recent')
+	.get(function(req, res) {
+		Match.find().sort({date: -1}).limit(10).exec(function(err, results) {
+			if (err) {
+				res.json({
+					success: false,
+					err
+				});
+			}
+			results = results.map(r => ({
+				year: r.year,
+				round: r.round,
+				region: r.region,
+				state: r.state,
+				id: r._id
+			}));
+			res.json({
+				success: true,
+				matches: results
+			});
+		});
+	});
+
+router.route('/state/:name')
+	.get(function(req, res) {
+		let name = req.params.name.replace('_', ' ');
+		Match.find({state: name}).sort({date: -1}).exec(function(err, results) {
+			if (err) {
+				res.json({
+					success: false,
+					err
+				});
+			}
+			results = results.map(r => ({
+				id: r._id,
+				year: r.year,
+				round: r.round,
+				region: r.region,
+				first: r.teams[0].school,
+				firstScore: r.teams[0].overall,
+				second: r.teams[1].school,
+				secondScore: r.teams[1].overall,
+				third: r.teams[2].school,
+				thirdScore: r.teams[2].overall
+			}));
+			res.json({
+				success: true,
+				matches: results
 			});
 		});
 	});

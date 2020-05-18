@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import {SchoolSelectPage} from './SchoolSelectPage';
-import axios from 'axios';
-import API from './API';
-import matchImg from './assets/img/match.png';
+import API from '../API';
+import matchImg from '../assets/img/match.png';
+import { stateNames } from '../util/consts';
 
 export class MatchCreatePage extends Component {
 	constructor(props) {
@@ -11,7 +11,7 @@ export class MatchCreatePage extends Component {
 			year: '',
 			round: 'roundone',
 			region: '',
-			state: '',
+			state: stateNames[0],
 			date: '',
 			site: '',
 			hasDivisions: false,
@@ -33,6 +33,7 @@ export class MatchCreatePage extends Component {
 				objs: true,
 				subs: true
 			},
+			serverError: '',
 			serverData: '',
 		};
 
@@ -53,6 +54,10 @@ export class MatchCreatePage extends Component {
 	handleRoundChange(e) {
 		this.setState({round: e.target.value});
 	}
+	
+	handleStateChange = e => {
+		this.setState({state: e.target.value});
+	};
 
 	handleDivisionsChange(e) {
 		this.setState({hasDivisions: (e.target.value === 'divisions')});
@@ -96,12 +101,13 @@ export class MatchCreatePage extends Component {
 
 	handleSubmit(e) {
 		e.preventDefault();
+		this.setState({serverError: ''});
+
 		let formData = new FormData();
 		let studentData = document.querySelector('#student-data').files[0];
 		let teamData = document.querySelector('#team-data').files[0];
 		let overallData;
 		if (this.state.incompleteData) overallData = document.querySelector('#overall-data').files[0];
-		let address = `http://${window.location.hostname}:3001/api/matchcreate`;
 
 		formData.append('studentData', studentData);
 		formData.append('teamData', teamData);
@@ -123,7 +129,11 @@ export class MatchCreatePage extends Component {
 
 		API.createMatch(formData)
 		.then(res => {
-			this.setState({serverData: res.data});
+			if (res.data.success === false) {
+				this.setState({serverError: res.data.message});
+			} else {
+				this.setState({serverData: res.data});
+			}
 		})
 		.catch(err => {
 			console.log(err);
@@ -136,7 +146,7 @@ export class MatchCreatePage extends Component {
 		if (this.state.round !== 'state' && this.state.round !== 'nationals') {
 			regionSelect = (
 				<div className='form-field'>
-					<label className='form-label'>Region</label>
+					<label className='form-label'>Region*</label>
 					<input className='form-text-input' id='region' type='text' onChange={this.handleTextChange} value={this.state.region} />
 				</div>
 			);
@@ -146,8 +156,14 @@ export class MatchCreatePage extends Component {
 		if (this.state.round !== 'nationals') {
 			stateSelect = (
 				<div className='form-field'>
-					<label className='form-label'>State</label>
-					<input className='form-text-input' id='state' type='text' onChange={this.handleTextChange} value={this.state.state} />
+					<label className='form-label'>State*</label>
+					<select className='form-select' id='state' onChange={this.handleStateChange} value={this.state.state}>
+						{
+							stateNames.map(name => (
+								<option key={name} value={name}>{name}</option>
+							))
+						}
+					</select>
 				</div>
 			);
 		}
@@ -157,12 +173,13 @@ export class MatchCreatePage extends Component {
 			retval = (
 				<form className='form-container' onSubmit={this.handleSubmit}>
 					<img src={matchImg} width={200} style={{margin:'10px 0'}} />
+					<div style={{fontSize: '12px', textAlign: 'left', marginBottom: 10}}>* <i>indicates required field.</i></div>
 					<div className='form-field'>
-						<label className='form-label'>Year</label>
+						<label className='form-label'>Year*</label>
 						<input className='form-text-input' id='year' type='text' onChange={this.handleTextChange} value={this.state.year} />
 					</div>
 					<div className='form-field'>
-						<label className='form-label'>Round</label>
+						<label className='form-label'>Round*</label>
 						<select className='form-select' id='round' onChange={this.handleRoundChange}>
 							<option value="roundone">Round One</option>
 							<option value="regionals">Regionals</option>
@@ -173,7 +190,7 @@ export class MatchCreatePage extends Component {
 					{regionSelect}
 					{stateSelect}
 					<div className='form-field'>
-						<label className='form-label'>Date</label>
+						<label className='form-label'>Date*</label>
 						<input className='form-text-input' id='date' type='text' onChange={this.handleTextChange} value={this.state.date} />
 					</div>
 					<div className='form-field'>
@@ -256,6 +273,7 @@ export class MatchCreatePage extends Component {
 						<input id='team-data' type='file' accept='.csv' />
 					</div>
 					<input className='form-submit' type='submit' value='Continue' />
+					<div style={{color: '#ff3b3f'}}>{this.state.serverError}</div>
 				</form>
 			);
 		} else {

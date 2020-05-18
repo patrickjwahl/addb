@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
-import './styles.css';
-import API from './API';
+import '../styles.css';
+import API from '../API';
 import {Link} from 'react-router-dom';
+import {Home} from '../Home';
 
 export class SearchResult extends Component {
 	constructor(props) {
@@ -13,7 +14,7 @@ export class SearchResult extends Component {
 	performSearch() {
 		let query = this.props.location.search;
 		if (!query) return;
-		
+
 		API.search(query)
 		.then(res => {
 			this.setState({result: res});
@@ -41,8 +42,10 @@ export class SearchResult extends Component {
 
 		let resultsFound = false;
 
-		if (!this.state.result) {
-			retval = <div className='search-prompt'>Type in the search box to begin</div>;
+		if (!this.state.result && !this.props.location.search) {
+			retval = <Home />
+		} else if (!this.state.result) {
+			retval = <div>Loading...</div>
 		} else {
 			if (this.state.result.data.schools.length > 0) {
 				schoolResults = (

@@ -5,6 +5,7 @@
   "dependencies": {
     "axios": "^0.16.2",
     "bcrypt": "^3.0.2",
+    "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.17.2",
     "classnames": "^2.2.5",
     "concurrently": "^4.1.0",

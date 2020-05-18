@@ -1,9 +1,8 @@
 import React, {Component} from 'react';
-import './styles.css';
+import '../styles.css';
 import {Link} from 'react-router-dom';
-import axios from 'axios';
-import API from './API';
-import { SchoolSelect } from './SchoolSelect';
+import API from '../API';
+import { SchoolSelect } from '../admin/SchoolSelect';
 
 export class PersonResult extends Component {
 	constructor(props) {
@@ -22,7 +21,7 @@ export class PersonResult extends Component {
 	}
 
 	getPerson() {
-		axios.get(`http://localhost:3001/api/person/${this.props.match.params.id}`)
+		API.getPerson(this.props.match.params.id)
 			.then(res => {
 				let person = res.data;
                 if (person) {
@@ -32,7 +31,14 @@ export class PersonResult extends Component {
                         selectedSchoolName: '',
                         selectedSchoolCity: '',
                         selectedSchoolState: ''
-                    }
+					};
+					res.data.seasons = res.data.seasons.sort((a, b) => {
+						let no1 = parseFloat(a.year);
+						let no2 = parseFloat(b.year);
+			
+						let result = (no1 > no2) ? -1 : 1;
+						return result;
+					});
                     this.setState({result: res, edits: newEdits})
                 } else this.setState({result: res});
 			})
