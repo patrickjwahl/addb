@@ -9,7 +9,7 @@
     "body-parser": "^1.17.2",
     "classnames": "^2.2.5",
     "concurrently": "^4.1.0",
-    "csv-parse": "^1.2.1",
+    "csv-parse": "^4.4.6",
     "express": "^4.15.4",
     "express-session": "^1.15.6",
     "foreman": "^2.0.0",
