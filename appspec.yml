@@ -1,0 +1,10 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /var/www/addb/
+hooks:
+  AfterInstall:
+    - location: deploy/after_install
+      timeout: 300
+      runas: root
