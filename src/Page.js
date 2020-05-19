@@ -56,7 +56,7 @@ export class Page extends Component {
 				</div>
 				<div className='main-part'>
 				<Switch>
-					<Route exact path='/usercreate' component={CreateUser} />
+					<PrivateRoute exact path='/usercreate' component={CreateUser} req={4} />
 					<PrivateRoute exact path='/matchcreate' component={MatchCreatePage} req='edit' />
 					<PrivateRoute exact path='/schoolcreate' component={SchoolCreatePage} req='edit' />
 					<PrivateRoute exact path='/peoplemerger' component={PeopleMerger} req='edit' />
@@ -65,7 +65,7 @@ export class Page extends Component {
 					<Route exact path='/register' component={Register} />
 					<Route render={(props) => (
 						<div>
-							<h2 className='welcome'>The AcDec Database (under construxion)</h2>
+							<h2 className='welcome'>The AcDec Database (now in color)</h2>
 							<SearchContainer />
 						</div>
 					)} />

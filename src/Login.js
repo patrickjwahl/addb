@@ -39,25 +39,30 @@ class Login extends Component {
             loginResult = <div>{this.state.result.message}</div>
         } else {
             const { from } = this.props.location.state || { from: { pathname: '/' } };
-            console.log(from.pathname);
             loginResult = <Redirect to={{pathname: from.pathname}} />
         }
 
+        const { redirected } = this.props.location.state || false;
+        let admonishment = redirected ? <div style={{marginTop: 20}}><span className='admonishment'>You are not allowed to see that!</span></div> : (null);
+
         return (
-            <div className='form-container'>
-                <img src={logImg} width={150} style={{margin:'10px 0'}} />
-                <form className='login-form' onSubmit={this.handleSubmit}>
-                    <div className='form-field'>
-                        <label className='form-label' htmlFor="nam">Username</label>
-                        <input className='form-text-input' type="text" name="username" value={this.state.username} onChange={this.handleUsernameChange} />
-                    </div>
-                    <div className='form-field'>
-                        <label className='form-label' htmlFor="pw">Password</label>
-                        <input className='form-text-input' type="password" name="password" value={this.state.password} onChange={this.handlePasswordChange} />
-                    </div>
-                    <input className='form-submit' type="submit" value="Let's Go!" />
-                </form>
-                {loginResult}
+            <div>
+                {admonishment}
+                <div className='form-container'>
+                    <img src={logImg} width={150} style={{margin:'10px 0'}} />
+                    <form className='login-form' onSubmit={this.handleSubmit}>
+                        <div className='form-field'>
+                            <label className='form-label' htmlFor="nam">Username</label>
+                            <input className='form-text-input' type="text" name="username" value={this.state.username} onChange={this.handleUsernameChange} />
+                        </div>
+                        <div className='form-field'>
+                            <label className='form-label' htmlFor="pw">Password</label>
+                            <input className='form-text-input' type="password" name="password" value={this.state.password} onChange={this.handlePasswordChange} />
+                        </div>
+                        <input className='form-submit' type="submit" value="Let's Go!" />
+                    </form>
+                    {loginResult}
+                </div>
             </div>
         )
     }

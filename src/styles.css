@@ -571,3 +571,11 @@ input[type="submit"] {
 .state-button-title {
 	font-size: 16px;
 }
+
+.admonishment {
+	background-color: #ffaabb;
+	color: black;
+	padding: 5px;
+	border-radius: 5px;
+	border: 5px solid #ff3b3f;
+}

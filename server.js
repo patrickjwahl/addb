@@ -117,6 +117,13 @@ router.route('/authenticate')
 
 router.route('/user')
 	.post(function(req, res) {
+		if (!req.auth || !req.access < 4) {
+			res.json({
+				success: false,
+				message: 'Not authorized'
+			});
+			return;
+		}
 		let username = req.body.username;
 		let password = req.body.password;
 		let access = req.body.access;
