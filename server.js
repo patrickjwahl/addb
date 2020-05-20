@@ -21,6 +21,8 @@ var router = express.Router();
 var storage = multer.memoryStorage();
 var upload = multer({storage: storage});
 
+require('dotenv').config();
+
 var gpaMap = {
 	A: 'H',
 	B: 'S',
@@ -48,7 +50,7 @@ app.use(bodyParser.json({limit: '50mb'}));
 app.use(express.static(path.join(__dirname, "build")));
 app.use(cookieParser());
 app.use(session({
-	secret: 'deadlydeadlysecret',
+	secret: process.env.SESSIONS_SECRET,
 	resave: false,
 	saveUninitialized: false,
 	cookie: { maxAge: 30*24*60*60*1000, sameSite: true }
