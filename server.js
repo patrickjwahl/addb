@@ -47,7 +47,7 @@ var port = process.env.API_PORT || 3001;
 
 var categories = ['math', 'music', 'econ', 'science', 'lit', 'art', 'socialScience', 'essay', 'speech', 'interview'];
 
-mongoose.connect('localhost:27017');
+mongoose.connect('mongodb://localhost:27017', {useNewUrlParser: true});
 
 app.use(bodyParser.urlencoded({extended: true, limit: '50mb'}));
 app.use(bodyParser.json({limit: '50mb'}));
@@ -410,7 +410,7 @@ router.route('/match/:id')
 				res.send(err);
 				return;
 			}
-			console.log('right he');
+			
 			if (match != null && req.access < match.access) {
 				match = removeBreakdownsFromMatch(match);
 			}
