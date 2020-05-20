@@ -22,6 +22,10 @@ var storage = multer.memoryStorage();
 var upload = multer({storage: storage});
 
 require('dotenv').config();
+if (!process.env.SESSIONS_SECRET) {
+	console.log(".env file not present! Crashing and burning");
+	process.exit(1);
+}
 
 var gpaMap = {
 	A: 'H',
