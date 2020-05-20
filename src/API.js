@@ -3,7 +3,7 @@ import axios from 'axios';
 class API {
     constructor() {
         this.axios = axios.create({
-            baseURL: '/api/'
+            baseURL: '/api'
         });
     }
 
@@ -18,17 +18,10 @@ class API {
                     this.logOut();
                     return res.data;
                 }
-                localStorage.setItem('authToken', res.data.token);
                 localStorage.setItem('expiresAt', res.data.expiresIn + new Date().getTime());
                 localStorage.setItem('canEdit', res.data.canEdit.toString());
                 localStorage.setItem('access', res.data.access);
                 localStorage.setItem('username', res.data.username);
-                this.axios = axios.create({
-                    baseURL: '/api/',
-                    headers: {
-                        'x-access-token': res.data.token
-                    }
-                });
                 return res.data;
             })
             .catch(err => {
@@ -51,14 +44,11 @@ class API {
     };
 
     logOut = () => {
-        localStorage.removeItem('authToken');
         localStorage.removeItem('expiresAt');
         localStorage.removeItem('access');
         localStorage.removeItem('canEdit');
         localStorage.removeItem('username');
-        this.axios = axios.create({
-            baseURL: '/api/'
-        });
+        this.axios.get('/logout');
     };
 
     accessLevel = () => {
@@ -78,18 +68,9 @@ class API {
     }
 
     isLoggedIn = () => {
-        let token = localStorage.getItem('authToken');
-        if (token) {
-            let expiresAt = localStorage.getItem('expiresAt');
-            if (new Date().getTime() < expiresAt) {
-                this.axios = axios.create({
-                    baseURL: '/api/',
-                    headers: {
-                        'x-access-token': token
-                    }
-                });
-                return true;
-            }
+        let expiresAt = localStorage.getItem('expiresAt');
+        if (new Date().getTime() < expiresAt) {
+            return true;
         }
         this.logOut();
         return false;
@@ -163,7 +144,6 @@ class API {
 
     getMatch = id => {
         let endpoint = `/match/${id}`;
-        console.log('eee ' + endpoint);
         return this.axios.get(endpoint);
     };
 

@@ -13,7 +13,6 @@ export class Home extends Component {
 	getRecents() {
 		API.getRecentMatches()
 		.then(res => {
-			console.log(res);
 			this.setState({result: res});
 		})
 		.catch(err => {
@@ -43,7 +42,7 @@ export class Home extends Component {
                         statesList.map(state => (
                             <Link key={state} to={`/state/${state}`}>
                                 <div className='state-list-object'>
-                                    <img src={require(`./assets/img/${state}.png`)} height={50} style={{borderRadius: 5}} />
+                                    <img src={require(`./assets/img/${state}.png`)} height={50} style={{borderRadius: 5, border: '1px solid black'}} />
                                     <div className='search-result-title state-button-title'>{state.replace('_', ' ')}</div>
                                 </div>
                             </Link>

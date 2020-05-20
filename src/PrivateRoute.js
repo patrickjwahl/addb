@@ -4,7 +4,7 @@ import API from './API';
 
 const PrivateRoute = ({ component: Component, req: req, ...rest }) => (
   <Route {...rest} render={(props) => (
-    ((req === 'edit' && API.canEdit()) || (API.accessLevel() >= req))
+    ((req === 'edit' && API.canEdit() || API.accessLevel() >= req))
       ? <Component {...props} />
       : <Redirect to={{
         pathname: '/login',

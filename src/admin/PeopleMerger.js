@@ -79,7 +79,6 @@ export class PeopleMerger extends React.Component {
     }
     
     render() {
-        console.log(this.state.god);
         if (this.state.done) {
             return <div>People merged!</div>;
         }

@@ -5,7 +5,8 @@ var mongoose = require('mongoose');
 const path = require('path');
 var multer = require('multer');
 var bcrypt = require('bcrypt-nodejs');
-var jwt = require('jsonwebtoken');
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
 var parse = require('csv-parse/lib/sync');
 var bodyParser = require('body-parser');
 var School = require('./model/school');
@@ -45,28 +46,26 @@ mongoose.connect('localhost:27017');
 app.use(bodyParser.urlencoded({extended: true, limit: '50mb'}));
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(express.static(path.join(__dirname, "build")));
+app.use(cookieParser());
+app.use(session({
+	secret: 'deadlydeadlysecret',
+	resave: false,
+	saveUninitialized: false,
+	cookie: { maxAge: 30*24*60*60*1000, sameSite: true }
+}));
+
 router.use(function(req, res, next) {
-	let token = req.body.token || req.query.token || req.headers['x-access-token'];
-	if (token) {
-		jwt.verify(token, 'deadlydeadlysecret', function(err, decoded) {
-			if (decoded) {
-				req.auth = true;
-				req.access = decoded.access;
-				req.canEdit = decoded.canEdit;
-				req.username = decoded.username;
-			} else {
-				req.auth = false;
-				req.access = 1;
-				req.canEdit = false;
-			}
-			next();
-		});
+	if (req.session.username) {
+		req.auth = true;
+		req.access = req.session.access;
+		req.canEdit = req.session.canEdit;
+		req.username = req.session.username;
 	} else {
 		req.auth = false;
-		req.access = 1;
+		req.accesss = 1;
 		req.canEdit = false;
-		next();
 	}
+	next();
 });
 
 function numberWithCommas(x) {
@@ -163,18 +162,26 @@ router.route('/login')
 					res.json({success: false, message: "Incorrect password!"});
 					return;
 				} else {
-					const payload = {
-						access: user.access,
-						canEdit: user.canEdit,
-						username: user.username
-					};
-					let token = jwt.sign(payload, 'deadlydeadlysecret', {
-						expiresIn: '30d'
-					});
-					res.json({success: true, token, expiresIn: 30*24*60*60*1000, canEdit: user.canEdit, access: user.access, username: user.username});
+					req.session.access = user.access;
+					req.session.canEdit = user.canEdit;
+					req.session.username = user.username;
+					res.json({success: true, expiresIn: 30*24*60*60*1000, canEdit: user.canEdit, access: user.access, username: user.username});
 				}
 			});
 		});
+	});
+
+router.route('/logout')
+	.get(function(req, res) {
+		if (req.session) {
+			req.session.destroy((err) => {
+				if (err) {
+					res.json({success: false, message: 'Failed to kill session'});
+				} else {
+					res.json({success: true});
+				}
+			});
+		}
 	});
 
 router.route('/search')

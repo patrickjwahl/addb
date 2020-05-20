@@ -6,7 +6,6 @@ import logImg from './assets/img/log.jpg';
 class Login extends Component {
     constructor(props) {
         super(props);
-        console.log(props.location.state);
         this.state = {
             username: '',
             password: '',

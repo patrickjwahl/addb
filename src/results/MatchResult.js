@@ -87,7 +87,6 @@ class MatchResult extends Component {
 
 	getMatch() {
 		if (this.props.specific) {
-			console.log(this.props);
 			const {round, state, year, region} = this.props.match.params;
 			API.getMatchSpecific(round, region, state, year)
 			.then(res => {
