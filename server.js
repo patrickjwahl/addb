@@ -283,7 +283,22 @@ router.route('/matchcreate')
 			return;
 		}
 
-		const requiredFields = ['year', 'round', 'region', 'state', 'date'];
+		const round = req.body['round'];
+		if (!round) {
+			res.json({
+				success: false,
+				message: 'Missing round'
+			});
+			return;
+		}
+
+		let requiredFields = ['year', 'date']
+		if (round !== 'state' && round === 'nationals') {
+			requiredFields.push('region');
+		}
+		if (round !== 'nationals') {
+			requiredFields.push('state');
+		}
 		let missingFields = requiredFields.filter(field => {
 			if (!req.body[field]) {
 				return true;

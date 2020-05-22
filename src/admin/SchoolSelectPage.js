@@ -63,6 +63,20 @@ export class SchoolSelectPage extends Component {
 		this.setState({schools: schools});
 	}
 
+	handleKeyDown = (e) => {
+		let keynum;
+		if (window.event) {
+			keynum = e.keyCode;
+		} else {
+			keynum = e.which;
+		}
+
+		if (keynum === 13) {
+			e.preventDefault();
+			return false;
+		}
+	}
+
 	handleSubmit(e) {
 		e.preventDefault();
 
@@ -103,7 +117,7 @@ export class SchoolSelectPage extends Component {
 	render() {
 
 		let schoolForm = (
-			<form className='form-container' onSubmit={this.handleSubmit}>
+			<form className='form-container' onSubmit={this.handleSubmit} onKeyDown={this.handleKeyDown}>
 			{
 				this.state.schools.map((school, index) => (<SchoolSelect key={index} schoolname={school.teamName} suggestion={school.suggestion} selectId={index} shouldColor
 					selectedName={school.selectedName} selectedCity={school.selectedCity} selectedState={school.selectedState} selectSchool={this.selectSchool} unselectSchool={this.unselectSchool} />))
