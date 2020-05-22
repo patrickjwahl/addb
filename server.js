@@ -332,7 +332,15 @@ router.route('/matchcreate')
 
 		let studentData = [];
 		if (req.files['studentData']) {
-			studentData = parse(req.files['studentData'][0].buffer.toString(), {columns: studentCols});
+			try {
+				studentData = parse(req.files['studentData'][0].buffer.toString(), {columns: studentCols});
+			} catch (err) {
+				res.json({
+					success: false,
+					message: `Problem with students CSV: ${err.message}`
+				});
+				return;
+			}
 		}
 		
 		let studentMapping = {};
@@ -347,12 +355,29 @@ router.route('/matchcreate')
 		if (req.body.hasDivisions === 'true') {
 			teamCols.push('division');
 		}
-		let teamData = parse(req.files['teamData'][0].buffer.toString(), {columns: teamCols});
+		let teamData;
+		try {
+			teamData = parse(req.files['teamData'][0].buffer.toString(), {columns: teamCols});
+		} catch (err) {
+			res.json({
+				success: false,
+				message: `Problem with team CSV: ${err.message}`
+			});
+			return;
+		}
 
 		let overallData = [], overallMapping = {};
 		if (req.body.incompleteData === 'true') {
 			let overallCols = ['gpa', 'decathlete', 'teamName', 'overall'];
-			overallData = parse(req.files['overallData'][0].buffer.toString(), {columns: overallCols});
+			try {
+				overallData = parse(req.files['overallData'][0].buffer.toString(), {columns: overallCols});
+			} catch (err) {
+				res.json({
+					success: false,
+					message: `Problem with overall data CSV: ${err.message}`
+				});
+				return;
+			}
 			overallData.forEach(row => {
 				overallMapping[`${row.decathlete}...${row.teamName}`] = row.overall;
 			});
