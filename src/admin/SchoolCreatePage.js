@@ -31,7 +31,9 @@ class SchoolCreatePage extends Component {
 	}
 
 	handleStateChanged(e) {
-		this.setState({state: e.target.value});
+		let schoolData = this.state.schoolData;
+		schoolData.state = e.target.value
+		this.setState({schoolData});
 	}
 
 	handleSubmit(e) {

@@ -179,6 +179,7 @@ class MatchResult extends Component {
 			interview: student.interview,
 			objs: student.objs,
 			subs: student.subs,
+			school: student.school,
 			selectedPerson: {
 				selectedName: '',
 				selectedSchool: '',
