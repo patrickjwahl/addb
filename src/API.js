@@ -72,14 +72,11 @@ class API {
             .then(res => {
                 if (!res.data.success) {
                     this.logOut();
-                    return false;
                 }
-                return true;
             })
             .catch(err => {
                 console.log(err);
                 this.logOut();
-                return false;
             });
     }
 

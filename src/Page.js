@@ -21,8 +21,8 @@ export class Page extends Component {
 
 	componentDidMount() {
 		API.authenticate().then(res => {
-			this.setState({ loggedInOnMount: res });
-		});
+            this.forceUpdate();
+        });
 	}
 
 	render() {
