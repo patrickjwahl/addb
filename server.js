@@ -947,9 +947,9 @@ router.route('/matchteam/:id')
 					}
 					let teamIdx = -1;
 					for (let i = 0; i < school.teams.length; i++) {
-						if (school.teams[i].teamName === req.body.edits.teamName) {
+						if (school.teams[i].teamName.toLowerCase() === req.body.edits.teamName.toLowerCase()) {
 							teamIdx = i;
-						} else if (oldTeamName !== req.body.edits.teamName && school.teams[i].teamName === oldTeamName) {
+						} else if (oldTeamName.toLowerCase() !== req.body.edits.teamName.toLowerCase() && school.teams[i].teamName.toLowerCase() === oldTeamName.toLowerCase()) {
 							school.teams[i].seasons.forEach(season => {
 								if (season.year === match.year) {
 									season[match.round] = '';
@@ -970,12 +970,31 @@ router.route('/matchteam/:id')
 							nationalsId: ''
 						}]} : school.teams[teamIdx];
 					
+					let teamModified = false;
 					teamToModify.seasons.forEach(season => {
 						if (season.year === year) {
 							season[round] = req.body.edits.overall;
 							season[`${round}Id`] = req.params.id;
+							teamModified = true;
 						}
 					});
+					if (!teamModified) {
+						let newSeason = {
+							year: match.year,
+							roundone: '',
+							roundoneId: '',
+							regionals: '',
+							regionalsId: '',
+							state: '',
+							stateId: '',
+							nationals: '',
+							nationalsId: ''
+						};
+						newSeason[round] = req.body.edits.overall;
+						newSeason[`${round}Id`] = req.params.id;
+						teamToModify.seasons.push(newSeason);
+					}
+
 					if (teamIdx === -1) {
 						school.teams.push(teamToModify);
 					} else {
