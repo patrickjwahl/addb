@@ -122,7 +122,7 @@ router.route('/authenticate')
 
 router.route('/user')
 	.post(function(req, res) {
-		if (!req.auth || !req.access < 4) {
+		if (!req.auth || req.access < 4) {
 			res.json({
 				success: false,
 				message: 'Not authorized'
@@ -352,6 +352,9 @@ router.route('/matchcreate')
 			teamCols.push('objs');
 			teamCols.push('subs');
 		}
+		if (req.body.hasSq === 'true') {
+			teamCols.push('sq');
+		}
 		if (req.body.hasDivisions === 'true') {
 			teamCols.push('division');
 		}
@@ -574,6 +577,7 @@ router.route('/match')
 		match.hasDivisions = matchData.hasDivisions === 'true';
 		match.access = matchData.access;
 		match.incompleteData = matchData.incompleteData === 'true';
+		match.hasSq = matchData.hasSq === 'true';
 		match.search1 = `${match.year} ${match.round !== 'nationals' ? match.state + ' ' : ''}${match.round !== 'nationals' && match.round !== 'state' ? match.region + ' ' : ''}${roundMap[match.round]}`;
 		match.search2 = `${match.year} ${roundMap[match.round]} ${match.round !== 'nationals' ? match.state + ' ' : ''}${match.round !== 'nationals' && match.round !== 'state' ? match.region + ' ' : ''}`;
 		match.search3 = `${match.round !== 'nationals' ? match.state + ' ' : ''}${match.round !== 'nationals' && match.round !== 'state' ? match.region + ' ' : ''}${roundMap[match.round]} ${match.year}`;
@@ -814,7 +818,6 @@ router.route('/match')
 						edit.summary = `CREATE MATCH: ${match.year} ${match.round}`;
 						edit.summary += ((match.round !== 'nationals') ? ' ' + match.state : '')
 						edit.summary += ((match.round !== 'nationals' && match.round !== 'state') ? ' ' + match.region : '');
-						console.log('whaat');
 						console.log(edit.summary);
 						edit.save(function(err) {
 							res.json({
@@ -923,6 +926,7 @@ router.route('/matchteam/:id')
 			teams[index].overall = req.body.edits.overall;
 			teams[index].objs = req.body.edits.objs;
 			teams[index].subs = req.body.edits.subs;
+			teams[index].sq = req.body.edits.sq;
 			School.findOne({'_id': req.body.edits.id}, function(err, school) {
 				let students = [...match.students];
 				for (let i = 0; i < students.length; i++) {

@@ -13,6 +13,7 @@ var MatchSchema = new Schema({
 	state: String,
 	date: Date,
 	site: String,
+	hasSq: Boolean,
 	incompleteData: Boolean,
 	hasDivisions: Boolean,
 	access: Number,
@@ -62,7 +63,8 @@ var MatchSchema = new Schema({
 			objs: String,
 			subs: String,
 			id: String,
-			division: String
+			division: String,
+			sq: String
 		}
 	]
 });

@@ -14,8 +14,15 @@ import EditingGuide from './admin/EditingGuide';
 
 export class Page extends Component {
 
+	constructor(props) {
+		super(props);
+		this.state = { loggedIn: false }
+	}
+
 	componentDidMount() {
-		API.authenticate();
+		API.authenticate().then(res => {
+			this.setState({ loggedIn: res });
+		});
 	}
 
 	render() {

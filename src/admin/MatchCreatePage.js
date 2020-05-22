@@ -15,6 +15,7 @@ export class MatchCreatePage extends Component {
 			date: '',
 			site: '',
 			hasDivisions: false,
+			sq: false,
 			incompleteData: false,
 			access: 1,
 			numObjs: 7,
@@ -41,6 +42,7 @@ export class MatchCreatePage extends Component {
 		this.handleRoundChange = this.handleRoundChange.bind(this);
 		this.handleDivisionsChange = this.handleDivisionsChange.bind(this);
 		this.handleAccessChange = this.handleAccessChange.bind(this);
+		this.handleSqChange = this.handleSqChange.bind(this);
 		this.handleIncompleteChange = this.handleIncompleteChange.bind(this);
 		this.handleEventCheck = this.handleEventCheck.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -65,6 +67,10 @@ export class MatchCreatePage extends Component {
 
 	handleAccessChange(e) {
 		this.setState({access: (e.target.value)});
+	}
+
+	handleSqChange(e) {
+		this.setState({sq: !this.state.sq});
 	}
 
 	handleIncompleteChange(e) {
@@ -121,6 +127,7 @@ export class MatchCreatePage extends Component {
 		formData.append('hasDivisions', this.state.hasDivisions);
 		formData.append('access', this.state.access);
 		formData.append('incompleteData', this.state.incompleteData);
+		formData.append('hasSq', this.state.sq);
 
 		let events = this.state.events;
 		for (let key in events) {
@@ -253,6 +260,10 @@ export class MatchCreatePage extends Component {
 							{API.accessLevel() > 1 ? <option value='2'>2 - Privileged</option> : (null)}
 							{API.accessLevel() > 2 ? <option value='3'>3 - Secret</option> : (null)}
 						</select>
+					</div>
+					<div className='form-field'>
+						<label style={{display:'inline-block', margin:'0 5px', width:'75%'}} className='form-label' className='form-label' htmlFor='sq'>Super Quiz</label>
+						<input type='checkbox' checked={this.state.sq} id='sq' onChange={this.handleSqChange} />
 					</div>
 					<div className='form-field'>
 						<label style={{display:'inline-block', margin:'0 5px', width:'75%'}} className='form-label' className='form-label' htmlFor='incom'>Does this competition have incomplete student event data?</label>

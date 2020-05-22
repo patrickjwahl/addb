@@ -68,15 +68,18 @@ class API {
     }
 
     authenticate = () => {
-        this.axios.get('/authenticate')
+        return this.axios.get('/authenticate')
             .then(res => {
                 if (!res.data.success) {
                     this.logOut();
+                    return false;
                 }
+                return true;
             })
             .catch(err => {
                 console.log(err);
                 this.logOut();
+                return false;
             });
     }
 

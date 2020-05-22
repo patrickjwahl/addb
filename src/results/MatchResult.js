@@ -31,6 +31,10 @@ const divisions = {
 	2: 'Division II',
 	3: 'Division III',
 	4: 'Division IV',
+	I: 'Division I',
+	II: 'Division II',
+	III: 'Division III',
+	IV: 'Division IV',
 	'Red': 'Red Division',
 	'Blue': 'Blue Division',
 	'White': 'White Division',
@@ -197,6 +201,7 @@ class MatchResult extends Component {
 			overall: team.overall,
 			objs: team.objs,
 			subs: team.subs,
+			sq: team.sq
 		};
 		this.setState({teamEdits: edits});
 	};
@@ -517,6 +522,7 @@ class MatchResult extends Component {
 								<td>Overall</td>
 								{!match.incompleteData ? <td>Objs</td> : (null)}
 								{!match.incompleteData ? <td>Subs</td> : (null)}
+								{match.hasSq ? <td>Score w/ SQ</td> : (null)}
 							</tr>
 						</thead>
 						<tbody>
@@ -544,6 +550,7 @@ class MatchResult extends Component {
 											<td><input type="text" size={8} name="overall" value={teamEdits[index].overall} onChange={e => {this.changeTeamField(index, e)}}/></td>
 											{!match.incompleteData ? <td><input type="text" size={8} name="objs" value={teamEdits[index].objs} onChange={e => {this.changeTeamField(index, e)}}/></td> : (null)}
 											{!match.incompleteData ? <td><input type="text" size={8} name="subs" value={teamEdits[index].subs} onChange={e => {this.changeTeamField(index, e)}}/></td> : (null)}
+											{match.hasSq ? <td><input type="text" size={8} name="sq" value={teamEdits[index].sq} onChange={e => {this.changeTeamField(index, e)}}/></td> : (null)}
 											<td><button type="button" onClick={() => this.submitTeamEdit(index)}>Save</button></td>
 										</tr>
 									);
@@ -556,6 +563,7 @@ class MatchResult extends Component {
 										<td>{team.overall}</td>
 										{!match.incompleteData ? <td>{team.objs}</td> : (null)}
 										{!match.incompleteData ? <td>{team.subs}</td> : (null)}
+										{match.hasSq ? <td>{team.sq}</td> : (null)}
 										{(editing) ? (<td><button onClick={() => {this.makeTeamRowEditable(index, team)}}>Edit</button></td>) : (null)}
 									</tr>
 								);
@@ -587,6 +595,7 @@ class MatchResult extends Component {
 									<td>Overall</td>
 									{!match.incompleteData ? <td>Objs</td> : (null)}
 									{!match.incompleteData ? <td>Subs</td> : (null)}
+									{match.hasSq ? <td>Score w/ SQ</td> : (null)}
 								</tr>
 								</thead>
 								<tbody>
@@ -599,6 +608,7 @@ class MatchResult extends Component {
 												<td>{team.overall}</td>
 												{!match.incompleteData ? <td>{team.objs}</td> : (null)}
 												{!match.incompleteData ? <td>{team.subs}</td> : (null)}
+												{match.hasSq ? <td>{team.sq}</td> : (null)}
 											</tr>
 										);
 									})
