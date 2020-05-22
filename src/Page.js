@@ -16,17 +16,17 @@ export class Page extends Component {
 
 	constructor(props) {
 		super(props);
-		this.state = { loggedIn: false }
+		this.state = { loggedInOnMount: false }
 	}
 
 	componentDidMount() {
 		API.authenticate().then(res => {
-			this.setState({ loggedIn: res });
+			this.setState({ loggedInOnMount: res });
 		});
 	}
 
 	render() {
-		let loginLink = API.isLoggedIn()
+		let loginLink = !(!API.isLoggedIn() && !this.state.loggedInOnMount)
 			? (
 				<div style={{display: 'inline'}}> <span>
 					Logged in as {API.username()} {' ○ '}

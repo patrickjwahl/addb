@@ -492,14 +492,18 @@ router.route('/match/:id')
 			});
 			match.teams.forEach(team => {
 				School.findOne({'_id': team.id}, function(err, school) {
-					let seasons = school.seasons;
-					for (let i = 0; i < seasons.length; i++) { 
-						if (seasons[i].year === match.year) {
-							seasons[i][match.round] = '';
-							seasons[i][`${match.round}Id`] = '';
+					let teams = school.teams;
+					for (let j = 0; j < teams.length; j++) {
+						let seasons = teams[j].seasons;
+						for (let i = 0; i < seasons.length; i++) {
+							if (seasons[i].year === match.year) {
+								seasons[i][match.round] = '';
+								seasons[i][`${match.round}Id`] = '';
+							}
 						}
+						teams[j].seasons = seasons;
 					}
-					School.findOneAndUpdate({'_id': school._id}, {seasons}, function(err, doc) {
+					School.findOneAndUpdate({'_id': school._id}, {teams}, function(err, doc) {
 						if (err) {
 							console.log(err);
 						}
