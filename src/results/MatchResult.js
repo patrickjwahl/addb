@@ -86,7 +86,6 @@ class MatchResult extends Component {
 		super(props);
 		this.state = {result: '', unsortedData: '', overallStudents: [], overallSortKey: 'team', overallSortReverse: true, editedRows: {}, sortKey: 'team', sortReverse: true, edits: {}, teamEdits: {}, editedTeams: {}, editing: false, deleted: false, showDivisions: false};
 		this.getMatch = this.getMatch.bind(this);
-		this.handleSchoolClicked = this.handleSchoolClicked.bind(this);
 	}
 
 	getMatch() {
@@ -315,27 +314,6 @@ class MatchResult extends Component {
 			});
 	};
 
-	handleSchoolClicked(e) {
-		let teamName = e.target.innerText.trim();
-		let teams = this.state.result.data.teams;
-		for (let i = 0; i < teams.length; i++) {
-			if (teams[i].teamName.trim() === teamName) {
-				this.props.history.push(`/school/${teams[i].id}`);
-				return;
-			}
-		}
-	}
-
-	handlePersonClicked = index => {
-		let person = this.state.result.data.students[index];
-		this.props.history.push(`/person/${person.id}`);
-	}
-
-	handleOverallPersonClicked = index => {
-		let person = this.state.overallStudents[index];
-		this.props.history.push(`/person/${person.id}`);
-	}
-
 	getSchoolNameFromId = id => {
 		let teams = this.state.result.data.teams;
 		for (let i = 0; i < teams.length; i++) {
@@ -513,6 +491,11 @@ class MatchResult extends Component {
 
 				let students = editing ? this.state.unsortedData : match.students;
 				let teams = match.teams;
+
+				let teamNameToId = {};
+				teams.forEach(team => {
+					teamNameToId[team.teamName.trim()] = team.id;
+				});
 
 				let teamTables = (
 					<table className='info-page-table'>
@@ -804,12 +787,14 @@ class MatchResult extends Component {
 											</tr>
 										));
 									}
+									let personLink = !editing ? <Link to={`/person/${student.id}`}>{student.decathlete}</Link> : student.decathlete;
+									let teamLink = !editing ? <Link to={`/school/${teamNameToId[student.teamName.trim()]}`}>{student.teamName}</Link> : student.teamName;
 									if (student.team) arr = arr.concat((
 										<tr className={className} key={index}>
-											<td className='is-link table-cell-large' onClick={e => {if (!editing) this.handleSchoolClicked(e)}}>{student.teamName}</td>
+											<td className='is-link table-cell-large'>{teamLink}</td>
 											<td>{student.team}</td>
 											<td>{student.gpa}</td>
-											<td className='is-link table-cell-large' onClick={() => {if (!editing) this.handlePersonClicked(index)}}>{student.decathlete}</td>
+											<td className='is-link table-cell-large'>{personLink}</td>
 											<td className='bold'>{student.overall}</td>
 											{(events.math) ? (<td className="table-cell-small">{student.math}</td>) : (null)}
 											{(events.music) ? (<td className="table-cell-small">{student.music}</td>) : (null)}
@@ -849,11 +834,13 @@ class MatchResult extends Component {
 								<tbody>
 								{this.state.overallStudents.reduce((arr, student, index) => {
 									if (schoolFilter && student.school !== schoolFilter) return arr;
+									let personLink = !editing ? <Link to={`/person/${student.id}`}>{student.decathlete}</Link> : student.decathlete;
+									let teamLink = !editing ? <Link to={`/school/${teamNameToId[student.teamName.trim()]}`}>{student.teamName}</Link> : student.teamName;
 									arr = arr.concat((
 										<tr key={index}>
-											<td className='is-link table-cell-large' onClick={e => {if (!editing) this.handleSchoolClicked(e)}}>{student.school}</td>
+											<td className='is-link table-cell-large'>{teamLink}</td>
 											<td className='table-cell-large'>{student.gpa}</td>
-											<td className='is-link table-cell-large' onClick={() => {if (!editing) this.handleOverallPersonClicked(index)}}>{student.decathlete}</td>
+											<td className='is-link table-cell-large'>{personLink}</td>
 											<td className='bold table-cell-large'>{student.overall}</td>
 										</tr>
 									))
