@@ -1004,10 +1004,15 @@ router.route('/matchteam/:id')
 					// Clean up the school, removing teams with no seasons
 					let newTeams = [];
 					school.teams.forEach(team => {
-						if (team.seasons.length > 0) {
-							if (team.seasons.length > 1 || team.seasons[0].roundone || team.seasons[0].regionals || team.seasons[0].state || team.seasons[0].nationals) {
-								newTeams.push(team);
+						let newSeasons = [];
+						team.seasons.forEach(season => {
+							if (season.roundone || season.regionals || season.state || season.nationals) {
+								newSeasons.push(season);
 							}
+						});
+						if (newSeasons.length > 0) {
+							team.seasons = newSeasons;
+							newTeams.push(team);
 						}
 					});
 
