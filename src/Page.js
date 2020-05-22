@@ -65,7 +65,7 @@ export class Page extends Component {
 					<Route exact path='/register' component={Register} />
 					<Route render={(props) => (
 						<div>
-							<h2 className='welcome'>The AcDec Database (now in color)</h2>
+							<h2 className='welcome'>The AcDec Database</h2>
 							<SearchContainer />
 						</div>
 					)} />

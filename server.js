@@ -920,7 +920,7 @@ router.route('/matchteam/:id')
 							stateId: '',
 							nationals: '',
 							nationalsId: ''
-						}]} : school.teams[teamToModify];
+						}]} : school.teams[teamIdx];
 					
 					teamToModify.seasons.forEach(season => {
 						if (season.year === year) {

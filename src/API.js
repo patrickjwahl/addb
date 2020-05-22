@@ -89,7 +89,7 @@ class API {
     };
 
     search = query => {
-        return this.axios.get(`/search${query}`);
+        return this.axios.get(`/search?query=${query}`);
     }
 
     createMatch = formData => {

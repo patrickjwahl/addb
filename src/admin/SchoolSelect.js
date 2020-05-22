@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import axios from 'axios';
+import API from '../API';
 import '../styles.css';
 
 var mouseDownHappened = false;
@@ -84,8 +84,7 @@ export class SchoolSelect extends Component {
 	quickSearch(newQuery) {
 		return (function() {
 			let query = newQuery;
-			let address = `http://${window.location.hostname}:3001/api/search?query=${query}`;
-			axios.get(address)
+			API.search(query)
 			.then(res => {
 				if (res.data.schools.length > 0) {
 					this.setState({result: res});

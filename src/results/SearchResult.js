@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import qs from 'qs';
 import '../styles.css';
 import API from '../API';
 import {Link} from 'react-router-dom';
@@ -12,7 +13,7 @@ export class SearchResult extends Component {
 	}
 
 	performSearch() {
-		let query = this.props.location.search;
+		let query = qs.parse(this.props.location.search, { ignoreQueryPrefix: true }).query;
 		if (!query) return;
 
 		API.search(query)
