@@ -67,6 +67,19 @@ class API {
         return '???';
     }
 
+    authenticate = () => {
+        this.axios.get('/authenticate')
+            .then(res => {
+                if (!res.data.success) {
+                    this.logOut();
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                this.logOut();
+            });
+    }
+
     isLoggedIn = () => {
         let expiresAt = localStorage.getItem('expiresAt');
         if (new Date().getTime() < expiresAt) {

@@ -13,6 +13,11 @@ import Register from './Register';
 import EditingGuide from './admin/EditingGuide';
 
 export class Page extends Component {
+
+	componentDidMount() {
+		API.authenticate();
+	}
+
 	render() {
 		let loginLink = API.isLoggedIn()
 			? (
