@@ -212,7 +212,7 @@ router.route('/search')
 					{'fullName': {'$regex': `^${req.query.query}`, '$options': 'i'}}
 				]
 			}).limit(limit);
-			peopleQuery = Person.find({'name': {'$regex': `^${req.query.query}`, '$options': 'i'}}).limit(limit);
+			peopleQuery = Person.find({'name': {'$regex': `${req.query.query}`, '$options': 'i'}}).limit(limit);
 			matchQuery = Match.find({
 				$or: [
 					{'search1': {'$regex': `^${req.query.query}`, '$options': 'i'}},
@@ -227,7 +227,7 @@ router.route('/search')
 					{'fullName': {'$regex': `^${req.query.query}`, '$options': 'i'}}
 				]
 			});
-			peopleQuery = Person.find({'name': {'$regex': `^${req.query.query}`, '$options': 'i'}});
+			peopleQuery = Person.find({'name': {'$regex': `${req.query.query}`, '$options': 'i'}});
 			matchQuery = Match.find({
 				$or: [
 					{'search1': {'$regex': `^${req.query.query}`, '$options': 'i'}},
