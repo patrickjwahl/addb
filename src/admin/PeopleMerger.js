@@ -1,7 +1,7 @@
 import React from 'react';
 import { PersonSelect } from './PersonSelect';
 import API from '../API';
-import mergeImg from '../assets/img/merge.png';
+import mergeImg from '../assets/img/merge.jpg';
 
 export class PeopleMerger extends React.Component {
     constructor(props) {

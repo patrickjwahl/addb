@@ -26,7 +26,7 @@ export class StatePage extends Component {
 
     render() {
         let retval;
-        
+
         let yearViews = [];
 
         let resultsFound = false;
@@ -82,7 +82,7 @@ export class StatePage extends Component {
                 retval = (
                     <div style={{marginTop: 30}}>
                     <div className='state-page-header'>
-                        <img src={require(`../assets/img/${this.props.match.params.name}.png`)} height={50} />
+                        <img src={require(`../assets/img/${this.props.match.params.name}.jpg`)} height={50} />
                         <h2>{this.props.match.params.name.replace('_', ' ').toUpperCase()}</h2>
                         </div>
                         {yearViews}
@@ -92,7 +92,7 @@ export class StatePage extends Component {
                 retval = (
                     <div style={{marginTop: 30}}>
                         <div className='state-page-header'>
-                        <img src={require(`../assets/img/${this.props.match.params.name}.png`)} height={50}/>
+                        <img src={require(`../assets/img/${this.props.match.params.name}.jpg`)} height={50}/>
                         <h2>{this.props.match.params.name.replace('_', ' ').toUpperCase()}</h2>
                         </div>
                         <div className='search-result-none'>No results found</div>

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {SchoolSelectPage} from './SchoolSelectPage';
 import API from '../API';
-import matchImg from '../assets/img/match.png';
+import matchImg from '../assets/img/match.jpg';
 import { stateNames } from '../util/consts';
 
 export class MatchCreatePage extends Component {
