@@ -425,7 +425,7 @@ router.route('/matchcreate')
             team.teamName = team.teamName.trim();
             ['overall', 'objs', 'subs', 'sq'].forEach(category => {
                 if (category in team) {
-                    team[category] = numberWithCommas(Math.round(parseFloat(student[category]) * 10) / 10);
+                    team[category] = numberWithCommas(Math.round(parseFloat(team[category]) * 10) / 10);
                 }
             });
             dbCalls.push(School.findOne({$or: [
