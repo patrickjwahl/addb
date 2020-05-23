@@ -10,40 +10,40 @@ import EditsPage from '../admin/EditsPage';
 import {StatePage} from './StatePage';
 
 export class SearchContainer extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {result: ''};
-	}
+    constructor(props) {
+        super(props);
+        this.state = {result: ''};
+    }
 
-	render() {
-		return (
-			<div className='search-container'>
-				<SearchForm />
-				<Switch>
-					<PrivateRoute exact path='/edits' component={EditsPage} req={4} />
-					<Route exact path='/' render={(props) => (
-						<Redirect to={{pathname: '/search'}} />
-					)}/>
-					<Route exact path='/search' render={(props) => (
-						<SearchResult {...props} />
-					)}/>
-					<Route path='/school/:id' component={SchoolResult} />
-					<Route path='/person/:id' component={PersonResult} />
-					<Route exact path='/state/:name' component={StatePage} />
-					<Route path='/match/:id' render={props => (
-						<MatchResult {...props} specific={false} />
-					)} />
-					<Route exact path='/:round/:state/:year' render={props => (
-						<MatchResult {...props} specific={true} />
-					)} />
-					<Route path='/:round/:state/:region/:year' render={props => (
-						<MatchResult {...props} specific={true} />
-					)} />
-					<Route render={props => (
-						<h1>No fucking page here dumbass!</h1>
-					)} />
-				</Switch>
-			</div>
-		);
-	}
+    render() {
+        return (
+            <div className='search-container'>
+                <SearchForm />
+                <Switch>
+                    <PrivateRoute exact path='/edits' component={EditsPage} req={4} />
+                    <Route exact path='/' render={(props) => (
+                        <Redirect to={{pathname: '/search'}} />
+                    )}/>
+                    <Route exact path='/search' render={(props) => (
+                        <SearchResult {...props} />
+                    )}/>
+                    <Route path='/school/:id' component={SchoolResult} />
+                    <Route path='/person/:id' component={PersonResult} />
+                    <Route exact path='/state/:name' component={StatePage} />
+                    <Route path='/match/:id' render={props => (
+                        <MatchResult {...props} specific={false} />
+                    )} />
+                    <Route exact path='/:round/:state/:year' render={props => (
+                        <MatchResult {...props} specific={true} />
+                    )} />
+                    <Route path='/:round/:state/:region/:year' render={props => (
+                        <MatchResult {...props} specific={true} />
+                    )} />
+                    <Route render={props => (
+                        <h1>No fucking page here dumbass!</h1>
+                    )} />
+                </Switch>
+            </div>
+        );
+    }
 }

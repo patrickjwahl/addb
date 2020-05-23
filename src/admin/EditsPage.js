@@ -22,7 +22,7 @@ class EditsPage extends Component {
     }
 
     componentDidMount() {
-		this.getEdits();
+        this.getEdits();
     }
     
     render() {

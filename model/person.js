@@ -11,22 +11,22 @@ var PersonSchema = new Schema({
     city: String,
     state: String,
     seasons: [
-		{
-			year: String,
-			roundone: String,
-			roundoneId: String,
+        {
+            year: String,
+            roundone: String,
+            roundoneId: String,
             roundoneGPA: String,
-			regionals: String,
-			regionalsId: String,
+            regionals: String,
+            regionalsId: String,
             regionalsGPA: String,
-			state: String,
-			stateId: String,
+            state: String,
+            stateId: String,
             stateGPA: String,
-			nationals: String,
-			nationalsId: String,
+            nationals: String,
+            nationalsId: String,
             nationalsGPA: String
-		}
-	]
+        }
+    ]
 });
 
 module.exports = mongoose.model('Person', PersonSchema);
