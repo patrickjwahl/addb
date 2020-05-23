@@ -4,6 +4,7 @@ import '../styles.css';
 import API from '../API';
 import {SchoolSelect} from '../admin/SchoolSelect';
 import {PersonSelect} from '../admin/PersonSelect';
+import ReactTooltip from 'react-tooltip';
 
 const categories = {
     math: 'Math',
@@ -703,6 +704,7 @@ class MatchResult extends Component {
 
                 return (
                     <div className='info-page'>
+                        <ReactTooltip delayShow={250} />
                         <a name="#top"></a>
                         <div className='small-header'>MATCH</div>
                         <div className='info-page-header'>
@@ -796,16 +798,16 @@ class MatchResult extends Component {
                                             <td>{student.gpa}</td>
                                             <td className='is-link table-cell-large'>{personLink}</td>
                                             <td className='bold'>{student.overall}</td>
-                                            {(events.math) ? (<td className="table-cell-small">{student.math}</td>) : (null)}
-                                            {(events.music) ? (<td className="table-cell-small">{student.music}</td>) : (null)}
-                                            {(events.econ) ? (<td className="table-cell-small">{student.econ}</td>) : (null)}
-                                            {(events.science) ? (<td className="table-cell-small">{student.science}</td>) : (null)}
-                                            {(events.lit) ? (<td className="table-cell-small">{student.lit}</td>) : (null)}
-                                            {(events.art) ? (<td className="table-cell-small">{student.art}</td>) : (null)}
-                                            {(events.socialScience) ? (<td className="table-cell-small">{student.socialScience}</td>) : (null)}
-                                            {(events.essay) ? (<td className="table-cell-small">{student.essay}</td>) : (null)}	
-                                            {(events.speech) ? (<td className="table-cell-small">{student.speech}</td>) : (null)}
-                                            {(events.interview) ? (<td className="table-cell-small">{student.interview}</td>) : (null)}
+                                            {(events.math) ? (<td data-tip="Math" className="table-cell-small">{student.math}</td>) : (null)}
+                                            {(events.music) ? (<td data-tip="Music" className="table-cell-small">{student.music}</td>) : (null)}
+                                            {(events.econ) ? (<td data-tip="Econ" className="table-cell-small">{student.econ}</td>) : (null)}
+                                            {(events.science) ? (<td data-tip="Science" className="table-cell-small">{student.science}</td>) : (null)}
+                                            {(events.lit) ? (<td data-tip="Literature" className="table-cell-small">{student.lit}</td>) : (null)}
+                                            {(events.art) ? (<td data-tip="Art" className="table-cell-small">{student.art}</td>) : (null)}
+                                            {(events.socialScience) ? (<td data-tip="Social Science" className="table-cell-small">{student.socialScience}</td>) : (null)}
+                                            {(events.essay) ? (<td data-tip="Essay" className="table-cell-small">{student.essay}</td>) : (null)}	
+                                            {(events.speech) ? (<td data-tip="Speech" className="table-cell-small">{student.speech}</td>) : (null)}
+                                            {(events.interview) ? (<td data-tip="Interview" className="table-cell-small">{student.interview}</td>) : (null)}
                                             {(events.objs) ? (<td className='bold'>{student.objs}</td>) : (null)}
                                             {(events.subs) ? (<td>{student.subs}</td> ) : (null)}
                                             {(editing) ? (<td><button onClick={() => {this.makeStudentRowEditable(index, student)}}>Edit</button></td>) : (null)}
