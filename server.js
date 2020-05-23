@@ -219,7 +219,7 @@ router.route('/search')
                     {'search2': {'$regex': `^${req.query.query}`, '$options': 'i'}},
                     {'search3': {'$regex': `^${req.query.query}`, '$options': 'i'}},
                 ]
-            }).limit(limit);
+            }, '-students -teams').limit(limit);
         } else {
             schoolsQuery = School.find({
                 $or: [
@@ -234,7 +234,7 @@ router.route('/search')
                     {'search2': {'$regex': `^${req.query.query}`, '$options': 'i'}},
                     {'search3': {'$regex': `^${req.query.query}`, '$options': 'i'}},
                 ]
-            });
+            }, '-students -teams');
         }
 
         schoolsQuery.exec(function(err, schools) {
@@ -1271,7 +1271,7 @@ router.route('/edits')
 
 router.route('/recent')
     .get(function(req, res) {
-        Match.find().sort({date: -1}).limit(10).exec(function(err, results) {
+        Match.find({}, '-students -teams').sort({date: -1}).limit(10).exec(function(err, results) {
             if (err) {
                 res.json({
                     success: false,
@@ -1295,7 +1295,7 @@ router.route('/recent')
 router.route('/state/:name')
     .get(function(req, res) {
         let name = req.params.name.replace('_', ' ');
-        Match.find({state: name}).sort({date: -1}).exec(function(err, results) {
+        Match.find({state: name}, '-students').sort({date: -1}).exec(function(err, results) {
             if (err) {
                 res.json({
                     success: false,
