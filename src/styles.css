@@ -582,7 +582,7 @@ input[type="submit"] {
 
 .state-page-year-bar {
     background-color: white;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     display: flex;
     margin-left: 80px;
     margin-right: 80px;
@@ -616,7 +616,7 @@ input[type="submit"] {
 }
 
 .state-page-year-bar-open .state-page-year-bar-year span {
-    transform: rotate(90deg);
+    transform: rotate(45deg);
 }
 
 .state-page-link {
@@ -635,13 +635,18 @@ input[type="submit"] {
 }
 
 .state-page-fake-link:hover {
-    background-color: #f8fc04;
+    background-color: #ff7b7f;
     color: black;
 }
 
+.state-page-link-disabled {
+    background-color: #e2e2e2;
+    color: #525252;
+}
+
 .state-page-link-disabled:hover {
-    background-color: white;
-    color: black;
+    background-color: #e2e2e2;
+    color: #525252;
 }
 
 .state-page-stack {
@@ -671,12 +676,13 @@ input[type="submit"] {
     padding-bottom: 10px;
     margin: 0 auto;
     border: 1px solid black;
-    margin-bottom: 20px;
-    width: 300px;
+    margin-bottom: 15px;
+    width: 350px;
     color: white;
+    border-radius: 10000px 10000px 0 0
 }
 
 .state-page-header h2 {
     margin-bottom: 0;
-    margin-top: 10px;
+    margin-top: 0px;
 }
