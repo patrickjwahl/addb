@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import API from '../API';
 import {Link} from 'react-router-dom';
+import {StatePageYearDisplay} from './StatePageYearDisplay';
 
 export class StatePage extends Component {
     constructor(props) {
@@ -25,10 +26,8 @@ export class StatePage extends Component {
 
     render() {
         let retval;
-
-        let roundoneResults = (null);
-        let regionalsResults = (null);
-        let stateResults = (null);
+        
+        let yearViews = [];
 
         let resultsFound = false;
 
@@ -36,83 +35,66 @@ export class StatePage extends Component {
             retval = <div>Loading...</div>
         } else {
             if (this.state.result.data.matches.length > 0) {
-                roundoneResults = (
-                    <div className='search-result-category'>
-                        <div className='search-result-category-title'>Round One</div>
-                        <ul className='search-result-sublist'>
-                        {
-                            this.state.result.data.matches.filter(match => match.round === 'roundone').map((match) => (
-                                <Link to={`/match/${match.id}`} key={match.id}>
-                                    <li className='search-result centered'>
-                                        <div className='search-result-title'>{match.year} {match.round !== 'state' ? match.region : ''}</div>
-                                        <div className='search-result-subtitle'>1. {match.first} - {match.firstScore}</div>
-                                        <div className='search-result-subtitle'>2. {match.second} - {match.secondScore}</div>
-                                        <div className='search-result-subtitle'>3. {match.third} - {match.thirdScore}</div>
-                                    </li>
-                                </Link>
-                            ))
-                        }
-                        </ul>
-                    </div>
-                );
-                regionalsResults = (
-                    <div className='search-result-category'>
-                        <div className='search-result-category-title'>Regionals</div>
-                        <ul className='search-result-sublist'>
-                        {
-                            this.state.result.data.matches.filter(match => match.round === 'regionals').map((match) => (
-                                <Link to={`/match/${match.id}`} key={match.id}>
-                                    <li className='search-result centered'>
-                                        <div className='search-result-title'>{match.year} {match.round !== 'state' ? match.region : ''}</div>
-                                        <div className='search-result-subtitle'>1. {match.first} - {match.firstScore}</div>
-                                        <div className='search-result-subtitle'>2. {match.second} - {match.secondScore}</div>
-                                        <div className='search-result-subtitle'>3. {match.third} - {match.thirdScore}</div>
-                                    </li>
-                                </Link>
-                            ))
-                        }
-                        </ul>
-                    </div>
-                );
-                stateResults = (
-                    <div className='search-result-category'>
-                        <div className='search-result-category-title'>State</div>
-                        <ul className='search-result-sublist'>
-                        {
-                            this.state.result.data.matches.filter(match => match.round === 'state').map((match) => (
-                                <Link to={`/match/${match.id}`} key={match.id}>
-                                    <li className='search-result centered'>
-                                        <div className='search-result-title'>{match.year} {match.round !== 'state' ? match.region : ''}</div>
-                                        <div className='search-result-subtitle'>1. {match.first} - {match.firstScore}</div>
-                                        <div className='search-result-subtitle'>2. {match.second} - {match.secondScore}</div>
-                                        <div className='search-result-subtitle'>3. {match.third} - {match.thirdScore}</div>
-                                    </li>
-                                </Link>
-                            ))
-                        }
-                        </ul>
-                    </div>
-                );
                 resultsFound = true;
+
+                let years = {};
+                let matches = this.state.result.data.matches;
+                matches.forEach(match => {
+                    if (!(match.year in years)) {
+                        years[match.year] = {
+                            state: {_id: '', _scores: []},
+                            regionals: {_scores: []},
+                            roundone: {_scores: []}
+                        }
+                    }
+                    if (match.round === 'state') {
+                        years[match.year][match.round] = {
+                            _id: match.id,
+                            _scores: [[match.first, match.firstScore], [match.second, match.secondScore], [match.third, match.thirdScore]]
+                        };
+                    } else {
+                        years[match.year][match.round][match.region] = {
+                            _id: match.id,
+                            _scores: [[match.first, match.firstScore], [match.second, match.secondScore], [match.third, match.thirdScore]]
+                        };
+                        years[match.year][match.round]._scores = years[match.year][match.round]._scores.concat([[match.first, match.firstScore], [match.second, match.secondScore], [match.third, match.thirdScore]]);
+                    }
+                });
+                let sort_fn = (a, b) => {
+                    let a_num = parseFloat(a[1].replace(/,/g, ""));
+                    let b_num = parseFloat(b[1].replace(/,/g, ""));
+                    return b_num - a_num;
+                };
+                let yearsList = [];
+                for (let year in years) {
+                    years[year].regionals._scores.sort(sort_fn);
+                    years[year].roundone._scores.sort(sort_fn);
+                    yearsList.push({year, data: years[year]});
+                }
+                yearsList.sort((a, b) => {
+                    return parseInt(b.year) - parseInt(a.year);
+                });
+                console.log(yearsList);
+                yearViews = yearsList.map(year => <StatePageYearDisplay data={year} key={year.year} />);
             }
 
             if (resultsFound) {
                 retval = (
                     <div style={{marginTop: 30}}>
-                        <img src={require(`../assets/img/${this.props.match.params.name}.png`)} height={100} />
-                        <h2 style={{color:'black', marginTop:10}}>{this.props.match.params.name.replace('_', ' ').toUpperCase()}</h2>
-                        <div className='state-result-list'>
-                            <div className='flex-column'>{stateResults}</div>
-                            <div className='flex-column'>{regionalsResults}</div>
-                            <div className='flex-column'>{roundoneResults}</div>
+                    <div className='state-page-header'>
+                        <img src={require(`../assets/img/${this.props.match.params.name}.png`)} height={50} />
+                        <h2>{this.props.match.params.name.replace('_', ' ').toUpperCase()}</h2>
                         </div>
+                        {yearViews}
                     </div>
                 );
             } else {
                 retval = (
                     <div style={{marginTop: 30}}>
-                        <img src={require(`../assets/img/${this.props.match.params.name}.png`)} height={100}/>
-                        <h2 style={{color:'black', marginTop:10}}>{this.props.match.params.name.replace('_', ' ').toUpperCase()}</h2>
+                        <div className='state-page-header'>
+                        <img src={require(`../assets/img/${this.props.match.params.name}.png`)} height={50}/>
+                        <h2>{this.props.match.params.name.replace('_', ' ').toUpperCase()}</h2>
+                        </div>
                         <div className='search-result-none'>No results found</div>
                     </div>
                 );

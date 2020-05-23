@@ -579,3 +579,104 @@ input[type="submit"] {
     border-radius: 5px;
     border: 5px solid #ff3b3f;
 }
+
+.state-page-year-bar {
+    background-color: white;
+    margin-bottom: 20px;
+    display: flex;
+    margin-left: 80px;
+    margin-right: 80px;
+    padding: 20px;
+    color: black;
+    cursor: pointer;
+    border: 1px solid #ff3b3f;
+}
+
+.state-page-year-bar:hover {
+    box-shadow: 0 0 5px 0 #ff3b3f;
+}
+
+.state-page-year-bar-year {
+    display: flex;
+    flex-direction: column;
+    justify-content: top;
+    margin-top: 30px;
+    padding-right: 20px;
+    padding-left: 20px;
+    flex-shrink: 2;
+}
+
+.state-page-year-bar-year span {
+    background-color: black;
+    opacity: 0.8;
+    padding: 10px;
+    border-radius: 0 100px 100px 0;
+    font-weight: bold;
+    color: white;
+}
+
+.state-page-year-bar-open .state-page-year-bar-year span {
+    transform: rotate(90deg);
+}
+
+.state-page-link {
+    padding: 10px;
+    border: 1px solid black;
+    border-radius: 10px;
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.state-page-link:hover {
+    background-color: #ff3b3f;
+    color: white;
+}
+
+.state-page-fake-link:hover {
+    background-color: #f8fc04;
+    color: black;
+}
+
+.state-page-link-disabled:hover {
+    background-color: white;
+    color: black;
+}
+
+.state-page-stack {
+    display: flex;
+    flex-direction: column;
+    justify-content: top;
+    flex: 1 1 0px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.state-page-year-bar-open .state-page-link {
+    flex-grow: 0;
+}
+
+.state-page-stack-link {
+    margin-bottom: 10px;
+}
+
+.state-page-stack .state-page-link:last-of-type {
+    margin-bottom: 0;
+}
+
+.state-page-header {
+    background-color: #ff3b3f;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin: 0 auto;
+    border: 1px solid black;
+    margin-bottom: 20px;
+    width: 300px;
+    color: white;
+}
+
+.state-page-header h2 {
+    margin-bottom: 0;
+    margin-top: 10px;
+}
