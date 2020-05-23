@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {withRouter, Link} from 'react-router-dom';
 import '../styles.css';
 import API from '../API';
+import { roundMap } from '../util/consts';
 
 var mouseDownHappened = false;
 var intervalId = 0;
@@ -11,13 +12,6 @@ var possiblyShorten = str => {
         return str.slice(0, 50) + '...';
     }
     return str;
-};
-
-var roundMap = {
-    roundone: 'Round One',
-    regionals: 'Regionals',
-    state: 'State',
-    nationals: 'Nationals'
 };
 
 class SearchForm extends Component {

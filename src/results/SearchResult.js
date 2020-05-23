@@ -4,6 +4,7 @@ import '../styles.css';
 import API from '../API';
 import {Link} from 'react-router-dom';
 import {Home} from '../Home';
+import { roundMap } from '../util/consts';
 
 export class SearchResult extends Component {
     constructor(props) {
@@ -40,6 +41,7 @@ export class SearchResult extends Component {
 
         let schoolResults = (null);
         let peopleResults = (null);
+        let matchResults = (null);
 
         let resultsFound = false;
 
@@ -90,11 +92,33 @@ export class SearchResult extends Component {
                 resultsFound = true;
             }
 
+            if (this.state.result.data.matches.length > 0) {
+                matchResults = (
+                    <div className='search-result-category'>
+                        <div className='search-result-category-title'>Matches</div>
+                        <ul className='search-result-sublist'>
+                        {
+                            this.state.result.data.matches.map((match) => (
+                                <Link to={`/match/${match._id}`} key={match._id}>
+                                    <li className='search-result'>
+                                        <div className='search-result-title'>{match.year + ' ' + roundMap[match.round]}</div>
+                                        <div className='search-result-subtitle'>{match.state} {match.region}</div>
+                                    </li>
+                                </Link>
+                            ))
+                        }
+                        </ul>
+                    </div>
+                );
+                resultsFound = true;
+            }
+
             if (resultsFound) {
                 retval = (
                     <div className='search-result-list'>
                         {schoolResults}
                         {peopleResults}
+                        {matchResults}
                     </div>
                 );
             } else {
@@ -104,5 +128,4 @@ export class SearchResult extends Component {
 
         return retval;
     }
-
 }
