@@ -292,7 +292,7 @@ router.route('/matchcreate')
             return;
         }
 
-        let requiredFields = ['year', 'date']
+        let requiredFields = ['year', 'date'];
         if (round !== 'state' && round === 'nationals') {
             requiredFields.push('region');
         }
@@ -423,8 +423,10 @@ router.route('/matchcreate')
         let dbCalls = [];
         teamData.forEach(team => {
             team.teamName = team.teamName.trim();
-            ['overall', 'objs', 'subs'].forEach(category => {
-                team[category] = numberWithCommas(parseFloat(team[category]));
+            ['overall', 'objs', 'subs', 'sq'].forEach(category => {
+                if (category in team) {
+                    team[category] = numberWithCommas(Math.round(parseFloat(student[category]) * 10) / 10);
+                }
             });
             dbCalls.push(School.findOne({$or: [
                     {'name': team.teamName}
