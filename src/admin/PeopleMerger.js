@@ -2,6 +2,7 @@ import React from 'react';
 import { PersonSelect } from './PersonSelect';
 import API from '../API';
 import mergeImg from '../assets/img/merge.jpg';
+import { Link } from 'react-router-dom';
 
 export class PeopleMerger extends React.Component {
     constructor(props) {
@@ -80,7 +81,12 @@ export class PeopleMerger extends React.Component {
     
     render() {
         if (this.state.done) {
-            return <div>People merged!</div>;
+            return (
+                <div>
+                    <div>Your Franken-person has been created!</div>
+                    <div className='page-link'><Link to={`person/${this.state.god.selectedPerson._id}`}>Look upon thy Adam...</Link></div>
+                </div>
+            );
         }
         return (
             <div className='form-container'>
