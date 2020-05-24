@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import './styles.css';
 import API from './API';
 import {Link} from 'react-router-dom';
+import Loader from 'react-loader-spinner'
 
 export class Home extends Component {
     constructor(props) {
@@ -53,7 +54,13 @@ export class Home extends Component {
         );
 
         if (!this.state.result) {
-            retval = <div className='search-prompt'>Type in the search box to begin</div>;
+                retval = <Loader
+                type="TailSpin"
+                height={40}
+                width={40}
+                timeout={10000}
+                style={{marginTop: 50}}
+            />
         } else {
             if (this.state.result.data.matches.length > 0) {
                 matchResults = (
@@ -84,7 +91,13 @@ export class Home extends Component {
                     </div>
                 );
             } else {
-                retval = <div className='search-prompt'>Type in the search box to begin</div>;
+                retval = <Loader
+                    type="TailSpin"
+                    height={40}
+                    width={40}
+                    timeout={10000}
+                    style={{marginTop: 50}}
+                />
             }
         }
 

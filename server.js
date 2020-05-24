@@ -428,9 +428,14 @@ router.route('/matchcreate')
                     team[category] = numberWithCommas(Math.round(parseFloat(team[category]) * 10) / 10);
                 }
             });
-            dbCalls.push(School.findOne({$or: [
-                    {'name': team.teamName}
-                ]}));
+            let query = {$or: [
+                {'name': team.teamName},
+                {'teams.teamName': team.teamName}
+            ]};
+            if (round !== 'nationals') {
+                query['state'] = req.body.state;
+            }
+            dbCalls.push(School.findOne(query));
         });
 
         Promise.all(dbCalls).then(result => {
@@ -949,9 +954,9 @@ router.route('/matchteam/:id')
                     }
                     let teamIdx = -1;
                     for (let i = 0; i < school.teams.length; i++) {
-                        if (school.teams[i].teamName.toLowerCase() === req.body.edits.teamName.toLowerCase()) {
+                        if (school.teams[i].teamName === req.body.edits.teamName) {
                             teamIdx = i;
-                        } else if (oldTeamName.toLowerCase() !== req.body.edits.teamName.toLowerCase() && school.teams[i].teamName.toLowerCase() === oldTeamName.toLowerCase()) {
+                        } else if (oldTeamName !== req.body.edits.teamName && school.teams[i].teamName === oldTeamName) {
                             school.teams[i].seasons.forEach(season => {
                                 if (season.year === match.year) {
                                     season[match.round] = '';

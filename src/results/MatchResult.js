@@ -5,6 +5,7 @@ import API from '../API';
 import {SchoolSelect} from '../admin/SchoolSelect';
 import {PersonSelect} from '../admin/PersonSelect';
 import ReactTooltip from 'react-tooltip';
+import Loader from 'react-loader-spinner'
 
 const categories = {
     math: 'Math',
@@ -402,7 +403,13 @@ class MatchResult extends Component {
 
     render() {
         if (!this.state.result) {
-            return <div></div>;
+            return <Loader
+                type="TailSpin"
+                height={40}
+                width={40}
+                timeout={10000}
+                style={{marginTop: 50}}
+            />
         } else if (this.state.deleted) {
             return <h3>Match deleted.</h3>;
         } else if (this.state.result === 'noresult') {
