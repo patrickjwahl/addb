@@ -571,7 +571,7 @@ class MatchResult extends Component {
                     teamTables = Object.keys(teamDivisions).map(div => {
                         return (
                             <div>
-                                <h3 className='info-page-subhead'>{divisions[div]}</h3>
+                                <h3 className='info-page-subhead'>{divisions[div] || div}</h3>
                                 <table className='info-page-table'>
                                 <thead>
                                 <tr className='info-page-table-first-row'>
