@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import API from '../API';
-import {Link} from 'react-router-dom';
 import {StatePageYearDisplay} from './StatePageYearDisplay';
+import { taglines } from '../util/consts';
 
 export class StatePage extends Component {
     constructor(props) {
@@ -77,13 +77,16 @@ export class StatePage extends Component {
                 console.log(yearsList);
                 yearViews = yearsList.map(year => <StatePageYearDisplay data={year} key={year.year} />);
             }
+            
+            const { name } = this.props.match.params;
 
             if (resultsFound) {
                 retval = (
                     <div style={{marginTop: 30}}>
                     <div className='state-page-header'>
-                        <img src={require(`../assets/img/${this.props.match.params.name}.jpg`)} height={50} />
-                        <h2>{this.props.match.params.name.replace('_', ' ').toUpperCase()}</h2>
+                        <img src={require(`../assets/img/${name}.jpg`)} height={50} />
+                        <div className='state-tagline' hidden={!(name in taglines)}>"{taglines[name]}"</div>
+                        <h2>{name.replace('_', ' ').toUpperCase()}</h2>
                         </div>
                         {yearViews}
                     </div>
@@ -92,8 +95,9 @@ export class StatePage extends Component {
                 retval = (
                     <div style={{marginTop: 30}}>
                         <div className='state-page-header'>
-                        <img src={require(`../assets/img/${this.props.match.params.name}.jpg`)} height={50}/>
-                        <h2>{this.props.match.params.name.replace('_', ' ').toUpperCase()}</h2>
+                        <img src={require(`../assets/img/${name}.jpg`)} height={50}/>
+                        <div className='state-tagline' hidden={!(name in taglines)}>"{taglines[name]}"</div>
+                        <h2>{name.replace('_', ' ').toUpperCase()}</h2>
                         </div>
                         <div className='search-result-none'>No results found</div>
                     </div>

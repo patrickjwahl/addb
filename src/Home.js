@@ -59,7 +59,7 @@ export class Home extends Component {
                 height={40}
                 width={40}
                 timeout={10000}
-                style={{marginTop: 50}}
+                style={{marginTop: '50'}}
             />
         } else {
             if (this.state.result.data.matches.length > 0) {
@@ -96,7 +96,7 @@ export class Home extends Component {
                     height={40}
                     width={40}
                     timeout={10000}
-                    style={{marginTop: 50}}
+                    style={{marginTop: '50'}}
                 />
             }
         }

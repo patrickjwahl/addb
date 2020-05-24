@@ -204,6 +204,10 @@ class API {
     deleteMatch = id => {
         return this.axios.delete(`/match/${id}`);
     };
+
+    getRoster = (schoolId, year) => {
+        return this.axios.get(`/roster/${schoolId}/${year}`);
+    };
 }
 
 const api = new API();

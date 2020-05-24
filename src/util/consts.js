@@ -5,3 +5,8 @@ export const roundMap = {
     state: 'State',
     nationals: 'Nationals'
 };
+export const taglines = {
+    Texas: "Don't mess with",
+    Rhode_Island: "It's famous for you",
+    Georgia: "Not the country"
+}

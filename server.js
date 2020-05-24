@@ -1282,6 +1282,7 @@ router.route('/recent')
                     success: false,
                     err
                 });
+                return;
             }
             results = results.map(r => ({
                 year: r.year,
@@ -1306,6 +1307,7 @@ router.route('/state/:name')
                     success: false,
                     err
                 });
+                return;
             }
             results = results.map(r => ({
                 id: r._id,
@@ -1322,6 +1324,23 @@ router.route('/state/:name')
             res.json({
                 success: true,
                 matches: results
+            });
+        });
+    });
+
+router.route('/roster/:school/:year')
+    .get(function(req, res) {
+        Person.find({schoolId: req.params.school, 'seasons.year': req.params.year}, 'name', function(err, people) {
+            if (err) {
+                res.json({
+                    success: false,
+                    err
+                });
+                return;
+            }
+            res.json({
+                success: true,
+                roster: people
             });
         });
     });

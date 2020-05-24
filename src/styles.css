@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css?family=Lato:400,700');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap');
 
 html {
     height: 100%;
@@ -685,4 +686,72 @@ input[type="submit"] {
 .state-page-header h2 {
     margin-bottom: 0;
     margin-top: 0px;
+}
+
+.state-tagline {
+    font-family: 'Dancing Script', cursive;
+    margin-bottom: -5px;
+}
+
+.roster-container {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border: 1px solid black;
+    border-radius: 5px;
+    overflow: hidden;
+    background-color: #efefef;
+}
+
+.roster-link {
+    background-color: white;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+}
+
+.roster-link:hover {
+    background-color: black;
+    color: white;
+}
+
+.roster-link-open {
+    border-bottom: 1px solid black;
+}
+
+.roster-container ul {
+    margin: 0;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    columns: 2;
+    overflow: hidden;
+    transform: scaleY(1);
+    transform-origin: top;
+    transition: font-size .25s,
+                opacity 0.5s .25s,
+                margin .25s;
+}
+
+.roster-container ul li {
+    text-align: center;
+    list-style-position: inside;
+  -webkit-column-break-inside: avoid;
+            page-break-inside: avoid;
+                 break-inside: avoid;
+}
+
+.roster-container a {
+    display: inline;
+}
+
+.roster-container a:hover {
+    text-decoration: underline;
+}
+
+.roster-container .roster-closed {
+    margin: 0;
+    opacity: 0;
+    font-size: 0;
+    transition: font-size 0.5s .25s,
+                margin 0.5s .25s,
+                opacity .25s;
 }

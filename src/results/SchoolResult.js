@@ -16,7 +16,9 @@ export class SchoolResult extends Component {
                 city: '',
                 region: '',
                 district: '',
-            }
+            },
+            rosters: {},
+            rostersOpen: {}
         };
         this.getSchool = this.getSchool.bind(this);
     }
@@ -55,7 +57,7 @@ export class SchoolResult extends Component {
 
     cancelEditing = () => {
         this.setState({editing: false});
-    }
+    };
 
     handleEditsChanged = e => {
         let field = e.target.name;
@@ -80,6 +82,35 @@ export class SchoolResult extends Component {
                     console.log(res);
                 }
             });
+    };
+
+    getRoster = year => {
+        API.getRoster(this.props.match.params.id, year)
+            .then(res => {
+                let roster = res.data.roster;
+                let rosterSort = roster.sort((a, b) => {
+                    return a.name.localeCompare(b.name);
+                });
+                let { rosters } = this.state;
+                rosters[year] = rosterSort;
+                this.setState({ rosters });
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    };
+
+    handleRosterYearClicked = year => {
+        let { rostersOpen } = this.state;
+        if (!(year in rostersOpen)) {
+            rostersOpen[year] = true;
+        } else {
+            rostersOpen[year] = !rostersOpen[year];
+        }
+        this.setState({ rostersOpen });
+        if (!(year in this.state.rosters)) {
+            this.getRoster(year);
+        }
     };
 
     componentDidMount() {
@@ -139,7 +170,25 @@ export class SchoolResult extends Component {
         if (this.state.result.data._id) {
             let school = this.state.result.data;
             let teamData;
+            let makeRoster = year => {
+                return (
+                    <div key={year} className='roster-container'>
+                        <div className={'roster-link' + (this.state.rostersOpen[year] ? ' roster-link-open' : '')} onClick={() => this.handleRosterYearClicked(year)}>{year}</div>
+                        <ul className={!this.state.rostersOpen[year] ? 'roster-closed' : ''}>
+                            {this.state.rosters[year] && this.state.rosters[year].map(student => {
+                                return <li key={student._id}><Link to={`/person/${student._id}`}>{student.name}</Link></li>;
+                            })}
+                        </ul>
+                    </div>
+                );
+            };
             if (school.teams.length > 0) {
+                let years = new Set();
+                school.teams.forEach(team => {
+                    team.seasons.forEach(season => {
+                        years.add(season.year);
+                    });
+                });
                 teamData = (
                     <div>
                     <div className='info-page-section'>Match Results</div>
@@ -195,6 +244,10 @@ export class SchoolResult extends Component {
                     </table>
                     </div>
                     ))}
+                    <div className='info-page-section'>Rosters</div>
+                    {Array.from(years).map(year => {
+                        return makeRoster(year);
+                    })}
                     </div>
                 );
             } else {

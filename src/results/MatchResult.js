@@ -408,7 +408,7 @@ class MatchResult extends Component {
                 height={40}
                 width={40}
                 timeout={10000}
-                style={{marginTop: 50}}
+                style={{marginTop: '50'}}
             />
         } else if (this.state.deleted) {
             return <h3>Match deleted.</h3>;
