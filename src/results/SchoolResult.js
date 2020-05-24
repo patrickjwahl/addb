@@ -120,6 +120,7 @@ export class SchoolResult extends Component {
     componentDidUpdate(prevProps, prevState) {
         if (this.props.match.params.id !== prevProps.match.params.id) {
             this.getSchool();
+            this.setState({rosters: {}, rostersOpen: {}});
         }
     }
 

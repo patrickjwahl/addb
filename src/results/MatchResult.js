@@ -766,7 +766,7 @@ class MatchResult extends Component {
                                         return arr.concat((
                                             <tr className={className} key={index}>
                                                 <td>
-                                                    <select type="select" name="school" value={edits[index].teamName} onChange={e => {this.changeRowField(index, e)}}>
+                                                    <select type="select" name="teamName" value={edits[index].teamName} onChange={e => {this.changeRowField(index, e)}}>
                                                         {teams.map(team => (
                                                             <option key={team.rank} value={team.teamName}>{team.teamName}</option>
                                                         ))}

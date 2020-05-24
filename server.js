@@ -1148,13 +1148,19 @@ router.route('/mergepeople/:godId/:peonId')
                             res.send(500, {error: err});
                             return;
                         }
-                        let edit = new Edit();
-                        edit.user = req.username;
-                        edit.datetime = new Date();
-                        edit.summary = `MERGE PEOPLE: ${god.name} ${peon.name}`
-                        edit.save(function(err) {
-                            res.json({
-                                success: true
+                        Match.update({'students.id': req.params.peonId}, {$set: {'students.$.id': req.params.godId, 'students.$.decathlete': god.name}}, function(err, up) {
+                            if (err) {
+                                res.send(500, {error: err});
+                                return;
+                            }
+                            let edit = new Edit();
+                            edit.user = req.username;
+                            edit.datetime = new Date();
+                            edit.summary = `MERGE PEOPLE: ${god.name} ${peon.name}`
+                            edit.save(function(err) {
+                                res.json({
+                                    success: true
+                                });
                             });
                         });
                     });
@@ -1199,13 +1205,19 @@ router.route('/person/:id')
                     res.send(500, {error: err});
                     return;
                 }
-                let edit = new Edit();
-                edit.user = req.username;
-                edit.datetime = new Date();
-                edit.summary = `EDIT PERSON: ${edits.name} (${school.state})`
-                edit.save(function(err) {
-                    res.json({
-                        success: true
+                Match.update({'students.id': req.params.id}, {$set: {'students.$.decathlete': edits.name}}, function(err, up) {
+                    if (err) {
+                        res.send(500, {error: err});
+                        return;
+                    }
+                    let edit = new Edit();
+                    edit.user = req.username;
+                    edit.datetime = new Date();
+                    edit.summary = `EDIT PERSON: ${edits.name} (${school.state})`
+                    edit.save(function(err) {
+                        res.json({
+                            success: true
+                        });
                     });
                 });
             });
