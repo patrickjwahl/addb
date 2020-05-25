@@ -50,6 +50,13 @@ const gpaToRank = {
     C: 3
 };
 
+const possiblyShorten = str => {
+    if (str.length > 20) {
+        return str.slice(0, 16) + '...';
+    }
+    return str;
+};
+
 function toCamelCase(sentenceCase) {
     var out = "";
     sentenceCase.split(" ").forEach(function (el, idx) {
@@ -318,7 +325,7 @@ class SeasonResult extends Component {
                                             && students[index+1].team !== student.team) ? teamRows[student.teamName] : (null);
     
                                         let personLink = <Link to={`/person/${student.id}`}>{student.decathlete}</Link>;
-                                        let teamLink = <Link to={`/school/${this.props.match.params.schoolId}`}>{student.teamName}</Link>;
+                                        let teamLink = <Link to={`/school/${this.props.match.params.schoolId}`}>{possiblyShorten(student.teamName)}</Link>;
                                         if (student.team) arr = arr.concat((
                                             <tr className={className} key={index}>
                                                 <td className='is-link table-cell-large'>{teamLink}</td>

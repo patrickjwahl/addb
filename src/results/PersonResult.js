@@ -10,6 +10,7 @@ export class PersonResult extends Component {
         this.state = {
             result: '', 
             editing: false,
+            deleted: false,
             edits: {
                 name: '',
                 schoolId: '',
@@ -49,6 +50,20 @@ export class PersonResult extends Component {
 
     makeEditable = () => {
         this.setState({editing: true});
+    };
+
+    deletePerson = () => {
+        if (window.confirm('You really want to say goodbye... forever? 😢😢')) {
+            API.deletePerson(this.state.result.data._id).then(res => {
+                if (res.data.success) {
+                    this.setState({deleted: true});
+                } else {
+                    alert(res.data.message);
+                }
+            });
+        } else {
+            alert("Look who's come crawling back.");
+        }
     };
 
     cancelEditing = () => {
@@ -118,7 +133,9 @@ export class PersonResult extends Component {
         if (!this.state.result) {
             return <div></div>;
         } else if (!this.state.result.data) {
-            return <h1>This ain't it, Chief.</h1>;
+            return <div className='search-result-none'>Person not found.</div>;
+        } else if (this.state.deleted) {
+            return <div>Person deleted.</div> 
         }
 
         if (this.state.result.data._id) {
@@ -211,7 +228,7 @@ export class PersonResult extends Component {
                 editButtons = (
                     <div>
                         <button onClick={this.makeEditable}>Edit</button>
-                        <button>Delete</button>
+                        <button onClick={this.deletePerson}>Delete</button>
                     </div>
                 );
             }

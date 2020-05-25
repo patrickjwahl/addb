@@ -74,6 +74,13 @@ const gpaToRank = {
     C: 3
 };
 
+const possiblyShorten = str => {
+    if (str.length > 20) {
+        return str.slice(0, 16) + '...';
+    }
+    return str;
+};
+
 function toCamelCase(sentenceCase) {
     var out = "";
     sentenceCase.split(" ").forEach(function (el, idx) {
@@ -383,7 +390,7 @@ class MatchResult extends Component {
                     if (res.data.success) {
                         this.setState({deleted: true});
                     } else {
-                        alert('Something went wrong, Chief. Check the logs.');
+                        alert(res.data.message);
                     }
                 });
         } else {
@@ -413,7 +420,7 @@ class MatchResult extends Component {
         } else if (this.state.deleted) {
             return <h3>Match deleted.</h3>;
         } else if (this.state.result === 'noresult') {
-            return <div><h1>I'm so sowwy! Pwease fawgive me! UwU</h1><h1>I was unaboo to find the match!</h1></div>;
+            return <div className='search-result-none'>Person not found.</div>;
         } else {
             if (this.state.result.data) {
                 let match = this.state.result.data;
@@ -797,10 +804,10 @@ class MatchResult extends Component {
                                         ));
                                     }
                                     let personLink = !editing ? <Link to={`/person/${student.id}`}>{student.decathlete}</Link> : student.decathlete;
-                                    let teamLink = !editing ? <Link to={`/school/${teamNameToId[student.teamName.trim()]}`}>{student.teamName}</Link> : student.teamName;
+                                    let teamLink = !editing ? <Link to={`/school/${teamNameToId[student.teamName.trim()]}`}>{possiblyShorten(student.teamName)}</Link> : possiblyShorten(student.teamName);
                                     if (student.team) arr = arr.concat((
                                         <tr className={className} key={index}>
-                                            <td className='is-link table-cell-large'>{teamLink}</td>
+                                            <td data-tip={student.teamName} className='is-link table-cell-large'>{teamLink}</td>
                                             <td>{student.team}</td>
                                             <td>{student.gpa}</td>
                                             <td className='is-link table-cell-large'>{personLink}</td>

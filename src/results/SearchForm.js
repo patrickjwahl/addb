@@ -9,7 +9,7 @@ var intervalId = 0;
 
 var possiblyShorten = str => {
     if (str.length > 37) {
-        return str.slice(0, 50) + '...';
+        return str.slice(0, 30) + '...';
     }
     return str;
 };

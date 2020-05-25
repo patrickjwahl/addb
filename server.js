@@ -1222,6 +1222,26 @@ router.route('/person/:id')
                 });
             });
         });
+    })
+    .delete(function(req, res) {
+        if (!req.auth || !req.canEdit) {
+            res.json({
+                success: false,
+                message: 'Not authorized'
+            });
+            return;
+        }
+        Person.findOneAndRemove({'_id': req.params.id}, function(err, person) {
+            let edit = new Edit();
+            edit.user = req.username;
+            edit.datetime = new Date();
+            edit.summary = `DELETE PERSON: ${person.name} ${person.school} ${person.state}`;
+            edit.save(function(err) {
+                res.json({
+                    success: true
+                });
+            });
+        });
     });
 
 router.route('/school')
