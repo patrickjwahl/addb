@@ -5,6 +5,7 @@ import API from '../API';
 import {Link} from 'react-router-dom';
 import {Home} from '../Home';
 import { roundMap } from '../util/consts';
+import { Helmet } from 'react-helmet';
 
 export class SearchResult extends Component {
     constructor(props) {
@@ -126,6 +127,11 @@ export class SearchResult extends Component {
             }
         }
 
-        return retval;
+        return (
+            <div>
+                <Helmet><title>{`Search for "${qs.parse(this.props.location.search, { ignoreQueryPrefix: true }).query}" | AcDecDB`}</title></Helmet>
+                {retval}
+            </div>
+        )
     }
 }

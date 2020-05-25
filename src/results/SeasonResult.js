@@ -3,6 +3,7 @@ import {Link, withRouter} from 'react-router-dom';
 import '../styles.css';
 import API from '../API';
 import Loader from 'react-loader-spinner';
+import { Helmet } from 'react-helmet';
 
 const categories = {
     math: 'Math',
@@ -324,7 +325,7 @@ class SeasonResult extends Component {
                                             && (this.state.sortKey === 'school' || this.state.sortKey === 'team')
                                             && students[index+1].team !== student.team) ? teamRows[student.teamName] : (null);
     
-                                        let personLink = <Link to={`/person/${student.id}`}>{student.decathlete}</Link>;
+                                        let personLink = <Link to={`/person/${student.id}`}>{possiblyShorten(student.decathlete)}</Link>;
                                         let teamLink = <Link to={`/school/${this.props.match.params.schoolId}`}>{possiblyShorten(student.teamName)}</Link>;
                                         if (student.team) arr = arr.concat((
                                             <tr className={className} key={index}>
@@ -393,6 +394,7 @@ class SeasonResult extends Component {
 
                 return (
                     <div className='info-page'>
+                    <Helmet><title>{schoolName} - {this.props.match.params.year} Season | AcDecDB</title></Helmet>
                     <div className='small-header'>SEASON</div>
                     <div className='info-page-header'>
                         <div className='info-title'><Link to={`/school/${this.props.match.params.schoolId}`}>{schoolName}</Link></div>

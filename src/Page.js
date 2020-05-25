@@ -11,6 +11,7 @@ import PrivateRoute from './PrivateRoute';
 import CreateUser from './admin/CreateUser';
 import Register from './Register';
 import EditingGuide from './admin/EditingGuide';
+import { Helmet } from 'react-helmet';
 
 export class Page extends Component {
 
@@ -61,6 +62,7 @@ export class Page extends Component {
 
         return(
             <div className='global'>
+                <Helmet><title>AcDecDB</title></Helmet>
                 <div className='top-bar'>
                     <Link to='/'>
                         <h1 className='header-main'>AD-DB</h1>

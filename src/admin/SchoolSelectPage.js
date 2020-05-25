@@ -3,6 +3,7 @@ import {SchoolSelect} from './SchoolSelect';
 import { Link } from 'react-router-dom';
 import '../styles.css';
 import API from '../API';
+import { Helmet } from 'react-helmet';
 
 export class SchoolSelectPage extends Component {
     constructor(props) {
@@ -118,6 +119,7 @@ export class SchoolSelectPage extends Component {
 
         let schoolForm = (
             <form className='form-container' onSubmit={this.handleSubmit} onKeyDown={this.handleKeyDown}>
+            <Helmet><title>Link Schools | AcDecDB</title></Helmet>
             {
                 this.state.schools.map((school, index) => (<SchoolSelect key={index} schoolname={school.teamName} suggestion={school.suggestion} selectId={index} shouldColor
                     selectedName={school.selectedName} selectedCity={school.selectedCity} selectedState={school.selectedState} selectSchool={this.selectSchool} unselectSchool={this.unselectSchool} />))

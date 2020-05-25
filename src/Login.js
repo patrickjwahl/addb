@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import API from './API';
 import { Redirect } from 'react-router-dom';
 import logImg from './assets/img/log.jpg';
+import { Helmet } from 'react-helmet';
 
 class Login extends Component {
     constructor(props) {
@@ -46,6 +47,7 @@ class Login extends Component {
 
         return (
             <div>
+                <Helmet><title>Login | AcDecDB</title></Helmet>
                 {admonishment}
                 <div className='form-container'>
                     <img src={logImg} width={150} style={{margin:'10px 0'}} />

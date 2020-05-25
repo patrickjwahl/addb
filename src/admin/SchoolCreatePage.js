@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import API from '../API';
 import schoolImg from '../assets/img/school.jpg';
 import { stateNames } from '../util/consts';
+import { Helmet } from 'react-helmet';
 
 class SchoolCreatePage extends Component {
     constructor(props) {
@@ -55,6 +56,7 @@ class SchoolCreatePage extends Component {
         } else {
             retval = (
                 <form className='form-container' onSubmit={this.handleSubmit}>
+                    <Helmet><title>Create School | AcDecDB</title></Helmet>
                     <img src={schoolImg} width={150} style={{margin:'10px 0'}} />
                     <div className='form-field'>
                         <label className='form-label'>Name</label>

@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import API from '../API';
 import {StatePageYearDisplay} from './StatePageYearDisplay';
 import { taglines } from '../util/consts';
+import { Helmet } from 'react-helmet';
 
 export class StatePage extends Component {
     constructor(props) {
@@ -83,6 +84,7 @@ export class StatePage extends Component {
             if (resultsFound) {
                 retval = (
                     <div style={{marginTop: 30}}>
+                    <Helmet><title>{name.replace('_', ' ')} | AcDecDB</title></Helmet>
                     <div className='state-page-header'>
                         <img src={require(`../assets/img/${name}.jpg`)} height={50} />
                         <div className='state-tagline' hidden={!(name in taglines)}>"{taglines[name]}"</div>
@@ -94,6 +96,7 @@ export class StatePage extends Component {
             } else {
                 retval = (
                     <div style={{marginTop: 30}}>
+                        <Helmet><title>{name.replace('_', ' ')} | AcDecDB</title></Helmet>
                         <div className='state-page-header'>
                         <img src={require(`../assets/img/${name}.jpg`)} height={50}/>
                         <div className='state-tagline' hidden={!(name in taglines)}>"{taglines[name]}"</div>

@@ -6,6 +6,7 @@ import {SchoolSelect} from '../admin/SchoolSelect';
 import {PersonSelect} from '../admin/PersonSelect';
 import ReactTooltip from 'react-tooltip';
 import Loader from 'react-loader-spinner';
+import { Helmet } from 'react-helmet';
 
 const categories = {
     math: 'Math',
@@ -718,6 +719,9 @@ class MatchResult extends Component {
 
                 return (
                     <div className='info-page'>
+                        <Helmet>
+                            <title>{match.year} {roundName} - {subtitle} | AcDecDB</title>
+                        </Helmet>
                         <ReactTooltip delayShow={250} />
                         <a name="#top"></a>
                         <div className='small-header'>MATCH</div>
@@ -803,14 +807,14 @@ class MatchResult extends Component {
                                             </tr>
                                         ));
                                     }
-                                    let personLink = !editing ? <Link to={`/person/${student.id}`}>{student.decathlete}</Link> : student.decathlete;
-                                    let teamLink = !editing ? <Link to={`/school/${teamNameToId[student.teamName.trim()]}`}>{possiblyShorten(student.teamName)}</Link> : possiblyShorten(student.teamName);
+                                    let personLink = !editing ? <Link to={`/person/${student.id}`}>{possiblyShorten(student.decathlete)}</Link> : student.decathlete;
+                                    let teamLink = !editing ? <Link to={`/school/${teamNameToId[student.teamName.trim()]}`}>{possiblyShorten(student.teamName)}</Link> : student.teamName;
                                     if (student.team) arr = arr.concat((
                                         <tr className={className} key={index}>
-                                            <td data-tip={student.teamName} className='is-link table-cell-large'>{teamLink}</td>
+                                            <td data-tip={student.teamName} data-tip-disable={student.teamName.length <= 20} className='is-link table-cell-large'>{teamLink}</td>
                                             <td>{student.team}</td>
                                             <td>{student.gpa}</td>
-                                            <td className='is-link table-cell-large'>{personLink}</td>
+                                            <td data-tip={student.decathlete} data-tip-disable={student.decathlete.length <= 20} className='is-link table-cell-large'>{personLink}</td>
                                             <td className='bold'>{student.overall}</td>
                                             {(events.math) ? (<td data-tip="Math" className="table-cell-small">{student.math}</td>) : (null)}
                                             {(events.music) ? (<td data-tip="Music" className="table-cell-small">{student.music}</td>) : (null)}

@@ -2,7 +2,8 @@ import React, {Component} from 'react';
 import './styles.css';
 import API from './API';
 import {Link} from 'react-router-dom';
-import Loader from 'react-loader-spinner'
+import Loader from 'react-loader-spinner';
+import { Helmet } from 'react-helmet';
 
 export class Home extends Component {
     constructor(props) {
@@ -86,6 +87,7 @@ export class Home extends Component {
             if (resultsFound) {
                 retval = (
                     <div className='state-result-list'>
+                        <Helmet><title>AcDecDB</title></Helmet>
                         <div className='flex-column'>{matchResults}</div>
                         <div className='flex-column-big'>{stateLinks}</div>
                     </div>

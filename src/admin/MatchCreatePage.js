@@ -3,6 +3,7 @@ import {SchoolSelectPage} from './SchoolSelectPage';
 import API from '../API';
 import matchImg from '../assets/img/match.jpg';
 import { stateNames } from '../util/consts';
+import { Helmet } from 'react-helmet';
 
 export class MatchCreatePage extends Component {
     constructor(props) {
@@ -179,6 +180,7 @@ export class MatchCreatePage extends Component {
         if (!this.state.serverData) {
             retval = (
                 <form className='form-container' onSubmit={this.handleSubmit}>
+                    <Helmet><title>Create Match | AcDecDB</title></Helmet>
                     <img src={matchImg} width={200} style={{margin:'10px 0'}} />
                     <div style={{fontSize: '12px', textAlign: 'left', marginBottom: 10}}>* <i>indicates required field.</i></div>
                     <div className='form-field'>

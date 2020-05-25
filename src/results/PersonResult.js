@@ -3,6 +3,7 @@ import '../styles.css';
 import {Link} from 'react-router-dom';
 import API from '../API';
 import { SchoolSelect } from '../admin/SchoolSelect';
+import { Helmet } from 'react-helmet';
 
 export class PersonResult extends Component {
     constructor(props) {
@@ -235,6 +236,7 @@ export class PersonResult extends Component {
 
             return (
                 <div className='info-page'>
+                    <Helmet><title>{person.name} | AcDecDB</title></Helmet>
                     <div className='small-header'>DECATHLETE</div>
                     <div className='info-page-header'>
                         <div className='info-title'>{person.name}</div>

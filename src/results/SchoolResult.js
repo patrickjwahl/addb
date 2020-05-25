@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import '../styles.css';
 import {Link} from 'react-router-dom';
 import API from '../API';
+import { Helmet } from 'react-helmet';
 
 export class SchoolResult extends Component {
     constructor(props) {
@@ -290,6 +291,7 @@ export class SchoolResult extends Component {
 
             return (
                 <div className='info-page'>
+                    <Helmet><title>{title} | AcDecDB</title></Helmet>
                     <div className='small-header'>SCHOOL</div>
                     <div className='info-page-header'>
                         <div className='info-title'>{title}</div>

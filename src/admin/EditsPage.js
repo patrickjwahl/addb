@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import API from '../API';
+import { Helmet } from 'react-helmet';
 
 class EditsPage extends Component {
     constructor(props) {
@@ -27,6 +28,7 @@ class EditsPage extends Component {
     
     render() {
         return (<div className='info-page'>
+            <Helmet><title>Recent Edits | AcDecDB</title></Helmet>
             <div>
                 {this.state.edits.map(edit => (
                     <div style={{marginBottom: 10}}>

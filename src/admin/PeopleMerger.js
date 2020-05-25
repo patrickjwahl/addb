@@ -3,6 +3,7 @@ import { PersonSelect } from './PersonSelect';
 import API from '../API';
 import mergeImg from '../assets/img/merge.jpg';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 
 export class PeopleMerger extends React.Component {
     constructor(props) {
@@ -90,6 +91,7 @@ export class PeopleMerger extends React.Component {
         }
         return (
             <div className='form-container'>
+                <Helmet><title>PeopleMerger-9000 | AcDecDB</title></Helmet>
                 <img src={mergeImg} width={150} style={{margin:'10px 0'}} />
                 <PersonSelect personName={'God'} selectedPerson={this.state.god.selectedPerson} selectedName={this.state.god.selectedName} selectedFullSchool={this.state.god.selectedFullSchool}
                     selectedSchool={this.state.god.selectedSchool} selectId={0} selectPerson={this.selectGod} unselectPerson={this.unselectGod} />
