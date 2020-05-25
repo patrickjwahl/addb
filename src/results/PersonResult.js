@@ -186,7 +186,7 @@ export class PersonResult extends Component {
 
 
                             return (<tr key={season.year}>
-                                <td>{season.year}</td>
+                                <td className='is-link'><Link to={`/season/${person.schoolId}/${season.year}`}>{season.year}</Link></td>
                                 {roundone}
                                 {regionals}
                                 {state}

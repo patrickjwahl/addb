@@ -1395,7 +1395,7 @@ router.route('/season/:school/:year')
                     { $match: {_id: mongoose.Types.ObjectId(id)} }, 
                     { $unwind: '$students' }, 
                     { $match: { 'students.teamName': {$in: teamNames}}}, 
-                    { $project: { students: 1, round: 1, access: 1, events: 1, incompleteData: 1 }}])
+                    { $project: { students: 1, round: 1, access: 1, events: 1, incompleteData: 1, teams: 1 }}])
             );
             Promise.all(dbCalls).then(results => {
                 let rounds = {};
@@ -1404,6 +1404,7 @@ router.route('/season/:school/:year')
                         obj.round = student.round;
                         obj.events = student.events;
                         obj.access = student.access;
+                        obj.rank = student.teams.filter(team => team.teamName === student.students.teamName)[0].rank;
                         obj._id = student._id;
                         obj.incompleteData = student.incompleteData;
                         obj.students.push(student.students);

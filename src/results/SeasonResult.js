@@ -285,7 +285,7 @@ class SeasonResult extends Component {
                         return (
                             <div key={match.round}>
                             {userHasAccess && hasIndividualScores > 0 ? (<div>
-                                <div className='info-page-section'><Link to={`/match/${match._id}`}>{roundName}</Link></div>
+                                <div className='info-page-section'><Link to={`/match/${match._id}`}>{roundName}</Link><span style={{fontSize: 15, marginLeft: 5}}>(Rank {match.rank})</span></div>
                                 <table className='info-page-table'>
                                 <thead>
                                     <tr className='info-page-table-first-row'>
