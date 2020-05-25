@@ -208,6 +208,10 @@ class API {
     getRoster = (schoolId, year) => {
         return this.axios.get(`/roster/${schoolId}/${year}`);
     };
+
+    getSeason = (schoolId, year) => {
+        return this.axios.get(`/season/${schoolId}/${year}`)
+    };
 }
 
 const api = new API();

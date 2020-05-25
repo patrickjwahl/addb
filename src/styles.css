@@ -759,3 +759,19 @@ input[type="submit"] {
                 margin 0.5s .25s,
                 opacity .25s;
 }
+
+.info-title a {
+    display: inline;
+}
+
+.info-title a:hover {
+    text-decoration: underline;
+}
+
+.info-page-section a {
+    display: inline;
+}
+
+.info-page-section a:hover {
+    text-decoration: underline;
+}

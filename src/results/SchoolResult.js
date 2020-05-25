@@ -233,7 +233,7 @@ export class SchoolResult extends Component {
 
 
                                 return (<tr key={season.year}>
-                                    <td>{season.year}</td>
+                                    <td className='is-link'><Link to={`/season/${this.props.match.params.id}/${season.year}`}>{season.year}</Link></td>
                                     {roundone}
                                     {regionals}
                                     {state}

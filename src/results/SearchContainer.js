@@ -8,6 +8,7 @@ import MatchResult from './MatchResult';
 import PrivateRoute from '../PrivateRoute';
 import EditsPage from '../admin/EditsPage';
 import {StatePage} from './StatePage';
+import SeasonResult from './SeasonResult';
 
 export class SearchContainer extends Component {
     constructor(props) {
@@ -29,6 +30,7 @@ export class SearchContainer extends Component {
                     )}/>
                     <Route path='/school/:id' component={SchoolResult} />
                     <Route path='/person/:id' component={PersonResult} />
+                    <Route exact path='/season/:schoolId/:year' component={SeasonResult} />
                     <Route exact path='/state/:name' component={StatePage} />
                     <Route path='/match/:id' render={props => (
                         <MatchResult {...props} specific={false} />

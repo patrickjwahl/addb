@@ -1357,6 +1357,75 @@ router.route('/roster/:school/:year')
         });
     });
 
+router.route('/season/:school/:year')
+    .get(function(req, res) {
+        School.findOne({_id: req.params.school}, function(err, school) {
+            if (err) {
+                res.json({
+                    success: false,
+                    err
+                });
+                return;
+            }
+            let schoolName = school.fullName || school.name;
+            let year = req.params.year;
+            let teamNames = [];
+            let matchIds = [];
+            school.teams.forEach(team => {
+                teamNames.push(team.teamName);
+                team.seasons.forEach(season => {
+                    if (season.year === year) {
+                        let { roundoneId, regionalsId, stateId, nationalsId } = season;
+                        if (roundoneId) {
+                            matchIds.push(roundoneId);
+                        }
+                        if (regionalsId) {
+                            matchIds.push(regionalsId);
+                        }
+                        if (stateId) {
+                            matchIds.push(stateId);
+                        }
+                        if (nationalsId) {
+                            matchIds.push(nationalsId);
+                        }
+                    }
+                });
+            });
+            let dbCalls = matchIds.map(id => Match.aggregate([
+                    { $match: {_id: mongoose.Types.ObjectId(id)} }, 
+                    { $unwind: '$students' }, 
+                    { $match: { 'students.teamName': {$in: teamNames}}}, 
+                    { $project: { students: 1, round: 1, access: 1, events: 1, incompleteData: 1 }}])
+            );
+            Promise.all(dbCalls).then(results => {
+                let rounds = {};
+                results.forEach(roundData => {
+                    let round = roundData.reduce((obj, student) => {
+                        obj.round = student.round;
+                        obj.events = student.events;
+                        obj.access = student.access;
+                        obj._id = student._id;
+                        obj.incompleteData = student.incompleteData;
+                        obj.students.push(student.students);
+                        return obj;
+                    }, {students: []});
+                    rounds[round.round] = round;
+                });
+                Object.keys(rounds).forEach(round => {
+                    if (req.access < round.access) {
+                        rounds[round] = removeBreakdownsFromMatch(round);
+                    }
+                });
+                res.json({
+                    success: true,
+                    rounds,
+                    teamNames,
+                    schoolName
+                });
+            });
+        });
+    });
+
 app.use('/api', router);
 app.get('*', function(req, res) {
     res.sendFile(path.join(__dirname, 'build', 'index.html'));

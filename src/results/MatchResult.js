@@ -5,7 +5,7 @@ import API from '../API';
 import {SchoolSelect} from '../admin/SchoolSelect';
 import {PersonSelect} from '../admin/PersonSelect';
 import ReactTooltip from 'react-tooltip';
-import Loader from 'react-loader-spinner'
+import Loader from 'react-loader-spinner';
 
 const categories = {
     math: 'Math',
@@ -21,7 +21,7 @@ const categories = {
     objs: 'Objs',
     subs: 'Subs',
     overall: 'Overall'
-}
+};
 
 const divisions = {
     L: 'Large Schools',
@@ -57,7 +57,7 @@ const gpaToKey = {
     V: 'c',
     c: 'c',
     C: 'c'
-}
+};
 
 const gpaToRank = {
     a: 1,
@@ -72,7 +72,7 @@ const gpaToRank = {
     V: 3,
     c: 3,
     C: 3
-}
+};
 
 function toCamelCase(sentenceCase) {
     var out = "";
@@ -347,7 +347,7 @@ class MatchResult extends Component {
             return sortReverse && no1 !== no2 ? result * -1 : result;
         });
         this.setState({result, sortKey, sortReverse});
-    }
+    };
 
     handleOverallCategoryClicked = label => {
         let sortKey = toCamelCase(label);
