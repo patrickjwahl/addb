@@ -7,6 +7,7 @@ var multer = require('multer');
 var bcrypt = require('bcrypt-nodejs');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
+const levenshtein = require('js-levenshtein');
 var parse = require('csv-parse/lib/sync');
 var bodyParser = require('body-parser');
 var School = require('./model/school');
@@ -1446,6 +1447,48 @@ router.route('/season/:school/:year')
             });
         });
     });
+
+router.route('/potentialmerges/:state')
+    .get(function(req, res) {
+        if (!req.auth || req.access !== 4) {
+            res.json({
+                success: false,
+                message: 'Not authorized'
+            });
+            return;
+        }
+        Person.aggregate([
+            {$match: {state: req.params.state}},
+            {$group: {_id: {schoolId: "$schoolId", name: "$name", school: "$school"}}},
+            {$group: {_id: {schoolId: "$_id.schoolId", school: "$_id.school"}, names: {$addToSet: "$_id.name"}}}
+        ], function(err, results) {
+            if (err) {
+                res.send(500, err);
+                return;
+            }
+            let potentialMerges = [];
+            results.forEach(result => {
+                const school = result._id.school;
+                const names = result.names;
+                for (let i = 0; i < names.length; i++) {
+                    for (let j = i + 1; j < names.length; j++) {
+                        let name1Spl = new Set(names[i].split(' '));
+                        let name2Spl = new Set(names[j].split(' '));
+                        let intersection = new Set([...name1Spl].filter(x => name2Spl.has(x)));
+                        if (intersection.size > 0 || levenshtein(names[i], names[j]) < 4) {
+                            potentialMerges.push({
+                                school,
+                                person1: names[i],
+                                person2: names[j]
+                            });
+                        }
+                    }
+                }
+            });
+            res.json({potentialMerges});
+        });
+    });
+
 
 app.use('/api', router);
 app.get('*', function(req, res) {

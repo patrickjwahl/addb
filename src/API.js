@@ -214,7 +214,11 @@ class API {
     };
 
     getSeason = (schoolId, year) => {
-        return this.axios.get(`/season/${schoolId}/${year}`)
+        return this.axios.get(`/season/${schoolId}/${year}`);
+    };
+
+    getPotentialMerges = (state) => {
+        return this.axios.get(`/potentialmerges/${state}`);
     };
 }
 

@@ -4,6 +4,7 @@ import {Link, Switch, Route} from 'react-router-dom';
 import {SearchContainer} from './results/SearchContainer';
 import {MatchCreatePage} from './admin/MatchCreatePage';
 import {PeopleMerger} from './admin/PeopleMerger';
+import {PotentialMerges} from './admin/PotentialMerges';
 import SchoolCreatePage from './admin/SchoolCreatePage';
 import Login from './Login';
 import API from './API';
@@ -37,6 +38,8 @@ export class Page extends Component {
                     <Link to='/schoolcreate' className='page-link'>New School</Link>
                     {' ○ '}
                     <Link to='/peoplemerger' className='page-link'>PeopleMerger-9000</Link>
+                    {' ○ '}
+                    <Link to='/potentialmerges' className='page-link'>Merge Suggestions</Link>
                     {' ○ '}
                     <Link to='/editingguide' className='page-link'>Editing Guide</Link>
                     {' ○ '}
@@ -75,6 +78,7 @@ export class Page extends Component {
                     <PrivateRoute exact path='/schoolcreate' component={SchoolCreatePage} req='edit' />
                     <PrivateRoute exact path='/peoplemerger' component={PeopleMerger} req='edit' />
                     <PrivateRoute exact path='/editingguide' component={EditingGuide} req='edit' />
+                    <PrivateRoute exact path='/potentialmerges' component={PotentialMerges} req='edit' />
                     <Route exact path='/login' component={Login} />
                     <Route exact path='/register' component={Register} />
                     <Route render={(props) => (
