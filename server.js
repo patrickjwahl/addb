@@ -1472,6 +1472,7 @@ router.route('/potentialmerges/:state')
                 const names = result.names;
                 for (let i = 0; i < names.length; i++) {
                     for (let j = i + 1; j < names.length; j++) {
+                        if (!names[i].name || !names[j].name) continue;
                         let name1Spl = new Set(names[i].name.split(' '));
                         let name2Spl = new Set(names[j].name.split(' '));
                         let intersection = new Set([...name1Spl].filter(x => name2Spl.has(x)));
