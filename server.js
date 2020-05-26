@@ -1459,8 +1459,8 @@ router.route('/potentialmerges/:state')
         }
         Person.aggregate([
             {$match: {state: req.params.state}},
-            {$group: {_id: {schoolId: "$schoolId", name: "$name", school: "$school"}}},
-            {$group: {_id: {schoolId: "$_id.schoolId", school: "$_id.school"}, names: {$addToSet: "$_id.name"}}}
+            {$group: {_id: {schoolId: "$schoolId", name: "$name", id: "$_id", school: "$school"}}},
+            {$group: {_id: {schoolId: "$_id.schoolId", school: "$_id.school"}, names: {$addToSet: {name: "$_id.name", id: "$_id.id"}}}}
         ], function(err, results) {
             if (err) {
                 res.send(500, err);
@@ -1472,10 +1472,10 @@ router.route('/potentialmerges/:state')
                 const names = result.names;
                 for (let i = 0; i < names.length; i++) {
                     for (let j = i + 1; j < names.length; j++) {
-                        let name1Spl = new Set(names[i].split(' '));
-                        let name2Spl = new Set(names[j].split(' '));
+                        let name1Spl = new Set(names[i].name.split(' '));
+                        let name2Spl = new Set(names[j].name.split(' '));
                         let intersection = new Set([...name1Spl].filter(x => name2Spl.has(x)));
-                        if (intersection.size > 0 || levenshtein(names[i], names[j]) < 4) {
+                        if (intersection.size > 0 || levenshtein(names[i].name, names[j].name) < 4) {
                             potentialMerges.push({
                                 school,
                                 person1: names[i],
