@@ -2,7 +2,7 @@
 Go beyond the wiki to pore through the tribulations of America's best and brightest.
 
 ### Setting Up Your Dev Environment
-Make sure you have Node.js and MongoDB installed. Clone the repository, cd into its directory, and run `npm install`. 
+Make sure you have Node.js and MongoDB installed. Clone the repository, cd into its directory, and run `npm install`. Create a file called `.env` in the root directory and add the line `SESSIONS_SECRET=mylittlesecret` (you can replace the value with anything you want).
 
 Start Mongo by running `mongod --dbpath <path to your DB>`
 
