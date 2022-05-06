@@ -102,7 +102,21 @@ class SearchForm extends Component {
                 if (this.state.focus > -1) {
                     e.preventDefault();
                     this.handleOnBlur();
-                    this.props.history.push(`/school/${this.state.result.data.schools[this.state.focus]._id}`);
+                    let results = this.state.result.data.schools.slice(0, 3)
+                        .concat(this.state.result.data.people.slice(0, 3))
+                        .concat(this.state.result.data.matches.slice(0, 3));
+                    
+                    let selectedResult = results[this.state.focus];
+                    let prefix;
+                    if ('schoolId' in selectedResult) {
+                        prefix = 'person';
+                    } else if ('district' in selectedResult) {
+                        prefix = 'school';
+                    } else {
+                        prefix = 'match';
+                    }
+                    
+                    this.props.history.push(`/${prefix}/${results[this.state.focus]._id}`);
                 }
             } else {
                 this.setState({focus: -1});
