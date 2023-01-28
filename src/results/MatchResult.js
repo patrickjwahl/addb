@@ -421,7 +421,7 @@ class MatchResult extends Component {
         } else if (this.state.deleted) {
             return <h3>Match deleted.</h3>;
         } else if (this.state.result === 'noresult') {
-            return <div className='search-result-none'>Person not found.</div>;
+            return <div className='search-result-none'>Match not found.</div>;
         } else {
             if (this.state.result.data) {
                 let match = this.state.result.data;

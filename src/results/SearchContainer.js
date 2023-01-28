@@ -42,7 +42,7 @@ export class SearchContainer extends Component {
                         <MatchResult {...props} specific={true} />
                     )} />
                     <Route render={props => (
-                        <h1>No fucking page here dumbass!</h1>
+                        <h1>Uh-oh! There's no page here!</h1>
                     )} />
                 </Switch>
             </div>

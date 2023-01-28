@@ -4,6 +4,7 @@ import {Link} from 'react-router-dom';
 import API from '../API';
 import { SchoolSelect } from '../admin/SchoolSelect';
 import { Helmet } from 'react-helmet';
+import Loader from 'react-loader-spinner';
 
 export class PersonResult extends Component {
     constructor(props) {
@@ -25,24 +26,28 @@ export class PersonResult extends Component {
     getPerson() {
         API.getPerson(this.props.match.params.id)
             .then(res => {
-                let person = res.data;
-                if (person) {
-                    let newEdits = {
-                        name: person.name,
-                        schoolId: person.schoolId,
-                        selectedSchoolName: '',
-                        selectedSchoolCity: '',
-                        selectedSchoolState: ''
-                    };
-                    res.data.seasons = res.data.seasons.sort((a, b) => {
-                        let no1 = parseFloat(a.year);
-                        let no2 = parseFloat(b.year);
-            
-                        let result = (no1 > no2) ? -1 : 1;
-                        return result;
-                    });
-                    this.setState({result: res, edits: newEdits})
-                } else this.setState({result: res});
+                if (res.data.name === 'CastError') {
+                    this.setState({result: 'none'});
+                } else {
+                    let person = res.data;
+                    if (person) {
+                        let newEdits = {
+                            name: person.name,
+                            schoolId: person.schoolId,
+                            selectedSchoolName: '',
+                            selectedSchoolCity: '',
+                            selectedSchoolState: ''
+                        };
+                        res.data.seasons = res.data.seasons.sort((a, b) => {
+                            let no1 = parseFloat(a.year);
+                            let no2 = parseFloat(b.year);
+                
+                            let result = (no1 > no2) ? -1 : 1;
+                            return result;
+                        });
+                        this.setState({result: res, edits: newEdits})
+                    } else this.setState({result: 'none'});
+                }
             })
             .catch(err => {
                 console.log(err);
@@ -132,8 +137,14 @@ export class PersonResult extends Component {
 
     render() {
         if (!this.state.result) {
-            return <div></div>;
-        } else if (!this.state.result.data) {
+            return <Loader
+                type="TailSpin"
+                height={40}
+                width={40}
+                timeout={10000}
+                style={{marginTop: '50'}}
+            />
+        } else if (this.state.result == 'none') {
             return <div className='search-result-none'>Person not found.</div>;
         } else if (this.state.deleted) {
             return <div>Person deleted.</div> 

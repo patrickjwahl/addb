@@ -1177,7 +1177,7 @@ router.route('/person/:id')
                 res.send(err);
                 return;
             }
-            res.json(person); 
+            res.json(person);
         });
     })
     .post(function(req, res) {

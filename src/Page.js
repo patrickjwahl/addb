@@ -13,18 +13,25 @@ import CreateUser from './admin/CreateUser';
 import Register from './Register';
 import EditingGuide from './admin/EditingGuide';
 import { Helmet } from 'react-helmet';
+import tunes from './assets/audio/thedan.mp3';
 
 export class Page extends Component {
 
     constructor(props) {
         super(props);
         this.state = { loggedInOnMount: false }
+        this.audio = new Audio(tunes);
+        this.playTunes = this.playTunes.bind(this);
     }
 
     componentDidMount() {
         API.authenticate().then(res => {
             this.forceUpdate();
         });
+    }
+
+    playTunes() {
+        this.audio.play();
     }
 
     render() {
@@ -55,11 +62,13 @@ export class Page extends Component {
             )
             : (
                 <div style={{display:'inline'}} >
-                <Link style={{display: 'inline'}} to={{pathname: '/login', state: {from: this.props.location}}}>
-                    <div className='page-link'>Log In</div>
-                </Link>
-                {' ○ '}
-                <Link to='/register' className='page-link'>Register</Link>
+                    <span>&copy;2023 <a onClick={() => this.playTunes()} className='page-link' style={{display: 'inline'}}>Patrick J. Wahl</a></span>
+                    {' ○ '}
+                    <Link style={{display: 'inline'}} to={{pathname: '/login', state: {from: this.props.location}}}>
+                        <div className='page-link'>Log In</div>
+                    </Link>
+                    {' ○ '}
+                    <Link to='/register' className='page-link'>Register</Link>
                 </div>
             );
 

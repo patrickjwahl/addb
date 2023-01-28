@@ -3,6 +3,7 @@ import '../styles.css';
 import {Link} from 'react-router-dom';
 import API from '../API';
 import { Helmet } from 'react-helmet';
+import Loader from 'react-loader-spinner';
 
 export class SchoolResult extends Component {
     constructor(props) {
@@ -27,25 +28,30 @@ export class SchoolResult extends Component {
     getSchool() {
         API.getSchool(this.props.match.params.id)
             .then(res => {
-                let school = res.data;
-                let newEdits = {
-                    name: school.name,
-                    fullName: school.fullName,
-                    state: school.state,
-                    city: school.city,
-                    region: school.region,
-                    district: school.district
-                };
-                for (let i = 0; i < res.data.teams.length; i++) {
-                    res.data.teams[i].seasons = res.data.teams[i].seasons.sort((a, b) => {
-                        let no1 = parseFloat(a.year);
-                        let no2 = parseFloat(b.year);
-            
-                        let result = (no1 > no2) ? -1 : 1;
-                        return result;
-                    });
+                if (res.data.name === 'CastError') {
+                    this.setState({result: 'none'});
+                } else {
+
+                    let school = res.data;
+                    let newEdits = {
+                        name: school.name,
+                        fullName: school.fullName,
+                        state: school.state,
+                        city: school.city,
+                        region: school.region,
+                        district: school.district
+                    };
+                    for (let i = 0; i < res.data.teams.length; i++) {
+                        res.data.teams[i].seasons = res.data.teams[i].seasons.sort((a, b) => {
+                            let no1 = parseFloat(a.year);
+                            let no2 = parseFloat(b.year);
+                
+                            let result = (no1 > no2) ? -1 : 1;
+                            return result;
+                        });
+                    }
+                    this.setState({result: res, edits: newEdits});
                 }
-                this.setState({result: res, edits: newEdits});
             })
             .catch(err => {
                 console.log(err);
@@ -127,7 +133,15 @@ export class SchoolResult extends Component {
 
     render() {
         if (!this.state.result) {
-            return <div></div>;
+            return <Loader
+                type="TailSpin"
+                height={40}
+                width={40}
+                timeout={10000}
+                style={{marginTop: '50'}}
+            />
+        } else if (this.state.result == 'none') {
+            return <div className='search-result-none'>School not found.</div>;
         }
 
         if (this.state.editing) {
