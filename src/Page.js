@@ -74,7 +74,7 @@ export class Page extends Component {
 
         return(
             <div className='global'>
-                <Helmet><title>AcDecDB</title></Helmet>
+                <Helmet><title>AcDecDB | The world's #1 database for Academic Decathlon</title></Helmet>
                 <div className='top-bar'>
                     <Link to='/'>
                         <h1 className='header-main'>AD-DB</h1>

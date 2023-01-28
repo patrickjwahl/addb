@@ -87,7 +87,7 @@ export class Home extends Component {
             if (resultsFound) {
                 retval = (
                     <div className='state-result-list'>
-                        <Helmet><title>AcDecDB</title></Helmet>
+                        <Helmet><title>AcDecDB | The world's #1 database for Academic Decathlon</title></Helmet>
                         <div className='flex-column'>{matchResults}</div>
                         <div className='flex-column-big'>{stateLinks}</div>
                     </div>
