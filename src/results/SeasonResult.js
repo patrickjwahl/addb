@@ -284,113 +284,119 @@ class SeasonResult extends Component {
                                 </tr>
                             );
                         });
+                    }
 
-                        const largeCols = new Set(['School', 'Decathlete']);
-                        const normalCols = new Set(['Team', 'GPA', 'Overall', 'Objs', 'Subs']);
+                    const largeCols = new Set(['School', 'Decathlete']);
+                    const normalCols = new Set(['Team', 'GPA', 'Overall', 'Objs', 'Subs']);
 
-                        const hasIndividualScores = students.filter(student => student.team).length > 0;
+                    const hasIndividualScores = students.filter(student => student.team).length > 0;
 
-                        return (
-                            <div key={match.round}>
-                            {userHasAccess && hasIndividualScores > 0 ? (<div>
+                    return (
+                        <div key={match.round}>
+                        {userHasAccess && hasIndividualScores > 0 ? (<div>
+                            <div className='info-page-section'><Link to={`/match/${match._id}`}>{roundName}</Link><span style={{fontSize: 15, marginLeft: 5}}>(Rank {match.rank})</span></div>
+                            <table className='info-page-table'>
+                            <thead>
+                                <tr className='info-page-table-first-row'>
+                                {
+                                    headings.map((text) => {
+                                        let extraClass = '';
+                                        if (largeCols.has(text)) {
+                                            extraClass = ' table-cell-large';
+                                        } else if (!normalCols.has(text)) {
+                                            extraClass = ' table-cell-small';
+                                        }
+                                        return (
+                                            <td className={'with-cursor' + extraClass} onClick={() => {this.handleCategoryClicked(text)}} key={text}>
+                                            {text}{(toCamelCase(text) === this.state.sortKey) ? (this.state.sortReverse ? ' ▲' : ' ▼') : ''}
+                                            </td>
+                                        );
+                                    })
+                                }
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {
+                                students.reduce((arr, student, index) => {
+                                    let className = (index > 0 
+                                        && (this.state.sortKey === 'school' || this.state.sortKey === 'team')
+                                        && students[index-1].team !== student.team) ? 'separator-row' : '';
+
+                                    let extraRow = ((index === students.length - 1) || index < students.length - 1
+                                        && (this.state.sortKey === 'school' || this.state.sortKey === 'team')
+                                        && students[index+1].team !== student.team) ? teamRows[student.teamName] : (null);
+
+                                    let personLink = <Link to={`/person/${student.id}`}>{possiblyShorten(student.decathlete)}</Link>;
+                                    let teamLink = <Link to={`/school/${this.props.match.params.schoolId}`}>{possiblyShorten(student.teamName)}</Link>;
+                                    if (student.team) arr = arr.concat((
+                                        <tr className={className} key={index}>
+                                            <td className='is-link table-cell-large'>{teamLink}</td>
+                                            <td>{student.team}</td>
+                                            <td>{student.gpa}</td>
+                                            <td className='is-link table-cell-large'>{personLink}</td>
+                                            <td className='bold'>{student.overall}</td>
+                                            {(events.math) ? (<td data-tip="Math" className="table-cell-small">{student.math}</td>) : (null)}
+                                            {(events.music) ? (<td data-tip="Music" className="table-cell-small">{student.music}</td>) : (null)}
+                                            {(events.econ) ? (<td data-tip="Econ" className="table-cell-small">{student.econ}</td>) : (null)}
+                                            {(events.science) ? (<td data-tip="Science" className="table-cell-small">{student.science}</td>) : (null)}
+                                            {(events.lit) ? (<td data-tip="Literature" className="table-cell-small">{student.lit}</td>) : (null)}
+                                            {(events.art) ? (<td data-tip="Art" className="table-cell-small">{student.art}</td>) : (null)}
+                                            {(events.socialScience) ? (<td data-tip="Social Science" className="table-cell-small">{student.socialScience}</td>) : (null)}
+                                            {(events.essay) ? (<td data-tip="Essay" className="table-cell-small">{student.essay}</td>) : (null)}	
+                                            {(events.speech) ? (<td data-tip="Speech" className="table-cell-small">{student.speech}</td>) : (null)}
+                                            {(events.interview) ? (<td data-tip="Interview" className="table-cell-small">{student.interview}</td>) : (null)}
+                                            {(events.objs) ? (<td className='bold'>{student.objs}</td>) : (null)}
+                                            {(events.subs) ? (<td>{student.subs}</td> ) : (null)}
+                                        </tr> ));
+                                    return arr.concat((extraRow));
+                                }, [])
+                            }
+                            </tbody>
+                            </table>
+                        </div>) : (null) }
+                        {match.incompleteData || !userHasAccess ? (
+                            <div>
                                 <div className='info-page-section'><Link to={`/match/${match._id}`}>{roundName}</Link><span style={{fontSize: 15, marginLeft: 5}}>(Rank {match.rank})</span></div>
                                 <table className='info-page-table'>
                                 <thead>
+    
                                     <tr className='info-page-table-first-row'>
-                                    {
-                                        headings.map((text) => {
-                                            let extraClass = '';
-                                            if (largeCols.has(text)) {
-                                                extraClass = ' table-cell-large';
-                                            } else if (!normalCols.has(text)) {
-                                                extraClass = ' table-cell-small';
-                                            }
-                                            return (
-                                                <td className={'with-cursor' + extraClass} onClick={() => {this.handleCategoryClicked(text)}} key={text}>
-                                                {text}{(toCamelCase(text) === this.state.sortKey) ? (this.state.sortReverse ? ' ▲' : ' ▼') : ''}
-                                                </td>
-                                            );
-                                        })
-                                    }
+                                        {['School', 'GPA', 'Decathlete', 'Overall'].map((text) => (
+                                            <td className='with-cursor' key={text}>
+                                                {text}
+                                            </td>
+                                        ))}
                                     </tr>
                                 </thead>
                                 <tbody>
-                                {
-                                    students.reduce((arr, student, index) => {
-                                        let className = (index > 0 
-                                            && (this.state.sortKey === 'school' || this.state.sortKey === 'team')
-                                            && students[index-1].team !== student.team) ? 'separator-row' : '';
-    
-                                        let extraRow = ((index === students.length - 1) || index < students.length - 1
-                                            && (this.state.sortKey === 'school' || this.state.sortKey === 'team')
-                                            && students[index+1].team !== student.team) ? teamRows[student.teamName] : (null);
-    
-                                        let personLink = <Link to={`/person/${student.id}`}>{possiblyShorten(student.decathlete)}</Link>;
-                                        let teamLink = <Link to={`/school/${this.props.match.params.schoolId}`}>{possiblyShorten(student.teamName)}</Link>;
-                                        if (student.team) arr = arr.concat((
-                                            <tr className={className} key={index}>
-                                                <td className='is-link table-cell-large'>{teamLink}</td>
-                                                <td>{student.team}</td>
-                                                <td>{student.gpa}</td>
-                                                <td className='is-link table-cell-large'>{personLink}</td>
-                                                <td className='bold'>{student.overall}</td>
-                                                {(events.math) ? (<td data-tip="Math" className="table-cell-small">{student.math}</td>) : (null)}
-                                                {(events.music) ? (<td data-tip="Music" className="table-cell-small">{student.music}</td>) : (null)}
-                                                {(events.econ) ? (<td data-tip="Econ" className="table-cell-small">{student.econ}</td>) : (null)}
-                                                {(events.science) ? (<td data-tip="Science" className="table-cell-small">{student.science}</td>) : (null)}
-                                                {(events.lit) ? (<td data-tip="Literature" className="table-cell-small">{student.lit}</td>) : (null)}
-                                                {(events.art) ? (<td data-tip="Art" className="table-cell-small">{student.art}</td>) : (null)}
-                                                {(events.socialScience) ? (<td data-tip="Social Science" className="table-cell-small">{student.socialScience}</td>) : (null)}
-                                                {(events.essay) ? (<td data-tip="Essay" className="table-cell-small">{student.essay}</td>) : (null)}	
-                                                {(events.speech) ? (<td data-tip="Speech" className="table-cell-small">{student.speech}</td>) : (null)}
-                                                {(events.interview) ? (<td data-tip="Interview" className="table-cell-small">{student.interview}</td>) : (null)}
-                                                {(events.objs) ? (<td className='bold'>{student.objs}</td>) : (null)}
-                                                {(events.subs) ? (<td>{student.subs}</td> ) : (null)}
-                                            </tr> ));
-                                        return arr.concat((extraRow));
-                                    }, [])
-                                }
+                                {this.state.overallStudents[match.round].students.reduce((arr, student, index) => {
+                                    let personLink = <Link to={`/person/${student.id}`}>{student.decathlete}</Link>;
+                                    let teamLink = <Link to={`/school/${this.props.match.params.schoolId}`}>{student.teamName}</Link>;
+                                    arr = arr.concat((
+                                        <tr key={index}>
+                                            <td className='is-link table-cell-large'>{teamLink}</td>
+                                            <td className='table-cell-large'>{student.gpa}</td>
+                                            <td className='is-link table-cell-large'>{personLink}</td>
+                                            <td className='bold table-cell-large'>{student.overall}</td>
+                                        </tr>
+                                    ))
+                                    return arr;
+                                }, [])}
                                 </tbody>
                                 </table>
-                            </div>) : (null) }
-                            {match.incompleteData || !userHasAccess ? (
-                                <div>
-                                    <div className='info-page-section'>{roundName}</div>
-                                    <table className='info-page-table'>
-                                    <thead>
-        
-                                        <tr className='info-page-table-first-row'>
-                                            {['School', 'GPA', 'Decathlete', 'Overall'].map((text) => (
-                                                <td className='with-cursor' key={text}>
-                                                    {text}
-                                                </td>
-                                            ))}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    {this.state.overallStudents[match.round].reduce((arr, student, index) => {
-                                        let personLink = <Link to={`/person/${student.id}`}>{student.decathlete}</Link>;
-                                        let teamLink = <Link to={`/school/${this.props.match.params.schoolId}`}>{student.teamName}</Link>;
-                                        arr = arr.concat((
-                                            <tr key={index}>
-                                                <td className='is-link table-cell-large'>{teamLink}</td>
-                                                <td className='table-cell-large'>{student.gpa}</td>
-                                                <td className='is-link table-cell-large'>{personLink}</td>
-                                                <td className='bold table-cell-large'>{student.overall}</td>
-                                            </tr>
-                                        ))
-                                        return arr;
-                                    }, [])}
-                                    </tbody>
-                                    </table>
-                                </div>
-                            ): (null)}
                             </div>
-                        );
-                    }   
+                        ): (null)}
+                        </div>
+                    );
+                       
                 };
 
-                let tables = ['nationals', 'state', 'regionals', 'roundone'].map(r => createRound(rounds[r]));
+                let tables = ['nationals', 'state', 'regionals', 'roundone'].reduce((prev, r) => {
+                    if (rounds[r]) {
+                        prev.push(createRound(rounds[r]));
+                    }
+                    return prev;
+                }, []);
 
                 return (
                     <div className='info-page'>
