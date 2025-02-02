@@ -1,9 +1,9 @@
-import React, {Component} from 'react';
-import {Link, withRouter} from 'react-router-dom';
+import React, { Component } from 'react';
+import { Link, withRouter } from 'react-router-dom';
 import '../styles.css';
 import API from '../API';
-import {SchoolSelect} from '../admin/SchoolSelect';
-import {PersonSelect} from '../admin/PersonSelect';
+import { SchoolSelect } from '../admin/SchoolSelect';
+import { PersonSelect } from '../admin/PersonSelect';
 import ReactTooltip from 'react-tooltip';
 import Loader from 'react-loader-spinner';
 import { Helmet } from 'react-helmet';
@@ -94,77 +94,77 @@ function toCamelCase(sentenceCase) {
 class MatchResult extends Component {
     constructor(props) {
         super(props);
-        this.state = {result: '', unsortedData: '', overallStudents: [], overallSortKey: 'team', overallSortReverse: true, editedRows: {}, sortKey: 'team', sortReverse: true, edits: {}, teamEdits: {}, editedTeams: {}, editing: false, deleted: false, showDivisions: false};
+        this.state = { result: '', unsortedData: '', overallStudents: [], overallSortKey: 'team', overallSortReverse: true, editedRows: {}, sortKey: 'team', sortReverse: true, edits: {}, teamEdits: {}, editedTeams: {}, editing: false, deleted: false, showDivisions: false };
         this.getMatch = this.getMatch.bind(this);
     }
 
     getMatch() {
         if (this.props.specific) {
-            const {round, state, year, region} = this.props.match.params;
+            const { round, state, year, region } = this.props.match.params;
             API.getMatchSpecific(round, region, state, year)
-            .then(res => {
-                if (res.data === null) {
-                    this.setState({result: 'noresult'});
-                } else {
-                    let unsortedStudents = [...res.data.students];
-                    res.data.students = res.data.students.sort((a, b) => {
-                        let no1 = gpaToRank[a.gpa];
-                        let no2 = gpaToRank[b.gpa];
-            
-                        return no1 - no2;
-                    });
-                    res.data.students = res.data.students.sort((a, b) => {
-                        if (a.team === b.team) return 0;
-                        let no1 = parseFloat(a.team);
-                        let no2 = parseFloat(b.team);
-            
-                        let result = (no1 > no2) ? -1 : 1;
-                        return result * -1;
-                    });
-                    this.setState({result: res, unsortedData: unsortedStudents, overallStudents: [...res.data.students]});
-                }
-            })
-            .catch(err => {
-                this.setState({result: 'noresult'});
-            });
+                .then(res => {
+                    if (res.data === null) {
+                        this.setState({ result: 'noresult' });
+                    } else {
+                        let unsortedStudents = [...res.data.students];
+                        res.data.students = res.data.students.sort((a, b) => {
+                            let no1 = gpaToRank[a.gpa];
+                            let no2 = gpaToRank[b.gpa];
+
+                            return no1 - no2;
+                        });
+                        res.data.students = res.data.students.sort((a, b) => {
+                            if (a.team === b.team) return 0;
+                            let no1 = parseFloat(a.team);
+                            let no2 = parseFloat(b.team);
+
+                            let result = (no1 > no2) ? -1 : 1;
+                            return result * -1;
+                        });
+                        this.setState({ result: res, unsortedData: unsortedStudents, overallStudents: [...res.data.students] });
+                    }
+                })
+                .catch(err => {
+                    this.setState({ result: 'noresult' });
+                });
         } else {
             API.getMatch(this.props.match.params.id)
-            .then(res => {
-                if (res.data === null) {
-                    this.setState({result: 'noresult'});
-                } else {
-                    let unsortedStudents = [...res.data.students];
-                    res.data.students = res.data.students.sort((a, b) => {
-                        let no1 = gpaToRank[a.gpa];
-                        let no2 = gpaToRank[b.gpa];
+                .then(res => {
+                    if (res.data === null) {
+                        this.setState({ result: 'noresult' });
+                    } else {
+                        let unsortedStudents = [...res.data.students];
+                        res.data.students = res.data.students.sort((a, b) => {
+                            let no1 = gpaToRank[a.gpa];
+                            let no2 = gpaToRank[b.gpa];
 
-                        return no1 - no2;
-                    });
-                    res.data.students = res.data.students.sort((a, b) => {
-                        if (a.team === b.team) return 0;
-                        let no1 = parseFloat(a.team);
-                        let no2 = parseFloat(b.team);
+                            return no1 - no2;
+                        });
+                        res.data.students = res.data.students.sort((a, b) => {
+                            if (a.team === b.team) return 0;
+                            let no1 = parseFloat(a.team);
+                            let no2 = parseFloat(b.team);
 
-                        let result = (no1 > no2) ? -1 : 1;
-                        return result * -1;
-                    });
-                    this.setState({result: res, unsortedData: unsortedStudents, overallStudents: [...res.data.students]});
-                }
-            })
-            .catch(err => {
-                console.log(err);
-                this.setState({result: 'noresult'});
-            });
+                            let result = (no1 > no2) ? -1 : 1;
+                            return result * -1;
+                        });
+                        this.setState({ result: res, unsortedData: unsortedStudents, overallStudents: [...res.data.students] });
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    this.setState({ result: 'noresult' });
+                });
         }
     }
 
     toggleEditing = () => {
         if (this.state.editing) this.getMatch();
-        this.setState({editing: !this.state.editing, edits: {}, editedRows: {}, teamEdits: {}, editedTeams: {}});
+        this.setState({ editing: !this.state.editing, edits: {}, editedRows: {}, teamEdits: {}, editedTeams: {} });
     };
 
     toggleDivisions = () => {
-        this.setState({showDivisions: !this.state.showDivisions});	
+        this.setState({ showDivisions: !this.state.showDivisions });
     };
 
     makeStudentRowEditable = (rowNum, student) => {
@@ -195,7 +195,7 @@ class MatchResult extends Component {
                 selectedFullSchool: ''
             }
         }
-        this.setState({edits});
+        this.setState({ edits });
     };
 
     makeTeamRowEditable = (rowNum, team) => {
@@ -213,7 +213,7 @@ class MatchResult extends Component {
             subs: team.subs,
             sq: team.sq
         };
-        this.setState({teamEdits: edits});
+        this.setState({ teamEdits: edits });
     };
 
     selectSchool = info => {
@@ -225,7 +225,7 @@ class MatchResult extends Component {
         edits[index].selectedSchool.selectedName = school.name;
         edits[index].selectedSchool.selectedCity = school.city;
         edits[index].selectedSchool.selectedState = school.state;
-        this.setState({teamEdits: edits});
+        this.setState({ teamEdits: edits });
     };
 
     unselectSchool = index => {
@@ -237,7 +237,7 @@ class MatchResult extends Component {
             selectedCity: '',
             selectedState: '',
         };
-        this.setState({teamEdits: edits});
+        this.setState({ teamEdits: edits });
     };
 
     selectPerson = info => {
@@ -250,7 +250,7 @@ class MatchResult extends Component {
         edits[index].selectedPerson.selectedName = person.name;
         edits[index].selectedPerson.selectedSchool = person.school;
         edits[index].selectedPerson.selectedFullSchool = person.fullSchool;
-        this.setState({edits: edits});
+        this.setState({ edits: edits });
     };
 
     unselectPerson = index => {
@@ -263,42 +263,42 @@ class MatchResult extends Component {
             selectedSchool: '',
             selectedFullSchool: ''
         };
-        this.setState({edits: edits});
+        this.setState({ edits: edits });
     };
 
     changeRowField = (rowNum, e) => {
         let edits = this.state.edits;
         edits[rowNum][e.target.name] = e.target.value;
-        this.setState({edits});
+        this.setState({ edits });
     };
-    
+
     changeTeamField = (rowNum, e) => {
         let edits = this.state.teamEdits;
         edits[rowNum][e.target.name] = e.target.value;
-        this.setState({teamEdits: edits});
+        this.setState({ teamEdits: edits });
     };
 
     submitRowEdit = rowNum => {
         let edit = this.state.edits[rowNum];
 
         ['overall', 'math', 'music', 'econ', 'science', 'lit', 'art', 'socialScience', 'essay', 'speech', 'interview', 'objs', 'subs']
-        .forEach(cat => {
-            let numVal = Number(edit[cat]);
-            if (isNaN(numVal)) {
-                alert('Scores must be numbers!');
-                return;
-            }
-            edit[cat] = numVal;
-        });
+            .forEach(cat => {
+                let numVal = Number(edit[cat]);
+                if (isNaN(numVal)) {
+                    alert('Scores must be numbers!');
+                    return;
+                }
+                edit[cat] = numVal;
+            });
 
         API.updateMatchStudent(this.state.result.data._id, rowNum, edit)
             .then(res => {
                 if (res.data.success) {
-                    let newEdits = {...this.state.edits};
+                    let newEdits = { ...this.state.edits };
                     delete newEdits[rowNum];
-                    let editedRows = {...this.state.editedRows};
+                    let editedRows = { ...this.state.editedRows };
                     editedRows[rowNum] = true;
-                    this.setState({edits: newEdits, editedRows: editedRows});
+                    this.setState({ edits: newEdits, editedRows: editedRows });
                 } else {
                     alert('Something went wrong, Chief. Check the logs.');
                     console.log(res);
@@ -312,11 +312,11 @@ class MatchResult extends Component {
         API.updateMatchTeam(this.state.result.data._id, rowNum, edit)
             .then(res => {
                 if (res.data.success) {
-                    let newEdits = {...this.state.teamEdits};
+                    let newEdits = { ...this.state.teamEdits };
                     delete newEdits[rowNum];
-                    let editedTeams = {...this.state.editedTeams};
+                    let editedTeams = { ...this.state.editedTeams };
                     editedTeams[rowNum] = true;
-                    this.setState({teamEdits: newEdits, editedTeams: editedTeams});
+                    this.setState({ teamEdits: newEdits, editedTeams: editedTeams });
                 } else {
                     alert('Something went wrong, Chief. Check the logs.');
                     console.log(res);
@@ -354,7 +354,7 @@ class MatchResult extends Component {
             let result = (no1 > no2) ? -1 : 1;
             return sortReverse && no1 !== no2 ? result * -1 : result;
         });
-        this.setState({result, sortKey, sortReverse});
+        this.setState({ result, sortKey, sortReverse });
     };
 
     handleOverallCategoryClicked = label => {
@@ -389,7 +389,7 @@ class MatchResult extends Component {
             API.deleteMatch(this.state.result.data._id)
                 .then(res => {
                     if (res.data.success) {
-                        this.setState({deleted: true});
+                        this.setState({ deleted: true });
                     } else {
                         alert(res.data.message);
                     }
@@ -416,7 +416,7 @@ class MatchResult extends Component {
                 height={40}
                 width={40}
                 timeout={10000}
-                style={{marginTop: '50'}}
+                style={{ marginTop: '50' }}
             />
         } else if (this.state.deleted) {
             return <h3>Match deleted.</h3>;
@@ -526,50 +526,50 @@ class MatchResult extends Component {
                             </tr>
                         </thead>
                         <tbody>
-                        {
-                            teams.map((team, index) => {
-                                if (schoolFilter && team.school !== schoolFilter) return (null);
-                                let className = '';
-                                if (editing) {
-                                    if (this.state.editedTeams[index]) {
-                                        className = 'edited-row';
+                            {
+                                teams.map((team, index) => {
+                                    if (schoolFilter && team.school !== schoolFilter) return (null);
+                                    let className = '';
+                                    if (editing) {
+                                        if (this.state.editedTeams[index]) {
+                                            className = 'edited-row';
+                                        }
                                     }
-                                }
-                                if (teamEdits[index]) {
-                                    return (
-                                        <tr key={team.rank}>
-                                            <td>{team.rank}</td>
-                                            <td><div><SchoolSelect key={index} schoolname={team.school} selectId={index} 
-                                                    selectedName={teamEdits[index].selectedSchool.selectedName} 
-                                                    selectedCity={teamEdits[index].selectedSchool.selectedCity} 
-                                                    selectedState={teamEdits[index].selectedSchool.selectedState} 
+                                    if (teamEdits[index]) {
+                                        return (
+                                            <tr key={team.rank}>
+                                                <td>{team.rank}</td>
+                                                <td><div><SchoolSelect key={index} schoolname={team.school} selectId={index}
+                                                    selectedName={teamEdits[index].selectedSchool.selectedName}
+                                                    selectedCity={teamEdits[index].selectedSchool.selectedCity}
+                                                    selectedState={teamEdits[index].selectedSchool.selectedState}
                                                     selectSchool={this.selectSchool} unselectSchool={this.unselectSchool} />
-                                                </div><div><label>Team name: </label><input type = "text" size={30} name="teamName" value={teamEdits[index].teamName} onChange={e => {this.changeTeamField(index, e)}}/>
+                                                </div><div><label>Team name: </label><input type="text" size={30} name="teamName" value={teamEdits[index].teamName} onChange={e => { this.changeTeamField(index, e) }} />
 
-                                            </div></td>
-                                            <td><input type="text" size={8} name="overall" value={teamEdits[index].overall} onChange={e => {this.changeTeamField(index, e)}}/></td>
-                                            {!match.incompleteData ? <td><input type="text" size={8} name="objs" value={teamEdits[index].objs} onChange={e => {this.changeTeamField(index, e)}}/></td> : (null)}
-                                            {!match.incompleteData ? <td><input type="text" size={8} name="subs" value={teamEdits[index].subs} onChange={e => {this.changeTeamField(index, e)}}/></td> : (null)}
-                                            {match.hasSq ? <td><input type="text" size={8} name="sq" value={teamEdits[index].sq} onChange={e => {this.changeTeamField(index, e)}}/></td> : (null)}
-                                            <td><button type="button" onClick={() => this.submitTeamEdit(index)}>Save</button></td>
+                                                    </div></td>
+                                                <td><input type="text" size={8} name="overall" value={teamEdits[index].overall} onChange={e => { this.changeTeamField(index, e) }} /></td>
+                                                {!match.incompleteData ? <td><input type="text" size={8} name="objs" value={teamEdits[index].objs} onChange={e => { this.changeTeamField(index, e) }} /></td> : (null)}
+                                                {!match.incompleteData ? <td><input type="text" size={8} name="subs" value={teamEdits[index].subs} onChange={e => { this.changeTeamField(index, e) }} /></td> : (null)}
+                                                {match.hasSq ? <td><input type="text" size={8} name="sq" value={teamEdits[index].sq} onChange={e => { this.changeTeamField(index, e) }} /></td> : (null)}
+                                                <td><button type="button" onClick={() => this.submitTeamEdit(index)}>Save</button></td>
+                                            </tr>
+                                        );
+                                    }
+                                    let schoolLink = !editing ? <Link to={`/school/${team.id}`}>{team.teamName}</Link> : team.teamName;
+                                    return (
+                                        <tr className={className} key={team.rank}>
+                                            <td>{team.rank}</td>
+                                            <td className='is-link'>{schoolLink}</td>
+                                            <td>{team.overall}</td>
+                                            {!match.incompleteData ? <td>{team.objs}</td> : (null)}
+                                            {!match.incompleteData ? <td>{team.subs}</td> : (null)}
+                                            {match.hasSq ? <td>{team.sq}</td> : (null)}
+                                            {(editing) ? (<td><button onClick={() => { this.makeTeamRowEditable(index, team) }}>Edit</button></td>) : (null)}
                                         </tr>
                                     );
-                                }
-                                let schoolLink = !editing ? <Link to={`/school/${team.id}`}>{team.teamName}</Link> : team.teamName;
-                                return (
-                                    <tr className={className} key={team.rank}>
-                                        <td>{team.rank}</td>
-                                        <td className='is-link'>{schoolLink}</td>
-                                        <td>{team.overall}</td>
-                                        {!match.incompleteData ? <td>{team.objs}</td> : (null)}
-                                        {!match.incompleteData ? <td>{team.subs}</td> : (null)}
-                                        {match.hasSq ? <td>{team.sq}</td> : (null)}
-                                        {(editing) ? (<td><button onClick={() => {this.makeTeamRowEditable(index, team)}}>Edit</button></td>) : (null)}
-                                    </tr>
-                                );
-                            })
-                        }
-                    </tbody>
+                                })
+                            }
+                        </tbody>
                     </table>
                 );
 
@@ -588,36 +588,36 @@ class MatchResult extends Component {
                             <div>
                                 <h3 className='info-page-subhead'>{divisions[div] || div}</h3>
                                 <table className='info-page-table'>
-                                <thead>
-                                <tr className='info-page-table-first-row'>
-                                    <td>Rank</td>
-                                    <td>School</td>
-                                    <td>Overall</td>
-                                    {!match.incompleteData ? <td>Objs</td> : (null)}
-                                    {!match.incompleteData ? <td>Subs</td> : (null)}
-                                    {match.hasSq ? <td>Score w/ SQ</td> : (null)}
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {
-                                    teamDivisions[div].map((team, index) => {
-                                        return (
-                                            <tr key={team.rank}>
-                                                <td>{index + 1}</td>
-                                                <td className='is-link'><Link to={`/school/${team.id}`}>{team.teamName}</Link></td>
-                                                <td>{team.overall}</td>
-                                                {!match.incompleteData ? <td>{team.objs}</td> : (null)}
-                                                {!match.incompleteData ? <td>{team.subs}</td> : (null)}
-                                                {match.hasSq ? <td>{team.sq}</td> : (null)}
-                                            </tr>
-                                        );
-                                    })
-                                }
-                                </tbody>
+                                    <thead>
+                                        <tr className='info-page-table-first-row'>
+                                            <td>Rank</td>
+                                            <td>School</td>
+                                            <td>Overall</td>
+                                            {!match.incompleteData ? <td>Objs</td> : (null)}
+                                            {!match.incompleteData ? <td>Subs</td> : (null)}
+                                            {match.hasSq ? <td>Score w/ SQ</td> : (null)}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {
+                                            teamDivisions[div].map((team, index) => {
+                                                return (
+                                                    <tr key={team.rank}>
+                                                        <td>{index + 1}</td>
+                                                        <td className='is-link'><Link to={`/school/${team.id}`}>{team.teamName}</Link></td>
+                                                        <td>{team.overall}</td>
+                                                        {!match.incompleteData ? <td>{team.objs}</td> : (null)}
+                                                        {!match.incompleteData ? <td>{team.subs}</td> : (null)}
+                                                        {match.hasSq ? <td>{team.sq}</td> : (null)}
+                                                    </tr>
+                                                );
+                                            })
+                                        }
+                                    </tbody>
                                 </table>
                             </div>
                         );
-                    });	
+                    });
                 }
 
                 let loggedIn = API.isLoggedIn();
@@ -628,12 +628,12 @@ class MatchResult extends Component {
                         <button type="button" onClick={this.deleteMatch}>Delete</button>
                     </div>
                 )
-                 : (null);
+                    : (null);
                 let showAllContent = schoolFilter
                     ? (<div>
                         <div>Showing results for {schoolFilter}.</div>
                         <div><Link className='page-link' to={this.props.location.pathname}>See all results</Link></div>
-                       </div>
+                    </div>
                     )
                     : (null);
 
@@ -683,13 +683,13 @@ class MatchResult extends Component {
                         let catTotals = {};
                         Object.keys(categories).forEach(cat => {
                             let catTotal = teamScores[cat].a.first + teamScores[cat].a.second
-                            + teamScores[cat].b.first + teamScores[cat].b.second
-                            + teamScores[cat].c.first + teamScores[cat].c.second;
+                                + teamScores[cat].b.first + teamScores[cat].b.second
+                                + teamScores[cat].c.first + teamScores[cat].c.second;
                             catTotals[cat] = catTotal;
                         });
 
                         teamRows[team.teamName] = (
-                            <tr key={'total' + team.teamName} style={{fontWeight: 'bold', fontStyle: 'italic'}}>
+                            <tr key={'total' + team.teamName} style={{ fontWeight: 'bold', fontStyle: 'italic' }}>
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -737,142 +737,142 @@ class MatchResult extends Component {
                         {userHasAccess && hasIndividualScores > 0 ? (<div>
                             <div className='info-page-section'>Individual Scores</div>
                             <table className='info-page-table'>
-                            <thead>
-                                <tr className='info-page-table-first-row'>
-                                {
-                                    headings.map((text) => {
-                                        let extraClass = '';
-                                        if (largeCols.has(text)) {
-                                            extraClass = ' table-cell-large';
-                                        } else if (!normalCols.has(text)) {
-                                            extraClass = ' table-cell-small';
-                                        }
-                                        return (
-                                            <td className={'with-cursor' + extraClass} onClick={() => {if (!editing) this.handleCategoryClicked(text)}} key={text}>
-                                            {text}{(toCamelCase(text) === this.state.sortKey) ? (this.state.sortReverse ? ' ▲' : ' ▼') : ''}
-                                            </td>
-                                        );
-                                    })
-                                }
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {
-                                students.reduce((arr, student, index) => {
-                                    if (schoolFilter && student.school !== schoolFilter) return arr;
-                                    let className = (index > 0 
-                                        && (this.state.sortKey === 'school' || this.state.sortKey === 'team')
-                                        && students[index-1].team !== student.team) ? 'separator-row' : '';
-
-                                    let extraRow = ((index === students.length - 1) || index < students.length - 1
-                                        && (this.state.sortKey === 'school' || this.state.sortKey === 'team')
-                                        && students[index+1].team !== student.team) ? teamRows[student.teamName] : (null);
-
-                                    if (editing) {
-                                        if (this.state.editedRows[index]) {
-                                            className = 'edited-row ' + className;
-                                        }
-                                    }
-                                    if (edits[index]) {
-                                        return arr.concat((
-                                            <tr className={className} key={index}>
-                                                <td>
-                                                    <select type="select" name="teamName" value={edits[index].teamName} onChange={e => {this.changeRowField(index, e)}}>
-                                                        {teams.map(team => (
-                                                            <option key={team.rank} value={team.teamName}>{team.teamName}</option>
-                                                        ))}
-                                                    </select>
-                                                </td>
-                                                <td><input type="text" size={3} name="team" value={edits[index].team} onChange={e => {this.changeRowField(index, e)}}/></td>
-                                                <td><input type="text" size={3} name="gpa" value={edits[index].gpa} onChange={e => {this.changeRowField(index, e)}}/></td>
-                                                <td><PersonSelect personName={student.decathlete} selectId={index} 
-                                                        selectedName={edits[index].selectedPerson.selectedName}
-                                                        selectedSchool={edits[index].selectedPerson.selectedSchool}
-                                                        selectedFullSchool={edits[index].selectedPerson.selectedFullSchool}
-                                                        selectPerson={this.selectPerson} unselectPerson={this.unselectPerson} /></td>
-                                                <td><input type="text" size={7} name="overall" value={edits[index].overall} onChange={e => {this.changeRowField(index, e)}}/></td>
-                                                {(events.math) ? (<td><input type="text" size={6} name="math" value={edits[index].math} onChange={e => {this.changeRowField(index, e)}}/></td>) : (null)}
-                                                {(events.music) ? (<td><input type="text" size={6} name="music" value={edits[index].music} onChange={e => {this.changeRowField(index, e)}}/></td>) : (null)}
-                                                {(events.econ) ? (<td><input type="text" size={6} name="econ" value={edits[index].econ} onChange={e => {this.changeRowField(index, e)}}/></td>) : (null)}
-                                                {(events.science) ? (<td><input type="text" size={6} name="science" value={edits[index].science} onChange={e => {this.changeRowField(index, e)}}/></td>) : (null)}
-                                                {(events.lit) ? (<td><input type="text" size={6} name="lit" value={edits[index].lit} onChange={e => {this.changeRowField(index, e)}}/></td>) : (null)}
-                                                {(events.art) ? (<td><input type="text" size={6} name="art" value={edits[index].art} onChange={e => {this.changeRowField(index, e)}}/></td>) : (null)}
-                                                {(events.socialScience) ? (<td><input type="text" size={6} name="socialScience" value={edits[index].socialScience} onChange={e => {this.changeRowField(index, e)}}/></td>) : (null)}
-                                                {(events.essay) ? (<td><input type="text" size={6} name="essay" value={edits[index].essay} onChange={e => {this.changeRowField(index, e)}}/></td>) : (null)}
-                                                {(events.speech) ? (<td><input type="text" size={6} name="speech" value={edits[index].speech} onChange={e => {this.changeRowField(index, e)}}/></td>) : (null)}
-                                                {(events.interview) ? (<td><input type="text" size={6} name="interview" value={edits[index].interview} onChange={e => {this.changeRowField(index, e)}}/></td>) : (null)}
-                                                {(events.objs) ? (<td><input type="text" size={8} name="objs" value={edits[index].objs} onChange={e => {this.changeRowField(index, e)}}/></td>) : (null)}
-                                                {(events.subs) ? (<td><input type="text" size={8} name="subs" value={edits[index].subs} onChange={e => {this.changeRowField(index, e)}}/></td>) : (null)}
-                                                <td><button type="button" onClick={() => this.submitRowEdit(index)}>Save</button></td>
-                                            </tr>
-                                        ));
-                                    }
-                                    let personLink = !editing ? <Link to={`/person/${student.id}`}>{possiblyShorten(student.decathlete)}</Link> : student.decathlete;
-                                    let teamLink = !editing ? <Link to={`/school/${teamNameToId[student.teamName.trim()]}`}>{possiblyShorten(student.teamName)}</Link> : student.teamName;
-                                    if (student.team) arr = arr.concat((
-                                        <tr className={className} key={index}>
-                                            <td data-tip={student.teamName} data-tip-disable={student.teamName.length <= 20} className='is-link table-cell-large'>{teamLink}</td>
-                                            <td>{student.team}</td>
-                                            <td>{student.gpa}</td>
-                                            <td data-tip={student.decathlete} data-tip-disable={student.decathlete.length <= 20} className='is-link table-cell-large'>{personLink}</td>
-                                            <td className='bold'>{student.overall}</td>
-                                            {(events.math) ? (<td data-tip="Math" className="table-cell-small">{student.math}</td>) : (null)}
-                                            {(events.music) ? (<td data-tip="Music" className="table-cell-small">{student.music}</td>) : (null)}
-                                            {(events.econ) ? (<td data-tip="Econ" className="table-cell-small">{student.econ}</td>) : (null)}
-                                            {(events.science) ? (<td data-tip="Science" className="table-cell-small">{student.science}</td>) : (null)}
-                                            {(events.lit) ? (<td data-tip="Literature" className="table-cell-small">{student.lit}</td>) : (null)}
-                                            {(events.art) ? (<td data-tip="Art" className="table-cell-small">{student.art}</td>) : (null)}
-                                            {(events.socialScience) ? (<td data-tip="Social Science" className="table-cell-small">{student.socialScience}</td>) : (null)}
-                                            {(events.essay) ? (<td data-tip="Essay" className="table-cell-small">{student.essay}</td>) : (null)}	
-                                            {(events.speech) ? (<td data-tip="Speech" className="table-cell-small">{student.speech}</td>) : (null)}
-                                            {(events.interview) ? (<td data-tip="Interview" className="table-cell-small">{student.interview}</td>) : (null)}
-                                            {(events.objs) ? (<td className='bold'>{student.objs}</td>) : (null)}
-                                            {(events.subs) ? (<td>{student.subs}</td> ) : (null)}
-                                            {(editing) ? (<td><button onClick={() => {this.makeStudentRowEditable(index, student)}}>Edit</button></td>) : (null)}
-                                        </tr> ));
-                                    return arr.concat((extraRow));
-                                }, [])
-                            }
-                            </tbody>
-                            </table>
-                        </div>) : (null) }
-                        {match.incompleteData || !userHasAccess ? (
-                            <div>
-                                <a name="overalls"></a>
-                                <div className='info-page-section'>Overall Individual Scores <a className='page-link' style={{fontWeight: 'normal'}} href="#top">(Back to Top)</a></div>
-                                <table className='info-page-table'>
                                 <thead>
-    
                                     <tr className='info-page-table-first-row'>
-                                        {['School', 'GPA', 'Decathlete', 'Overall'].map((text) => (
-                                            <td className='with-cursor' onClick={() => {this.handleOverallCategoryClicked(text)}} key={text}>
-                                                {text}{(toCamelCase(text) === this.state.overallSortKey) ? (this.state.overallSortReverse ? ' ▲' : ' ▼') : ''}
-                                            </td>
-                                        ))}
+                                        {
+                                            headings.map((text) => {
+                                                let extraClass = '';
+                                                if (largeCols.has(text)) {
+                                                    extraClass = ' table-cell-large';
+                                                } else if (!normalCols.has(text)) {
+                                                    extraClass = ' table-cell-small';
+                                                }
+                                                return (
+                                                    <td className={'with-cursor' + extraClass} onClick={() => { if (!editing) this.handleCategoryClicked(text) }} key={text}>
+                                                        {text}{(toCamelCase(text) === this.state.sortKey) ? (this.state.sortReverse ? ' ▲' : ' ▼') : ''}
+                                                    </td>
+                                                );
+                                            })
+                                        }
                                     </tr>
                                 </thead>
                                 <tbody>
-                                {this.state.overallStudents.reduce((arr, student, index) => {
-                                    if (schoolFilter && student.school !== schoolFilter) return arr;
-                                    let personLink = !editing ? <Link to={`/person/${student.id}`}>{student.decathlete}</Link> : student.decathlete;
-                                    let teamLink = !editing ? <Link to={`/school/${teamNameToId[student.teamName.trim()]}`}>{student.teamName}</Link> : student.teamName;
-                                    arr = arr.concat((
-                                        <tr key={index}>
-                                            <td className='is-link table-cell-large'>{teamLink}</td>
-                                            <td className='table-cell-large'>{student.gpa}</td>
-                                            <td className='is-link table-cell-large'>{personLink}</td>
-                                            <td className='bold table-cell-large'>{student.overall}</td>
-                                        </tr>
-                                    ))
-                                    return arr;
-                                }, [])}
+                                    {
+                                        students.reduce((arr, student, index) => {
+                                            if (schoolFilter && student.school !== schoolFilter) return arr;
+                                            let className = (index > 0
+                                                && (this.state.sortKey === 'school' || this.state.sortKey === 'team')
+                                                && students[index - 1].team !== student.team) ? 'separator-row' : '';
+
+                                            let extraRow = ((index === students.length - 1) || index < students.length - 1
+                                                && (this.state.sortKey === 'school' || this.state.sortKey === 'team')
+                                                && students[index + 1].team !== student.team) ? teamRows[student.teamName] : (null);
+
+                                            if (editing) {
+                                                if (this.state.editedRows[index]) {
+                                                    className = 'edited-row ' + className;
+                                                }
+                                            }
+                                            if (edits[index]) {
+                                                return arr.concat((
+                                                    <tr className={className} key={index}>
+                                                        <td>
+                                                            <select type="select" name="teamName" value={edits[index].teamName} onChange={e => { this.changeRowField(index, e) }}>
+                                                                {teams.map(team => (
+                                                                    <option key={team.rank} value={team.teamName}>{team.teamName}</option>
+                                                                ))}
+                                                            </select>
+                                                        </td>
+                                                        <td><input type="text" size={3} name="team" value={edits[index].team} onChange={e => { this.changeRowField(index, e) }} /></td>
+                                                        <td><input type="text" size={3} name="gpa" value={edits[index].gpa} onChange={e => { this.changeRowField(index, e) }} /></td>
+                                                        <td><PersonSelect personName={student.decathlete} selectId={index}
+                                                            selectedName={edits[index].selectedPerson.selectedName}
+                                                            selectedSchool={edits[index].selectedPerson.selectedSchool}
+                                                            selectedFullSchool={edits[index].selectedPerson.selectedFullSchool}
+                                                            selectPerson={this.selectPerson} unselectPerson={this.unselectPerson} /></td>
+                                                        <td><input type="text" size={7} name="overall" value={edits[index].overall} onChange={e => { this.changeRowField(index, e) }} /></td>
+                                                        {(events.math) ? (<td><input type="text" size={6} name="math" value={edits[index].math} onChange={e => { this.changeRowField(index, e) }} /></td>) : (null)}
+                                                        {(events.music) ? (<td><input type="text" size={6} name="music" value={edits[index].music} onChange={e => { this.changeRowField(index, e) }} /></td>) : (null)}
+                                                        {(events.econ) ? (<td><input type="text" size={6} name="econ" value={edits[index].econ} onChange={e => { this.changeRowField(index, e) }} /></td>) : (null)}
+                                                        {(events.science) ? (<td><input type="text" size={6} name="science" value={edits[index].science} onChange={e => { this.changeRowField(index, e) }} /></td>) : (null)}
+                                                        {(events.lit) ? (<td><input type="text" size={6} name="lit" value={edits[index].lit} onChange={e => { this.changeRowField(index, e) }} /></td>) : (null)}
+                                                        {(events.art) ? (<td><input type="text" size={6} name="art" value={edits[index].art} onChange={e => { this.changeRowField(index, e) }} /></td>) : (null)}
+                                                        {(events.socialScience) ? (<td><input type="text" size={6} name="socialScience" value={edits[index].socialScience} onChange={e => { this.changeRowField(index, e) }} /></td>) : (null)}
+                                                        {(events.essay) ? (<td><input type="text" size={6} name="essay" value={edits[index].essay} onChange={e => { this.changeRowField(index, e) }} /></td>) : (null)}
+                                                        {(events.speech) ? (<td><input type="text" size={6} name="speech" value={edits[index].speech} onChange={e => { this.changeRowField(index, e) }} /></td>) : (null)}
+                                                        {(events.interview) ? (<td><input type="text" size={6} name="interview" value={edits[index].interview} onChange={e => { this.changeRowField(index, e) }} /></td>) : (null)}
+                                                        {(events.objs) ? (<td><input type="text" size={8} name="objs" value={edits[index].objs} onChange={e => { this.changeRowField(index, e) }} /></td>) : (null)}
+                                                        {(events.subs) ? (<td><input type="text" size={8} name="subs" value={edits[index].subs} onChange={e => { this.changeRowField(index, e) }} /></td>) : (null)}
+                                                        <td><button type="button" onClick={() => this.submitRowEdit(index)}>Save</button></td>
+                                                    </tr>
+                                                ));
+                                            }
+                                            let personLink = !editing ? <Link to={`/person/${student.id}`}>{possiblyShorten(student.decathlete)}</Link> : student.decathlete;
+                                            let teamLink = !editing ? <Link to={`/school/${teamNameToId[student.teamName.trim()]}`}>{possiblyShorten(student.teamName)}</Link> : student.teamName;
+                                            if (student.team) arr = arr.concat((
+                                                <tr className={className} key={index}>
+                                                    <td data-tip={student.teamName} data-tip-disable={student.teamName.length <= 20} className='is-link table-cell-large'>{teamLink}</td>
+                                                    <td>{student.team}</td>
+                                                    <td>{student.gpa}</td>
+                                                    <td data-tip={student.decathlete} data-tip-disable={student.decathlete.length <= 20} className='is-link table-cell-large'>{personLink}</td>
+                                                    <td className='bold'>{student.overall}</td>
+                                                    {(events.math) ? (<td data-tip="Math" className="table-cell-small">{student.math}</td>) : (null)}
+                                                    {(events.music) ? (<td data-tip="Music" className="table-cell-small">{student.music}</td>) : (null)}
+                                                    {(events.econ) ? (<td data-tip="Econ" className="table-cell-small">{student.econ}</td>) : (null)}
+                                                    {(events.science) ? (<td data-tip="Science" className="table-cell-small">{student.science}</td>) : (null)}
+                                                    {(events.lit) ? (<td data-tip="Literature" className="table-cell-small">{student.lit}</td>) : (null)}
+                                                    {(events.art) ? (<td data-tip="Art" className="table-cell-small">{student.art}</td>) : (null)}
+                                                    {(events.socialScience) ? (<td data-tip="Social Science" className="table-cell-small">{student.socialScience}</td>) : (null)}
+                                                    {(events.essay) ? (<td data-tip="Essay" className="table-cell-small">{student.essay}</td>) : (null)}
+                                                    {(events.speech) ? (<td data-tip="Speech" className="table-cell-small">{student.speech}</td>) : (null)}
+                                                    {(events.interview) ? (<td data-tip="Interview" className="table-cell-small">{student.interview}</td>) : (null)}
+                                                    {(events.objs) ? (<td className='bold'>{student.objs}</td>) : (null)}
+                                                    {(events.subs) ? (<td>{student.subs}</td>) : (null)}
+                                                    {(editing) ? (<td><button onClick={() => { this.makeStudentRowEditable(index, student) }}>Edit</button></td>) : (null)}
+                                                </tr>));
+                                            return arr.concat((extraRow));
+                                        }, [])
+                                    }
                                 </tbody>
+                            </table>
+                        </div>) : (null)}
+                        {match.incompleteData || !userHasAccess ? (
+                            <div>
+                                <a name="overalls"></a>
+                                <div className='info-page-section'>Overall Individual Scores <a className='page-link' style={{ fontWeight: 'normal' }} href="#top">(Back to Top)</a></div>
+                                <table className='info-page-table'>
+                                    <thead>
+
+                                        <tr className='info-page-table-first-row'>
+                                            {['School', 'GPA', 'Decathlete', 'Overall'].map((text) => (
+                                                <td className='with-cursor' onClick={() => { this.handleOverallCategoryClicked(text) }} key={text}>
+                                                    {text}{(toCamelCase(text) === this.state.overallSortKey) ? (this.state.overallSortReverse ? ' ▲' : ' ▼') : ''}
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {this.state.overallStudents.reduce((arr, student, index) => {
+                                            if (schoolFilter && student.school !== schoolFilter) return arr;
+                                            let personLink = !editing ? <Link to={`/person/${student.id}`}>{student.decathlete}</Link> : student.decathlete;
+                                            let teamLink = !editing ? <Link to={`/school/${teamNameToId[student.teamName.trim()]}`}>{student.teamName}</Link> : student.teamName;
+                                            arr = arr.concat((
+                                                <tr key={index}>
+                                                    <td className='is-link table-cell-large'>{teamLink}</td>
+                                                    <td className='table-cell-large'>{student.gpa}</td>
+                                                    <td className='is-link table-cell-large'>{personLink}</td>
+                                                    <td className='bold table-cell-large'>{student.overall}</td>
+                                                </tr>
+                                            ))
+                                            return arr;
+                                        }, [])}
+                                    </tbody>
                                 </table>
                             </div>
-                        ): (null)}
+                        ) : (null)}
                         <a name="teamscores"></a>
                         <div className='info-page-section'>
-                            Overall Team Scores <a className='page-link' style={{fontWeight: 'normal'}} href="#top">(Back to Top)</a>
+                            Overall Team Scores <a className='page-link' style={{ fontWeight: 'normal' }} href="#top">(Back to Top)</a>
                             {' '}{(schoolFilter || !match.hasDivisions ? (null) : <button type='button' className='divisions-button' onClick={this.toggleDivisions}>
                                 {!this.state.showDivisions ? 'Show by Division' : 'Show Overall'}
                             </button>)}

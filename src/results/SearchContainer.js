@@ -1,19 +1,19 @@
-import React, {Component} from 'react';
-import {Switch, Route, Redirect} from 'react-router-dom';
+import React, { Component } from 'react';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import SearchForm from './SearchForm';
-import {SearchResult} from './SearchResult';
-import {SchoolResult} from './SchoolResult';
-import {PersonResult} from './PersonResult';
+import { SearchResult } from './SearchResult';
+import { SchoolResult } from './SchoolResult';
+import { PersonResult } from './PersonResult';
 import MatchResult from './MatchResult';
 import PrivateRoute from '../PrivateRoute';
 import EditsPage from '../admin/EditsPage';
-import {StatePage} from './StatePage';
+import { StatePage } from './StatePage';
 import SeasonResult from './SeasonResult';
 
 export class SearchContainer extends Component {
     constructor(props) {
         super(props);
-        this.state = {result: ''};
+        this.state = { result: '' };
     }
 
     render() {
@@ -23,11 +23,11 @@ export class SearchContainer extends Component {
                 <Switch>
                     <PrivateRoute exact path='/edits' component={EditsPage} req={4} />
                     <Route exact path='/' render={(props) => (
-                        <Redirect to={{pathname: '/search'}} />
-                    )}/>
+                        <Redirect to={{ pathname: '/search' }} />
+                    )} />
                     <Route exact path='/search' render={(props) => (
                         <SearchResult {...props} />
-                    )}/>
+                    )} />
                     <Route path='/school/:id' component={SchoolResult} />
                     <Route path='/person/:id' component={PersonResult} />
                     <Route exact path='/season/:schoolId/:year' component={SeasonResult} />

@@ -27,7 +27,7 @@ class API {
             .catch(err => {
                 this.logOut();
                 console.log(err);
-                return {success: false, message: "There was an error."};
+                return { success: false, message: "There was an error." };
             });
     };
 
@@ -39,7 +39,7 @@ class API {
             })
             .catch(err => {
                 console.log(err);
-                return {success: false, message: "There was an error."};
+                return { success: false, message: "There was an error." };
             });
     };
 
@@ -144,9 +144,9 @@ class API {
         return this.axios.post(`/school/${id}`, {
             edits: edits
         })
-        .then(res => {
-            return res;
-        });
+            .then(res => {
+                return res;
+            });
     };
 
     getEdits = lastDate => {
@@ -161,7 +161,7 @@ class API {
     };
 
     getMatchSpecific = (round, region, state, year) => {
-        return this.axios.get(`/match/${round}/${state ? state + '/': ''}${region ? region + '/' : ''}${year}`);
+        return this.axios.get(`/match/${round}/${state ? state + '/' : ''}${region ? region + '/' : ''}${year}`);
     };
 
     getRecentMatches = () => {
@@ -176,9 +176,9 @@ class API {
         return this.axios.post(`/person/${id}`, {
             edits: edits
         })
-        .then(res => {
-            return res;
-        });
+            .then(res => {
+                return res;
+            });
     };
 
     updateMatchStudent = (id, studentIndex, edits) => {
@@ -186,9 +186,9 @@ class API {
             index: studentIndex,
             edits: edits
         })
-        .then(res => {
-            return res;
-        });
+            .then(res => {
+                return res;
+            });
     };
 
     updateMatchTeam = (id, teamIndex, edits) => {
@@ -196,9 +196,9 @@ class API {
             index: teamIndex,
             edits: edits
         })
-        .then(res => {
-            return res;
-        });
+            .then(res => {
+                return res;
+            });
     };
 
     deleteMatch = id => {

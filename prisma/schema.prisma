@@ -1,0 +1,179 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model School {
+  id       Int     @id @default(autoincrement())
+  name     String
+  fullName String? @map("full_name")
+  city     String?
+  region   Region  @relation(fields: [regionId], references: [id])
+  district String?
+  info     String?
+  teams    Team[]
+  regionId Int     @map("region_id")
+
+  @@map("schools")
+}
+
+model Team {
+  id                  Int                  @id @default(autoincrement())
+  name                String
+  school              School               @relation(fields: [schoolId], references: [id])
+  schoolId            Int                  @map("school_id")
+  studentPerformances StudentPerformance[]
+  performances        TeamPerformance[]
+
+  @@map("teams")
+}
+
+model Match {
+  id                  Int                  @id @default(autoincrement())
+  search1             String
+  search2             String
+  search3             String
+  year                Int
+  round               Round
+  region              Region?              @relation(fields: [regionId], references: [id])
+  regionId            Int?                 @map("region_id")
+  state               State?               @relation(fields: [stateId], references: [id])
+  stateId             Int?                 @map("state_id")
+  date                DateTime
+  site                String?
+  hasSq               Boolean              @default(false) @map("has_sq")
+  incompleteData      Boolean              @default(false) @map("incomplete_data")
+  hasDivisions        Boolean              @default(false) @map("has_divisions")
+  access              Int
+  events              EventSchedule        @relation(fields: [eventScheduleId], references: [id])
+  eventScheduleId     Int                  @unique @map("event_schedule_id")
+  studentPerformances StudentPerformance[]
+  teamPerformances    TeamPerformance[]
+
+  @@map("matches")
+}
+
+model EventSchedule {
+  id            Int     @id @default(autoincrement())
+  math          Boolean @default(true)
+  music         Boolean @default(true)
+  econ          Boolean @default(true)
+  science       Boolean @default(true)
+  lit           Boolean @default(true)
+  art           Boolean @default(true)
+  socialScience Boolean @default(true) @map("social_science")
+  essay         Boolean @default(true)
+  speech        Boolean @default(true)
+  interview     Boolean @default(true)
+  objs          Boolean @default(true)
+  subs          Boolean @default(true)
+  match         Match?
+
+  @@map("event_schedules")
+}
+
+model Student {
+  id           Int                  @id @default(autoincrement())
+  name         String
+  performances StudentPerformance[]
+
+  @@map("students")
+}
+
+model StudentPerformance {
+  id            Int      @id @default(autoincrement())
+  student       Student? @relation(fields: [studentId], references: [id])
+  studentId     Int?     @map("student_id")
+  match         Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  matchId       Int      @map("match_id")
+  team          Team     @relation(fields: [teamId], references: [id])
+  teamId        Int      @map("team_id")
+  gpa           String
+  math          String?
+  music         String?
+  econ          String?
+  science       String?
+  lit           String?
+  art           String?
+  socialScience String?  @map("social_science")
+  essay         String?
+  speech        String?
+  interview     String?
+  overall       String?
+  objs          String?
+  subs          String?
+
+  @@map("student_performances")
+}
+
+model TeamPerformance {
+  id       Int     @id @default(autoincrement())
+  match    Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  matchId  Int     @map("match_id")
+  team     Team    @relation(fields: [teamId], references: [id])
+  teamId   Int     @map("team_id")
+  number   Int?
+  rank     Int
+  overall  String
+  objs     String?
+  subs     String?
+  division String?
+  sq       String?
+
+  @@map("team_performances")
+}
+
+model Region {
+  id      Int      @id @default(autoincrement())
+  name    String
+  state   State    @relation(fields: [stateId], references: [id])
+  stateId Int      @map("state_id")
+  matches Match[]
+  schools School[]
+
+  @@map("regions")
+}
+
+model State {
+  id      Int      @id @default(autoincrement())
+  name    String
+  regions Region[]
+  matches Match[]
+
+  @@map("states")
+}
+
+model User {
+  id       Int     @id @default(autoincrement())
+  username String
+  passhash String
+  access   Int
+  canEdit  Boolean @default(false) @map("can_edit")
+  edits    Edit[]
+
+  @@map("users")
+}
+
+model Edit {
+  id       Int      @id @default(autoincrement())
+  user     User     @relation(fields: [userId], references: [id])
+  userId   Int      @map("user_id")
+  datetime DateTime
+  summary  String?
+  prev     String?
+  new      String?
+
+  @@map("edits")
+}
+
+enum Round {
+  round_one
+  regionals
+  state
+  nationals
+}

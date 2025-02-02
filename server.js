@@ -1,32 +1,35 @@
 'use strict';
 
-var express = require('express');
-var mongoose = require('mongoose');
-const path = require('path');
-var multer = require('multer');
-var bcrypt = require('bcrypt-nodejs');
-var cookieParser = require('cookie-parser');
-var session = require('express-session');
-const levenshtein = require('js-levenshtein');
-var parse = require('csv-parse/lib/sync');
-var bodyParser = require('body-parser');
-var School = require('./model/school');
-var Match = require('./model/match');
-var Person = require('./model/person');
-var User = require('./model/user');
-var Edit = require('./model/edit');
+import express from 'express'
+import path from 'path'
+import multer from 'multer'
+import bcrypt from 'bcrypt'
+import cookieParser from 'cookie-parser'
+
+import session from 'express-session'
+import levenshtein from 'js-levenshtein'
+import { parse } from 'csv-parse/sync'
+import bodyParser from 'body-parser'
+
+import { PrismaClient } from '@prisma/client'
 
 var app = express();
 var router = express.Router();
 
 var storage = multer.memoryStorage();
-var upload = multer({storage: storage});
+var upload = multer({ storage: storage });
 
-require('dotenv').config();
+import dotenv from 'dotenv'
+dotenv.config()
+
+const __dirname = path.resolve()
+
 if (!process.env.SESSIONS_SECRET) {
     console.log(".env file not present! Crashing and burning");
     process.exit(1);
 }
+
+const prisma = new PrismaClient();
 
 var gpaMap = {
     A: 'H',
@@ -48,20 +51,18 @@ var port = process.env.API_PORT || 3001;
 
 var categories = ['math', 'music', 'econ', 'science', 'lit', 'art', 'socialScience', 'essay', 'speech', 'interview'];
 
-mongoose.connect('mongodb://localhost:27017', {useNewUrlParser: true});
-
-app.use(bodyParser.urlencoded({extended: true, limit: '50mb'}));
-app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
+app.use(bodyParser.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname, "build")));
 app.use(cookieParser());
 app.use(session({
     secret: process.env.SESSIONS_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 30*24*60*60*1000, sameSite: true }
+    cookie: { maxAge: 30 * 24 * 60 * 60 * 1000, sameSite: true }
 }));
 
-router.use(function(req, res, next) {
+router.use(function (req, res, next) {
     if (req.session.username) {
         req.auth = true;
         req.access = req.session.access;
@@ -80,21 +81,21 @@ function numberWithCommas(x) {
 }
 
 function removeBreakdownsFromMatch(match) {
-    let students = match.students;
+    let students = match.studentPerformances;
     let newStudents = [];
     for (let i = 0; i < students.length; i++) {
         let student = students[i];
         let newStudent = {};
-        ['id', 'school', 'team', 'gpa', 'decathlete', 'overall'].forEach(key => {
+        ['id', 'school', 'team', 'gpa', 'student', 'overall'].forEach(key => {
             newStudent[key] = student[key];
         });
         newStudents.push(newStudent);
     }
-    match.students = newStudents;
+    match.studentPerformances = newStudents;
     return match;
 }
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE');
@@ -104,12 +105,12 @@ app.use(function(req, res, next) {
     next();
 });
 
-router.get('/', function(req, res) {
-    res.json({message: 'API initi'});
+router.get('/', async function (req, res) {
+    res.json({ message: 'API initi' });
 });
 
 router.route('/authenticate')
-    .get(function(req, res) {
+    .get(function (req, res) {
         if (req.auth) {
             res.json({
                 success: true
@@ -122,7 +123,7 @@ router.route('/authenticate')
     });
 
 router.route('/user')
-    .post(function(req, res) {
+    .post(async function (req, res) {
         if (!req.auth || req.access < 4) {
             res.json({
                 success: false,
@@ -135,68 +136,78 @@ router.route('/user')
         let access = req.body.access;
         let canEdit = req.body.canEdit;
 
-        bcrypt.hash(password, null, null, function(err, hash) {
-            let user = new User();
-            user.username = username;
-            user.passhash = hash;
-            user.access = access;
-            user.canEdit = canEdit;
-            User.findOne({username: username}, function(err, result) {
-                if (result) {
-                    res.json({success: false, message: 'Already a user with that username!'});
-                    return;
-                }
-                user.save(function(err) {
-                    if (err) {
-                        res.send(err);
-                        return;
-                    }
-                    res.json({success: true, message: 'User successfully added!'});
-                });
-            });
-        });
+        const saltRounds = 10
+        const salt = await bcrypt.genSalt(saltRounds)
+        const hash = await bcrypt.hash(password, salt)
+
+        const result = await prisma.user.findFirst({
+            where: {
+                username: username
+            }
+        })
+
+        if (result) {
+            res.json({ success: false, message: 'Already a user with that username!' });
+            return;
+        }
+
+        await prisma.user.create({
+            data: {
+                username: username,
+                passhash: hash,
+                access: access,
+                canEdit: canEdit
+            }
+        })
+
+        res.json({ success: true, message: 'User successfully added!' });
     });
 
 router.route('/login')
-    .post(function(req, res) {
-        User.findOne({username: req.body.username}, function(err, user) {
-            if (!user) {
-                res.json({success: false, message: "No user with that username!"});
-                return;
+    .post(async function (req, res) {
+
+        const user = await prisma.user.findFirst({
+            where: {
+                username: req.body.username
             }
-            bcrypt.compare(req.body.password, user.passhash, function(err, result) {
-                if (!result) {
-                    res.json({success: false, message: "Incorrect password!"});
-                    return;
-                } else {
-                    req.session.access = user.access;
-                    req.session.canEdit = user.canEdit;
-                    req.session.username = user.username;
-                    res.json({success: true, expiresIn: 30*24*60*60*1000, canEdit: user.canEdit, access: user.access, username: user.username});
-                }
-            });
         });
+
+        if (!user) {
+            res.json({ success: false, message: "No user with that username!" });
+            return;
+        }
+
+        const result = await bcrypt.compare(req.body.password, user.passhash)
+        if (!result) {
+            res.json({ success: false, message: "Incorrect password!" });
+            return;
+        } else {
+            req.session.access = user.access;
+            req.session.canEdit = user.canEdit;
+            req.session.username = user.username;
+            res.json({ success: true, expiresIn: 30 * 24 * 60 * 60 * 1000, canEdit: user.canEdit, access: user.access, username: user.username });
+        }
     });
 
 router.route('/logout')
-    .get(function(req, res) {
+    .get(function (req, res) {
         if (req.session) {
             req.session.destroy((err) => {
                 if (err) {
-                    res.json({success: false, message: 'Failed to kill session'});
+                    res.json({ success: false, message: 'Failed to kill session' });
                 } else {
-                    res.json({success: true});
+                    res.json({ success: true });
                 }
             });
         }
     });
 
 router.route('/search')
-    .get(function(req, res) {
+    .get(async function (req, res) {
 
         let results = {
             schools: [],
-            people: [],
+            students: [],
         }
 
         if (!req.query.query || req.query.query.length < 3) {
@@ -205,77 +216,79 @@ router.route('/search')
         }
 
         let schoolsQuery, peopleQuery, matchQuery;
-        if (req.query.limit) {
-            let limit = parseInt(req.query.limit);
-            schoolsQuery = School.find({
-                $or: [
-                    {'name': {'$regex': `^${req.query.query}`, '$options': 'i'}},
-                    {'fullName': {'$regex': `^${req.query.query}`, '$options': 'i'}}
-                ]
-            }).limit(limit);
-            peopleQuery = Person.find({'name': {'$regex': `${req.query.query}`, '$options': 'i'}}).limit(limit);
-            matchQuery = Match.find({
-                $or: [
-                    {'search1': {'$regex': `^${req.query.query}`, '$options': 'i'}},
-                    {'search2': {'$regex': `^${req.query.query}`, '$options': 'i'}},
-                    {'search3': {'$regex': `^${req.query.query}`, '$options': 'i'}},
-                ]
-            }, '-students -teams').limit(limit);
-        } else {
-            schoolsQuery = School.find({
-                $or: [
-                    {'name': {'$regex': `^${req.query.query}`, '$options': 'i'}},
-                    {'fullName': {'$regex': `^${req.query.query}`, '$options': 'i'}}
-                ]
-            });
-            peopleQuery = Person.find({'name': {'$regex': `${req.query.query}`, '$options': 'i'}});
-            matchQuery = Match.find({
-                $or: [
-                    {'search1': {'$regex': `^${req.query.query}`, '$options': 'i'}},
-                    {'search2': {'$regex': `^${req.query.query}`, '$options': 'i'}},
-                    {'search3': {'$regex': `^${req.query.query}`, '$options': 'i'}},
-                ]
-            }, '-students -teams');
-        }
 
-        schoolsQuery.exec(function(err, schools) {
-            if (err) {
-                results.schools = err;
-                res.send(results);
-                return;
-            }
-            results.schools = schools;
-            peopleQuery.exec(function(err, people) {
-                if (err) {
-                    results.people = err;
-                    res.send(results);
-                    return;
-                }
-                results.people = people;
-                matchQuery.exec(function(err, matches) {
-                    if (err) {
-                        results.people = err;
-                        res.send(results);
-                        return;
-                    }
-                    results.matches = matches.map(match => {
-                        return {
-                            _id: match._id,
-                            year: match.year,
-                            round: match.round,
-                            state: match.state,
-                            region: match.region
+        const query = req.query.query.split(' ').join(' | ')
+        console.log(query);
+
+        let limit = req.query.limit ? parseInt(req.query.limit) : 100
+        const schools = await prisma.school.findMany({
+            where: {
+                OR: [
+                    {
+                        name: {
+                            search: query
                         }
-                    });
-                    res.json(results);
-                });
-            });
-        });
+                    },
+                    {
+                        fullName: {
+                            search: query
+                        }
+                    }
+                ]
+            },
+            take: limit
+        })
+
+        const students = await prisma.student.findMany({
+            where: {
+                name: {
+                    search: query
+                }
+            },
+            take: limit
+        })
+
+        const matches = await prisma.match.findMany({
+            select: {
+                id: true,
+                year: true,
+                round: true,
+                state: true,
+                region: true
+            },
+            where: {
+                OR: [
+                    {
+                        search1: {
+                            search: query
+                        }
+                    },
+                    {
+                        search2: {
+                            search: query
+                        }
+                    },
+                    {
+                        search3: {
+                            search: query
+                        }
+                    }
+                ]
+            },
+            take: limit
+        })
+
+        results.schools = schools
+        results.students = students
+        results.matches = matches
+
+        res.json(results);
+
     });
 
-var matchUpload = upload.fields([{name: 'studentData', maxCount: 1}, {name: 'teamData', maxCount: 1}, {name: 'overallData', maxCount: 1}]);
+var matchUpload = upload.fields([{ name: 'studentData', maxCount: 1 }, { name: 'teamData', maxCount: 1 }, { name: 'overallData', maxCount: 1 }]);
 router.route('/matchcreate')
-    .post(matchUpload, function(req, res) {
+    .post(matchUpload, function (req, res) {
         if (!req.auth || !req.canEdit) {
             res.json({
                 success: false,
@@ -334,7 +347,7 @@ router.route('/matchcreate')
         let studentData = [];
         if (req.files['studentData']) {
             try {
-                studentData = parse(req.files['studentData'][0].buffer.toString(), {columns: studentCols});
+                studentData = parse(req.files['studentData'][0].buffer.toString(), { columns: studentCols });
             } catch (err) {
                 res.json({
                     success: false,
@@ -343,7 +356,7 @@ router.route('/matchcreate')
                 return;
             }
         }
-        
+
         let studentMapping = {};
         studentData.forEach(row => {
             studentMapping[`${row.decathlete}...${row.teamName}`] = true;
@@ -361,7 +374,7 @@ router.route('/matchcreate')
         }
         let teamData;
         try {
-            teamData = parse(req.files['teamData'][0].buffer.toString(), {columns: teamCols});
+            teamData = parse(req.files['teamData'][0].buffer.toString(), { columns: teamCols });
         } catch (err) {
             res.json({
                 success: false,
@@ -374,7 +387,7 @@ router.route('/matchcreate')
         if (req.body.incompleteData === 'true') {
             let overallCols = ['gpa', 'decathlete', 'teamName', 'overall'];
             try {
-                overallData = parse(req.files['overallData'][0].buffer.toString(), {columns: overallCols});
+                overallData = parse(req.files['overallData'][0].buffer.toString(), { columns: overallCols });
             } catch (err) {
                 res.json({
                     success: false,
@@ -404,7 +417,7 @@ router.route('/matchcreate')
             } else {
                 student.overall = overallMapping[`${student.decathlete}...${student.teamName}`];
             }
-            student.objs = Math.round(objs * 10) /10;
+            student.objs = Math.round(objs * 10) / 10;
             student.subs = Math.round(subs * 10) / 10;
             student.gpa = gpaMap[student.gpa] || student.gpa;
             student.teamName = student.teamName.trim();
@@ -429,10 +442,12 @@ router.route('/matchcreate')
                     team[category] = numberWithCommas(Math.round(parseFloat(team[category]) * 10) / 10);
                 }
             });
-            let query = {$or: [
-                {'name': team.teamName},
-                {'teams.teamName': team.teamName}
-            ]};
+            let query = {
+                $or: [
+                    { 'name': team.teamName },
+                    { 'teams.teamName': team.teamName }
+                ]
+            };
             if (round !== 'nationals') {
                 query['state'] = req.body.state;
             }
@@ -455,20 +470,45 @@ router.route('/matchcreate')
     });
 
 router.route('/match/:id')
-    .get(function(req, res) {
-        Match.findOne({'_id': req.params.id}, function(err, match) {
-            if (err) {
-                res.send(err);
-                return;
+    .get(async function (req, res) {
+        const id = parseInt(req.params.id)
+        if (!id) {
+            res.json({ success: false })
+            return
+        }
+        const match = await prisma.match.findFirst({
+            where: {
+                id: id
+            },
+            include: {
+                teamPerformances: {
+                    include: {
+                        student: true,
+                        team: true
+                    }
+                },
+                studentPerformances: {
+                    include: {
+                        student: true,
+                        team: true
+                    }
+                },
+                region: true,
+                state: true,
+                events: true
             }
-            
-            if (match != null && req.access < match.access) {
+        })
+
+        if (match) {
+            if (req.access < match.access) {
                 match = removeBreakdownsFromMatch(match);
             }
             res.json(match);
-        });
+        } else {
+            res.json({ success: false, message: 'Match not found' })
+        }
     })
-    .delete(function(req, res) {
+    .delete(async function (req, res) {
         if (!req.auth || !req.canEdit) {
             res.json({
                 success: false,
@@ -476,98 +516,76 @@ router.route('/match/:id')
             });
             return;
         }
-        Match.findOne({'_id': req.params.id}, function(err, match) {
-            if (err) {
-                res.send(err);
-                return;
+        await prisma.match.delete({
+            where: {
+                id: req.params.id
             }
-            match.students.forEach(student => {
-                Person.findOne({'_id': student.id}, function(err, person) {
-                    let seasons = person.seasons;
-                    for (let i = 0; i < seasons.length; i++) {
-                        if (seasons[i].year === match.year) {
-                            seasons[i][match.round] = '';
-                            seasons[i][`${match.round}Id`] = '';
-                            seasons[i][`${match.round}GPA`] = '';
-                        }
-                    }
-                    Person.findOneAndUpdate({'_id': person._id}, {seasons}, function(err, doc) {
-                        if (err) {
-                            console.log(err);
-                        }
-                    });
-                });
-            });
-            match.teams.forEach(team => {
-                School.findOne({'_id': team.id}, function(err, school) {
-                    let teams = school.teams;
-                    for (let j = 0; j < teams.length; j++) {
-                        let seasons = teams[j].seasons;
-                        for (let i = 0; i < seasons.length; i++) {
-                            if (seasons[i].year === match.year) {
-                                seasons[i][match.round] = '';
-                                seasons[i][`${match.round}Id`] = '';
-                            }
-                        }
-                        teams[j].seasons = seasons;
-                    }
-                    School.findOneAndUpdate({'_id': school._id}, {teams}, function(err, doc) {
-                        if (err) {
-                            console.log(err);
-                        }
-                    });
-                });
-            });
-            Match.findOneAndRemove({'_id': req.params.id}, function(err, match) {
-                let edit = new Edit();
-                edit.user = req.username;
-                edit.datetime = new Date();
-                edit.summary = `DELETE MATCH: ${match.year} ${match.round}`;
-                edit.summary += ((match.round !== 'nationals') ? ' ' + match.state : '')
-                edit.summary += ((match.round !== 'nationals' && match.round !== 'state') ? ' ' + match.region : '');
-                edit.save(function(err) {
-                    res.json({
-                        success: true
-                    });
-                });
-            });
-        });
-    });
+        })
+        res.json({ success: true })
+    })
 
 router.route('/match/:round/:state/:param1/:param2?')
-    .get(function(req, res) {
+    .get(async function (req, res) {
         let region, year;
         if (req.params.param2) {
             region = req.params.param1;
-            year = req.params.param2;
+            year = parseInt(req.params.param2);
         } else {
             region = undefined;
             year = req.params.param1;
         }
         const state = req.params.state.replace('_', ' ');
         const round = req.params.round.toLowerCase();
-        let searchTerm = {'year': year, 'round': round, 'state': state};
+        let searchTerm = {
+            year: year,
+            round: round,
+            state: {
+                name: state
+            }
+        };
         if (round === 'roundone' || round === 'regionals') {
             if (!region) {
                 res.json(null);
                 return;
-            } 
-            searchTerm.region = region.replace('_', ' ');
+            }
+            searchTerm.region = {
+                name: region.replace('_', ' ')
+            }
         }
-        Match.findOne(searchTerm, function(err, match) {
-            if (err || !match) {
-                res.send(err);
-                return;
+
+        const match = await prisma.match.findFirst({
+            where: searchTerm,
+            include: {
+                teamPerformances: {
+                    include: {
+                        student: true,
+                        team: true
+                    }
+                },
+                studentPerformances: {
+                    include: {
+                        student: true,
+                        team: true
+                    }
+                },
+                region: true,
+                state: true,
+                events: true
             }
-            if (req.access < match.access) {
-                match = removeBreakdownsFromMatch(match);
-            }
-            res.json(match);
-        });
+        })
+
+        if (!match) {
+            res.json({ success: false });
+            return;
+        }
+        if (req.access < match.access) {
+            match = removeBreakdownsFromMatch(match);
+        }
+        res.json(match);
     });
 
 router.route('/match')
-    .post(function(req, res) {
+    .post(function (req, res) {
         if (!req.auth || !req.canEdit) {
             res.json({
                 success: false,
@@ -627,7 +645,7 @@ router.route('/match')
                 school.teams = [{
                     teamName: team.teamName,
                     seasons: [{
-                        year: match.year, 
+                        year: match.year,
                         roundone: '',
                         roundoneId: '',
                         regionals: '',
@@ -645,7 +663,7 @@ router.route('/match')
         });
 
         // Create all the schools. Assign the newly created school IDs to the corresponding teams.
-        School.create(newSchools, function(err, schools) {
+        School.create(newSchools, function (err, schools) {
             newIndices.forEach((index, i) => {
                 match.teams[index].id = schools[i].id;
                 match.teams[index].school = schools[i].name;
@@ -671,9 +689,9 @@ router.route('/match')
             // Create a DB call for each student, to find a person who already exists (with matching and school ID)
             let studentCalls = [];
             match.students.forEach(student => {
-                studentCalls.push(Person.findOne({'name': student.decathlete, 'schoolId': schoolToId[student.school]}));
+                studentCalls.push(Person.findOne({ 'name': student.decathlete, 'schoolId': schoolToId[student.school] }));
             });
-            
+
             // Make try to find the students. Then 
             Promise.all(studentCalls).then(result => {
                 for (let i = 0; i < match.students.length; i++) {
@@ -692,7 +710,7 @@ router.route('/match')
                         person.school = student.school;
                         person.schoolId = schoolToId[student.school];
                         person.seasons = [{
-                            year: match.year, 
+                            year: match.year,
                             roundone: '',
                             roundoneId: '',
                             roundoneGPA: '',
@@ -713,7 +731,7 @@ router.route('/match')
                 });
 
                 let schoolFinding = newPeople.map(person => {
-                    return School.findOne({'_id': person.schoolId});
+                    return School.findOne({ '_id': person.schoolId });
                 });
                 Promise.all(schoolFinding).then(result => {
                     for (let i = 0; i < newPeople.length; i++) {
@@ -721,132 +739,132 @@ router.route('/match')
                         newPeople[i].state = result[i].state;
                         newPeople[i].fullSchool = result[i].fullName;
                     }
-                    Person.create(newPeople, function(err, people) {
-                    studentIndices.forEach((index, i) => {
-                        match.students[index].id = people[i].id;
-                    });
-                    match.save(function(err, match) {
-                        if (err) console.log(err);
-                        let id = match.id;
-                        for (let i = 0; i < match.teams.length; i++) {
-                            School.findOne({'_id': match.teams[i].id}, function(err, school) {
-                                let teams = school.teams;
-                                let teamIdx = -1;
-                                for (let j = 0; j < teams.length; j++) {
-                                    if (teams[j].teamName === match.teams[i].teamName) {
-                                        teamIdx = j;
+                    Person.create(newPeople, function (err, people) {
+                        studentIndices.forEach((index, i) => {
+                            match.students[index].id = people[i].id;
+                        });
+                        match.save(function (err, match) {
+                            if (err) console.log(err);
+                            let id = match.id;
+                            for (let i = 0; i < match.teams.length; i++) {
+                                School.findOne({ '_id': match.teams[i].id }, function (err, school) {
+                                    let teams = school.teams;
+                                    let teamIdx = -1;
+                                    for (let j = 0; j < teams.length; j++) {
+                                        if (teams[j].teamName === match.teams[i].teamName) {
+                                            teamIdx = j;
+                                        }
                                     }
-                                }
 
-                                let teamToModify = teamIdx === -1 ? {teamName: match.teams[i].teamName, seasons: []} : teams[teamIdx];
+                                    let teamToModify = teamIdx === -1 ? { teamName: match.teams[i].teamName, seasons: [] } : teams[teamIdx];
 
-                                let seasons = teamToModify.seasons;
-                                let yearExists = false;
-                                for (let j = 0; j < seasons.length; j++) {
-                                    if (seasons[j].year === match.year) {
-                                        seasons[j][match.round] = match.teams[i].overall;
-                                        seasons[j][`${match.round}Id`] = id;
-                                        yearExists = true;
+                                    let seasons = teamToModify.seasons;
+                                    let yearExists = false;
+                                    for (let j = 0; j < seasons.length; j++) {
+                                        if (seasons[j].year === match.year) {
+                                            seasons[j][match.round] = match.teams[i].overall;
+                                            seasons[j][`${match.round}Id`] = id;
+                                            yearExists = true;
+                                        }
                                     }
-                                }
-                                if (!yearExists) {
-                                    let newSeason = {
-                                        year: match.year,
-                                        roundone: '',
-                                        roundoneId: '',
-                                        regionals: '',
-                                        regionalsId: '',
-                                        state: '',
-                                        stateId: '',
-                                        nationals: '',
-                                        nationalsId: '',
-                                    };
+                                    if (!yearExists) {
+                                        let newSeason = {
+                                            year: match.year,
+                                            roundone: '',
+                                            roundoneId: '',
+                                            regionals: '',
+                                            regionalsId: '',
+                                            state: '',
+                                            stateId: '',
+                                            nationals: '',
+                                            nationalsId: '',
+                                        };
 
-                                    newSeason[match.round] = match.teams[i].overall;
-                                    newSeason[`${match.round}Id`] = id;
-                                    seasons.push(newSeason);
+                                        newSeason[match.round] = match.teams[i].overall;
+                                        newSeason[`${match.round}Id`] = id;
+                                        seasons.push(newSeason);
 
-                                }
-                                teamToModify.seasons = seasons;
-                                if (teamIdx === -1) {
-                                    school.teams.push(teamToModify);
-                                } else {
-                                    school.teams[teamIdx] = teamToModify;
-                                }
-                                school.save(function(err) {
-                                    if (err) {
-                                        console.log('err');
+                                    }
+                                    teamToModify.seasons = seasons;
+                                    if (teamIdx === -1) {
+                                        school.teams.push(teamToModify);
                                     } else {
+                                        school.teams[teamIdx] = teamToModify;
                                     }
-                                })
-                            });
-                        }
-                        for (let i = 0; i < match.students.length; i++) {
-                            Person.findOne({'_id': match.students[i].id}, function(err, person) {
-                                let seasons = person.seasons;
-                                let yearExists = false;
-                                for (let j = 0; j < seasons.length; j++) {
-                                    if (seasons[j].year === match.year) {
-                                        seasons[j][match.round] = match.students[i].overall;
-                                        seasons[j][`${match.round}Id`] = id;
-                                        seasons[j][`${match.round}GPA`] = match.students[i].gpa;
-                                        yearExists = true;
+                                    school.save(function (err) {
+                                        if (err) {
+                                            console.log('err');
+                                        } else {
+                                        }
+                                    })
+                                });
+                            }
+                            for (let i = 0; i < match.students.length; i++) {
+                                Person.findOne({ '_id': match.students[i].id }, function (err, person) {
+                                    let seasons = person.seasons;
+                                    let yearExists = false;
+                                    for (let j = 0; j < seasons.length; j++) {
+                                        if (seasons[j].year === match.year) {
+                                            seasons[j][match.round] = match.students[i].overall;
+                                            seasons[j][`${match.round}Id`] = id;
+                                            seasons[j][`${match.round}GPA`] = match.students[i].gpa;
+                                            yearExists = true;
+                                        }
                                     }
-                                }
-                                if (!yearExists) {
-                                    let newSeason = {
-                                        year: match.year,
-                                        roundone: '',
-                                        roundoneId: '',
-                                        roundoneGPA: '',
-                                        regionals: '',
-                                        regionalsId: '',
-                                        regionalsGPA: '',
-                                        state: '',
-                                        stateId: '',
-                                        stateGPA: '',
-                                        nationals: '',
-                                        nationalsId: '',
-                                        nationalsGPA: ''
-                                    };
+                                    if (!yearExists) {
+                                        let newSeason = {
+                                            year: match.year,
+                                            roundone: '',
+                                            roundoneId: '',
+                                            roundoneGPA: '',
+                                            regionals: '',
+                                            regionalsId: '',
+                                            regionalsGPA: '',
+                                            state: '',
+                                            stateId: '',
+                                            stateGPA: '',
+                                            nationals: '',
+                                            nationalsId: '',
+                                            nationalsGPA: ''
+                                        };
 
-                                    newSeason[match.round] = match.students[i].overall;
-                                    newSeason[`${match.round}Id`] = id;
-                                    newSeason[`${match.round}GPA`] = match.students[i].gpa;
-                                    seasons.push(newSeason);
-                                }
-                                person.seasons = seasons;
-                                person.save(function(err) {
-                                    if (err) {
-                                        console.log('err');
-                                    } else {
+                                        newSeason[match.round] = match.students[i].overall;
+                                        newSeason[`${match.round}Id`] = id;
+                                        newSeason[`${match.round}GPA`] = match.students[i].gpa;
+                                        seasons.push(newSeason);
                                     }
-                                })
-                            });
-                        }
-                        let edit = new Edit();
-                        edit.user = req.username;
-                        edit.datetime = new Date();
-                        edit.summary = `CREATE MATCH: ${match.year} ${match.round}`;
-                        edit.summary += ((match.round !== 'nationals') ? ' ' + match.state : '')
-                        edit.summary += ((match.round !== 'nationals' && match.round !== 'state') ? ' ' + match.region : '');
-                        console.log(edit.summary);
-                        edit.save(function(err) {
-                            res.json({
-                                success: true,
-                                matchId: match._id
+                                    person.seasons = seasons;
+                                    person.save(function (err) {
+                                        if (err) {
+                                            console.log('err');
+                                        } else {
+                                        }
+                                    })
+                                });
+                            }
+                            let edit = new Edit();
+                            edit.user = req.username;
+                            edit.datetime = new Date();
+                            edit.summary = `CREATE MATCH: ${match.year} ${match.round}`;
+                            edit.summary += ((match.round !== 'nationals') ? ' ' + match.state : '')
+                            edit.summary += ((match.round !== 'nationals' && match.round !== 'state') ? ' ' + match.region : '');
+                            console.log(edit.summary);
+                            edit.save(function (err) {
+                                res.json({
+                                    success: true,
+                                    matchId: match._id
+                                });
                             });
                         });
                     });
                 });
             });
         });
+
     });
 
-});
-
 router.route('/matchstudent/:id')
-    .post(function(req, res) {
+    .post(function (req, res) {
         if (!req.auth || !req.canEdit) {
             res.json({
                 success: false,
@@ -854,14 +872,14 @@ router.route('/matchstudent/:id')
             });
             return;
         }
-        Match.findOne({'_id': req.params.id}, function(err, match) {
+        Match.findOne({ '_id': req.params.id }, function (err, match) {
             let students = match.students;
             let year = match.year;
             let round = match.round;
             let index = req.body.index;
             let id = req.body.edits.id;
             if (id !== students[index].id) {
-                Person.findOne({'_id': students[index].id}, function(err, person) {
+                Person.findOne({ '_id': students[index].id }, function (err, person) {
                     if (person) {
                         let seasons = person.seasons;
                         seasons.forEach(season => {
@@ -871,7 +889,7 @@ router.route('/matchstudent/:id')
                                 season[`${round}GPA`] = '';
                             }
                         });
-                        Person.findOneAndUpdate({'_id': students[index].id}, {seasons}, function(err, result) {
+                        Person.findOneAndUpdate({ '_id': students[index].id }, { seasons }, function (err, result) {
                             if (err) {
                                 console.log(err);
                             }
@@ -881,12 +899,12 @@ router.route('/matchstudent/:id')
             }
             delete req.body.edits.selectedPerson;
             students[index] = req.body.edits;
-            Match.findOneAndUpdate({'_id': req.params.id}, {students}, function(err, doc) {
+            Match.findOneAndUpdate({ '_id': req.params.id }, { students }, function (err, doc) {
                 if (err) {
-                    res.send(500, {error: err});
+                    res.send(500, { error: err });
                     return;
                 }
-                Person.findOne({'_id': id}, function(err, person) {
+                Person.findOne({ '_id': id }, function (err, person) {
                     let seasons = person.seasons;
                     seasons.forEach(season => {
                         if (season.year === year) {
@@ -895,9 +913,9 @@ router.route('/matchstudent/:id')
                             season[`${round}Id`] = req.params.id;
                         }
                     });
-                    Person.findOneAndUpdate({'_id': id}, {seasons: seasons}, function(err, documents) {
+                    Person.findOneAndUpdate({ '_id': id }, { seasons: seasons }, function (err, documents) {
                         if (err) {
-                            res.send(500, {error: err});
+                            res.send(500, { error: err });
                             return;
                         }
                         let edit = new Edit();
@@ -907,7 +925,7 @@ router.route('/matchstudent/:id')
                         edit.summary += ((match.round !== 'nationals') ? ' ' + match.state : '')
                         edit.summary += ((match.round !== 'nationals' && match.round !== 'state') ? ' ' + match.region : '');
                         edit.summary += ` STUDENT: ${person.name}`;
-                        edit.save(function(err) {
+                        edit.save(function (err) {
                             res.json({
                                 success: true
                             });
@@ -919,7 +937,7 @@ router.route('/matchstudent/:id')
     });
 
 router.route('/matchteam/:id')
-    .post(function(req, res) {
+    .post(function (req, res) {
         if (!req.auth || !req.canEdit) {
             res.json({
                 success: false,
@@ -927,7 +945,7 @@ router.route('/matchteam/:id')
             });
             return;
         }
-        Match.findOne({'_id': req.params.id}, function(err, match) {
+        Match.findOne({ '_id': req.params.id }, function (err, match) {
             let teams = match.teams;
             let year = match.year;
             let round = match.round;
@@ -939,7 +957,7 @@ router.route('/matchteam/:id')
             teams[index].objs = req.body.edits.objs;
             teams[index].subs = req.body.edits.subs;
             teams[index].sq = req.body.edits.sq;
-            School.findOne({'_id': req.body.edits.id}, function(err, school) {
+            School.findOne({ '_id': req.body.edits.id }, function (err, school) {
                 let students = [...match.students];
                 for (let i = 0; i < students.length; i++) {
                     if (students[i].teamName === oldTeamName) {
@@ -948,9 +966,9 @@ router.route('/matchteam/:id')
                     }
                 }
                 teams[index].school = school.name;
-                Match.findOneAndUpdate({'_id': req.params.id}, {teams, students}, function(err, doc) {
+                Match.findOneAndUpdate({ '_id': req.params.id }, { teams, students }, function (err, doc) {
                     if (err) {
-                        res.send(500, {error: err});
+                        res.send(500, { error: err });
                         return;
                     }
                     let teamIdx = -1;
@@ -966,8 +984,9 @@ router.route('/matchteam/:id')
                             });
                         }
                     }
-                    let teamToModify = teamIdx === -1 ? {teamName: req.body.edits.teamName, seasons: [{
-                            year: match.year, 
+                    let teamToModify = teamIdx === -1 ? {
+                        teamName: req.body.edits.teamName, seasons: [{
+                            year: match.year,
                             roundone: '',
                             roundoneId: '',
                             regionals: '',
@@ -976,8 +995,9 @@ router.route('/matchteam/:id')
                             stateId: '',
                             nationals: '',
                             nationalsId: ''
-                        }]} : school.teams[teamIdx];
-                    
+                        }]
+                    } : school.teams[teamIdx];
+
                     let teamModified = false;
                     teamToModify.seasons.forEach(season => {
                         if (season.year === year) {
@@ -1024,9 +1044,9 @@ router.route('/matchteam/:id')
                         }
                     });
 
-                    School.findOneAndUpdate({'_id': req.body.edits.id}, {teams: newTeams}, function(err, documents) {
+                    School.findOneAndUpdate({ '_id': req.body.edits.id }, { teams: newTeams }, function (err, documents) {
                         if (err) {
-                            res.send(500, {error: err});
+                            res.send(500, { error: err });
                             return;
                         }
                         let edit = new Edit();
@@ -1036,7 +1056,7 @@ router.route('/matchteam/:id')
                         edit.summary += ((match.round !== 'nationals') ? ' ' + match.state : '')
                         edit.summary += ((match.round !== 'nationals' && match.round !== 'state') ? ' ' + match.region : '');
                         edit.summary += ` TEAM: ${school.name}`;
-                        edit.save(function(err) {
+                        edit.save(function (err) {
                             res.json({
                                 success: true
                             });
@@ -1048,16 +1068,57 @@ router.route('/matchteam/:id')
     });
 
 router.route('/school/:id')
-    .get(function(req, res) {
-        School.findOne({'_id': req.params.id}, function(err, school) {
-            if (err) {
-                res.send(err);
-                return;
+    .get(async function (req, res) {
+        const id = parseInt(req.params.id)
+        if (!id) {
+            res.json({ success: false })
+            return
+        }
+        const school = await prisma.school.findFirst({
+            where: {
+                id: id
+            },
+            include: {
+                region: {
+                    include: {
+                        state: true
+                    }
+                },
+                teams: {
+                    include: {
+                        performances: {
+                            include: {
+                                match: {
+                                    select: {
+                                        id: true,
+                                        year: true,
+                                        round: true
+                                    }
+                                }
+                            }
+                        },
+                        studentPerformances: {
+                            include: {
+                                student: true,
+                                match: {
+                                    select: {
+                                        year: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            res.json(school); 
-        });
+        })
+
+        if (!school) {
+            res.json({ success: false });
+            return;
+        }
+        res.json(school);
     })
-    .post(function(req, res) {
+    .post(async function (req, res) {
         if (!req.auth || !req.canEdit) {
             res.json({
                 success: false,
@@ -1065,35 +1126,21 @@ router.route('/school/:id')
             });
             return;
         }
-        School.findOneAndUpdate({'_id': req.params.id}, req.body.edits, function(err, doc) {
-            if (err) {
-                res.send(500, {error: err});
-                return;
-            }
-            Person.find({'schoolId': req.params.id}, function(err, people) {
-                people.forEach(person => {
-                    person.city = req.body.edits.city,
-                    person.state = req.body.edits.state,
-                    person.fullSchool = req.body.edits.fullName
-                    Person.findOneAndUpdate({'_id': person._id}, person, function(err, doc) {
-                        if (err) console.log(err);
-                    });
-                });
-                let edit = new Edit();
-                edit.user = req.username;
-                edit.datetime = new Date();
-                edit.summary = `EDIT SCHOOL: ${req.body.edits.name} (${req.body.edits.state})`
-                edit.save(function(err) {
-                    res.json({
-                        success: true
-                    });
-                });
-            });
+
+        await prisma.school.update({
+            where: {
+                id: parseInt(req.params.id)
+            },
+            data: req.body.edits
+        })
+
+        res.json({
+            success: true
         });
     });
 
 router.route('/mergepeople/:godId/:peonId')
-    .post(function(req, res) {
+    .post(function (req, res) {
         if (!req.auth || !req.canEdit) {
             res.json({
                 success: false,
@@ -1101,14 +1148,14 @@ router.route('/mergepeople/:godId/:peonId')
             });
             return;
         }
-        Person.findOne({'_id': req.params.godId}, function(err, god) {
+        Person.findOne({ '_id': req.params.godId }, function (err, god) {
             if (err) {
-                res.send(500, {error: err});
+                res.send(500, { error: err });
                 return;
             }
-            Person.findOne({'_id': req.params.peonId}, function(err, peon) {
+            Person.findOne({ '_id': req.params.peonId }, function (err, peon) {
                 if (err) {
-                    res.send(500, {error: err});
+                    res.send(500, { error: err });
                     return;
                 }
                 let godSeasons = god.seasons;
@@ -1128,7 +1175,7 @@ router.route('/mergepeople/:godId/:peonId')
                         }
                     }
                     if (!matchedSeason) {
-                        let newSeason = {year: peonSeasons[j].year};
+                        let newSeason = { year: peonSeasons[j].year };
                         ['roundone', 'regionals', 'state', 'nationals'].forEach(round => {
                             if (!newSeason[round]) {
                                 newSeason[round] = peonSeasons[j][round];
@@ -1139,26 +1186,26 @@ router.route('/mergepeople/:godId/:peonId')
                         godSeasons.push(newSeason);
                     }
                 }
-                Person.findOneAndUpdate({'_id': req.params.godId}, {seasons: godSeasons}, function(err, update) {
+                Person.findOneAndUpdate({ '_id': req.params.godId }, { seasons: godSeasons }, function (err, update) {
                     if (err) {
-                        res.send(500, {error: err});
+                        res.send(500, { error: err });
                         return;
                     }
-                    Person.findOneAndRemove({'_id': req.params.peonId}, function(err, result) {
+                    Person.findOneAndRemove({ '_id': req.params.peonId }, function (err, result) {
                         if (err) {
-                            res.send(500, {error: err});
+                            res.send(500, { error: err });
                             return;
                         }
-                        Match.update({'students.id': req.params.peonId}, {$set: {'students.$.id': req.params.godId, 'students.$.decathlete': god.name}}, function(err, up) {
+                        Match.update({ 'students.id': req.params.peonId }, { $set: { 'students.$.id': req.params.godId, 'students.$.decathlete': god.name } }, function (err, up) {
                             if (err) {
-                                res.send(500, {error: err});
+                                res.send(500, { error: err });
                                 return;
                             }
                             let edit = new Edit();
                             edit.user = req.username;
                             edit.datetime = new Date();
                             edit.summary = `MERGE PEOPLE: ${god.name} ${peon.name}`
-                            edit.save(function(err) {
+                            edit.save(function (err) {
                                 res.json({
                                     success: true
                                 });
@@ -1170,17 +1217,41 @@ router.route('/mergepeople/:godId/:peonId')
         });
     });
 
-router.route('/person/:id')
-    .get(function(req, res) {
-        Person.findOne({'_id': req.params.id}, function(err, person) {
-            if (err) {
-                res.send(err);
-                return;
+router.route('/student/:id')
+    .get(async function (req, res) {
+        const id = parseInt(req.params.id)
+        if (!id) {
+            res.json({ success: false })
+            return
+        }
+        const student = await prisma.student.findFirst({
+            where: {
+                id: id
+            },
+            include: {
+                performances: {
+                    select: {
+                        overall: true,
+                        gpa: true,
+                        match: {
+                            select: {
+                                id: true,
+                                year: true
+                            }
+                        }
+                    }
+                }
             }
-            res.json(person);
-        });
+        })
+
+        if (!student) {
+            res.json({ success: false });
+            return;
+        }
+        res.json(student);
+
     })
-    .post(function(req, res) {
+    .post(function (req, res) {
         if (!req.auth || !req.canEdit) {
             res.json({
                 success: false,
@@ -1188,7 +1259,7 @@ router.route('/person/:id')
             });
             return;
         }
-        School.findOne({'_id': req.body.edits.schoolId}, function(err, school) {
+        School.findOne({ '_id': req.body.edits.schoolId }, function (err, school) {
             if (err) {
                 res.send(err);
                 return;
@@ -1201,21 +1272,21 @@ router.route('/person/:id')
                 city: school.city,
                 state: school.state
             }
-            Person.findOneAndUpdate({'_id': req.params.id}, edits, function(err, doc) {
+            Person.findOneAndUpdate({ '_id': req.params.id }, edits, function (err, doc) {
                 if (err) {
-                    res.send(500, {error: err});
+                    res.send(500, { error: err });
                     return;
                 }
-                Match.update({'students.id': req.params.id}, {$set: {'students.$.decathlete': edits.name}}, function(err, up) {
+                Match.update({ 'students.id': req.params.id }, { $set: { 'students.$.decathlete': edits.name } }, function (err, up) {
                     if (err) {
-                        res.send(500, {error: err});
+                        res.send(500, { error: err });
                         return;
                     }
                     let edit = new Edit();
                     edit.user = req.username;
                     edit.datetime = new Date();
                     edit.summary = `EDIT PERSON: ${edits.name} (${school.state})`
-                    edit.save(function(err) {
+                    edit.save(function (err) {
                         res.json({
                             success: true
                         });
@@ -1224,7 +1295,7 @@ router.route('/person/:id')
             });
         });
     })
-    .delete(function(req, res) {
+    .delete(function (req, res) {
         if (!req.auth || !req.canEdit) {
             res.json({
                 success: false,
@@ -1232,12 +1303,12 @@ router.route('/person/:id')
             });
             return;
         }
-        Person.findOneAndRemove({'_id': req.params.id}, function(err, person) {
+        Person.findOneAndRemove({ '_id': req.params.id }, function (err, person) {
             let edit = new Edit();
             edit.user = req.username;
             edit.datetime = new Date();
             edit.summary = `DELETE PERSON: ${person.name} ${person.school} ${person.state}`;
-            edit.save(function(err) {
+            edit.save(function (err) {
                 res.json({
                     success: true
                 });
@@ -1246,7 +1317,7 @@ router.route('/person/:id')
     });
 
 router.route('/school')
-    .post(function(req, res) {
+    .post(function (req, res) {
         if (!req.auth || !req.canEdit) {
             res.json({
                 success: false,
@@ -1264,7 +1335,7 @@ router.route('/school')
         school.district = body.district;
         school.teams = [];
 
-        school.save(function(err) {
+        school.save(function (err) {
             if (err) {
                 res.send(err);
                 return;
@@ -1273,14 +1344,14 @@ router.route('/school')
             edit.user = req.username;
             edit.datetime = new Date();
             edit.summary = `CREATE SCHOOL: ${school.name} (${school.state})`
-            edit.save(function(err) {
-                res.json({message: 'School successfully added!'});
+            edit.save(function (err) {
+                res.json({ message: 'School successfully added!' });
             });
         });
     });
 
 router.route('/edits')
-    .post(function(req, res) {
+    .post(function (req, res) {
         if (!req.auth || req.access !== 4) {
             res.json({
                 success: false,
@@ -1288,53 +1359,49 @@ router.route('/edits')
             });
             return;
         }
-        let lastDate = req.body.date;
         let searchTerm = {};
         if (lastDate) {
-            searchTerm = {datetime: {$lt: new Date(lastDate)}}
+            searchTerm = { datetime: { lt: new Date(lastDate) } }
         }
-        Edit.find(searchTerm).sort({datetime: -1}).limit(10).exec(function(err, results) {
-            if (err) {
-                res.json({
-                    success: false,
-                    err
-                });
-            }
-            res.json({
-                success: true,
-                edits: results
-            });
+
+        const edits = prisma.edit.findMany({
+            where: searchTerm,
+            orderBy: {
+                datetime: 'desc'
+            },
+            take: 10
+        })
+
+        res.json({
+            success: true,
+            edits: edits
         });
     });
 
 router.route('/recent')
-    .get(function(req, res) {
-        Match.find({}, '-students -teams').sort({date: -1}).limit(10).exec(function(err, results) {
-            if (err) {
-                res.json({
-                    success: false,
-                    err
-                });
-                return;
-            }
-            results = results.map(r => ({
-                year: r.year,
-                round: r.round,
-                region: r.region,
-                state: r.state,
-                id: r._id
-            }));
-            res.json({
-                success: true,
-                matches: results
-            });
+    .get(async function (req, res) {
+
+        const results = await prisma.match.findMany({
+            include: {
+                region: true,
+                state: true
+            },
+            orderBy: {
+                date: 'desc'
+            },
+            take: 10
+        })
+
+        res.json({
+            success: true,
+            matches: results
         });
     });
 
 router.route('/state/:name')
-    .get(function(req, res) {
+    .get(function (req, res) {
         let name = req.params.name.replace('_', ' ');
-        Match.find({state: name}, '-students').sort({date: -1}).exec(function(err, results) {
+        Match.find({ state: name }, '-students').sort({ date: -1 }).exec(function (err, results) {
             if (err) {
                 res.json({
                     success: false,
@@ -1362,8 +1429,8 @@ router.route('/state/:name')
     });
 
 router.route('/roster/:school/:year')
-    .get(function(req, res) {
-        Person.find({schoolId: req.params.school, 'seasons.year': req.params.year}, 'name', function(err, people) {
+    .get(function (req, res) {
+        Person.find({ schoolId: req.params.school, 'seasons.year': req.params.year }, 'name', function (err, people) {
             if (err) {
                 res.json({
                     success: false,
@@ -1379,8 +1446,8 @@ router.route('/roster/:school/:year')
     });
 
 router.route('/season/:school/:year')
-    .get(function(req, res) {
-        School.findOne({_id: req.params.school}, function(err, school) {
+    .get(function (req, res) {
+        School.findOne({ _id: req.params.school }, function (err, school) {
             if (err) {
                 res.json({
                     success: false,
@@ -1413,10 +1480,10 @@ router.route('/season/:school/:year')
                 });
             });
             let dbCalls = matchIds.map(id => Match.aggregate([
-                    { $match: {_id: mongoose.Types.ObjectId(id)} }, 
-                    { $unwind: '$students' }, 
-                    { $match: { 'students.teamName': {$in: teamNames}}}, 
-                    { $project: { students: 1, round: 1, access: 1, events: 1, incompleteData: 1, teams: 1 }}])
+                { $match: { _id: mongoose.Types.ObjectId(id) } },
+                { $unwind: '$students' },
+                { $match: { 'students.teamName': { $in: teamNames } } },
+                { $project: { students: 1, round: 1, access: 1, events: 1, incompleteData: 1, teams: 1 } }])
             );
             Promise.all(dbCalls).then(results => {
                 let rounds = {};
@@ -1430,7 +1497,7 @@ router.route('/season/:school/:year')
                         obj.incompleteData = student.incompleteData;
                         obj.students.push(student.students);
                         return obj;
-                    }, {students: []});
+                    }, { students: [] });
                     rounds[round.round] = round;
                 });
                 Object.keys(rounds).forEach(round => {
@@ -1449,7 +1516,7 @@ router.route('/season/:school/:year')
     });
 
 router.route('/potentialmerges/:state')
-    .get(function(req, res) {
+    .get(function (req, res) {
         if (!req.auth || req.access !== 4) {
             res.json({
                 success: false,
@@ -1458,10 +1525,10 @@ router.route('/potentialmerges/:state')
             return;
         }
         Person.aggregate([
-            {$match: {state: req.params.state}},
-            {$group: {_id: {schoolId: "$schoolId", name: "$name", id: "$_id", school: "$school"}}},
-            {$group: {_id: {schoolId: "$_id.schoolId", school: "$_id.school"}, names: {$addToSet: {name: "$_id.name", id: "$_id.id"}}}}
-        ], function(err, results) {
+            { $match: { state: req.params.state } },
+            { $group: { _id: { schoolId: "$schoolId", name: "$name", id: "$_id", school: "$school" } } },
+            { $group: { _id: { schoolId: "$_id.schoolId", school: "$_id.school" }, names: { $addToSet: { name: "$_id.name", id: "$_id.id" } } } }
+        ], function (err, results) {
             if (err) {
                 res.send(500, err);
                 return;
@@ -1486,16 +1553,16 @@ router.route('/potentialmerges/:state')
                     }
                 }
             });
-            res.json({potentialMerges});
+            res.json({ potentialMerges });
         });
     });
 
 
 app.use('/api', router);
-app.get('*', function(req, res) {
+app.get('*', function (req, res) {
     res.sendFile(path.join(__dirname, 'build', 'index.html'));
-  });
+});
 
-app.listen(port, function() {
+app.listen(port, function () {
     console.log(`api running on port ${port}`);
 });

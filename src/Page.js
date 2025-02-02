@@ -1,10 +1,10 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import './styles.css';
-import {Link, Switch, Route} from 'react-router-dom';
-import {SearchContainer} from './results/SearchContainer';
-import {MatchCreatePage} from './admin/MatchCreatePage';
-import {PeopleMerger} from './admin/PeopleMerger';
-import {PotentialMerges} from './admin/PotentialMerges';
+import { Link, Switch, Route } from 'react-router-dom';
+import { SearchContainer } from './results/SearchContainer';
+import { MatchCreatePage } from './admin/MatchCreatePage';
+import { PeopleMerger } from './admin/PeopleMerger';
+import { PotentialMerges } from './admin/PotentialMerges';
 import SchoolCreatePage from './admin/SchoolCreatePage';
 import Login from './Login';
 import API from './API';
@@ -37,9 +37,9 @@ export class Page extends Component {
     render() {
         let loginLink = !(!API.isLoggedIn() && !this.state.loggedInOnMount)
             ? (
-                <div style={{display: 'inline'}}> <span>
+                <div style={{ display: 'inline' }}> <span>
                     Logged in as {API.username()} {' ○ '}
-                </span>{API.canEdit() ? (<div style={{display: 'inline'}}>
+                </span>{API.canEdit() ? (<div style={{ display: 'inline' }}>
                     <Link to='/matchcreate' className='page-link'>New Match</Link>
                     {' ○ '}
                     <Link to='/schoolcreate' className='page-link'>New School</Link>
@@ -50,21 +50,21 @@ export class Page extends Component {
                     {' ○ '}
                     <Link to='/editingguide' className='page-link'>Editing Guide</Link>
                     {' ○ '}
-                     </div> ) : (null)} {API.accessLevel() === 4 ? (<div style={{display: 'inline'}}>
-                        <Link to='/edits' className='page-link'>Recent Edits</Link>
-                        {' ○ '}
-                    </div>) : (null)}
+                </div>) : (null)} {API.accessLevel() === 4 ? (<div style={{ display: 'inline' }}>
+                    <Link to='/edits' className='page-link'>Recent Edits</Link>
+                    {' ○ '}
+                </div>) : (null)}
                     <span className='page-link' onClick={() => {
                         API.logOut();
                         this.forceUpdate();
-                    }}>Log Out</span> 
+                    }}>Log Out</span>
                 </div>
             )
             : (
-                <div style={{display:'inline'}} >
-                    <span>&copy;2023 <a onClick={() => this.playTunes()} className='page-link' style={{display: 'inline'}}>Patrick J. Wahl</a></span>
+                <div style={{ display: 'inline' }} >
+                    <span>&copy;2023 <a onClick={() => this.playTunes()} className='page-link' style={{ display: 'inline' }}>Patrick J. Wahl</a></span>
                     {' ○ '}
-                    <Link style={{display: 'inline'}} to={{pathname: '/login', state: {from: this.props.location}}}>
+                    <Link style={{ display: 'inline' }} to={{ pathname: '/login', state: { from: this.props.location } }}>
                         <div className='page-link'>Log In</div>
                     </Link>
                     {' ○ '}
@@ -72,7 +72,7 @@ export class Page extends Component {
                 </div>
             );
 
-        return(
+        return (
             <div className='global'>
                 <Helmet><title>AcDecDB | The world's #1 database for Academic Decathlon</title></Helmet>
                 <div className='top-bar'>
@@ -81,22 +81,22 @@ export class Page extends Component {
                     </Link>
                 </div>
                 <div className='main-part'>
-                <Switch>
-                    <PrivateRoute exact path='/usercreate' component={CreateUser} req={4} />
-                    <PrivateRoute exact path='/matchcreate' component={MatchCreatePage} req='edit' />
-                    <PrivateRoute exact path='/schoolcreate' component={SchoolCreatePage} req='edit' />
-                    <PrivateRoute exact path='/peoplemerger' component={PeopleMerger} req='edit' />
-                    <PrivateRoute exact path='/editingguide' component={EditingGuide} req='edit' />
-                    <PrivateRoute exact path='/potentialmerges' component={PotentialMerges} req='edit' />
-                    <Route exact path='/login' component={Login} />
-                    <Route exact path='/register' component={Register} />
-                    <Route render={(props) => (
-                        <div>
-                            <h2 className='welcome'>The AcDec Database</h2>
-                            <SearchContainer />
-                        </div>
-                    )} />
-                </Switch>
+                    <Switch>
+                        <PrivateRoute exact path='/usercreate' component={CreateUser} req={4} />
+                        <PrivateRoute exact path='/matchcreate' component={MatchCreatePage} req='edit' />
+                        <PrivateRoute exact path='/schoolcreate' component={SchoolCreatePage} req='edit' />
+                        <PrivateRoute exact path='/peoplemerger' component={PeopleMerger} req='edit' />
+                        <PrivateRoute exact path='/editingguide' component={EditingGuide} req='edit' />
+                        <PrivateRoute exact path='/potentialmerges' component={PotentialMerges} req='edit' />
+                        <Route exact path='/login' component={Login} />
+                        <Route exact path='/register' component={Register} />
+                        <Route render={(props) => (
+                            <div>
+                                <h2 className='welcome'>The AcDec Database</h2>
+                                <SearchContainer />
+                            </div>
+                        )} />
+                    </Switch>
                 </div>
                 <div className='header-links'>
                     {loginLink}
