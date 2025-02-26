@@ -193,7 +193,7 @@ export default function MatchResult2() {
 
     editing && studentColumns.push({ name: "Edit", sortingAllowed: false })
 
-    const sortedStudentPerformances = [...match.studentPerformances.filter(p => (gpaFilter == 'all' || p.gpa == gpaFilter) && (schoolFilter == -1 || p.team.schoolId == schoolFilter))]
+    const sortedStudentPerformances = [...match.studentPerformances.filter(p => (gpaFilter == 'all' || p.gpa == gpaFilter))]
     const sortKey = studentColumnDefs[sortIndex].sortKey
     sortedStudentPerformances.sort((a, b) => {
         const valA = sortKey(a)
@@ -216,11 +216,17 @@ export default function MatchResult2() {
         return { all: sortedStudentPerformances }
     })()
 
-    const getStudentPerformanceRows = (performances: StudentPerformance[]): JSX.Element[] => {
+    const unsortedStudentsByDivision: Partial<Record<string, StudentPerformance[]>> = (() => {
+        if (!match) return {}
+        if (showDivisions) return Object.groupBy(match.studentPerformances, perf => teamIdToDivision[perf.teamId])
+        return { all: match.studentPerformances }
+    })()
+
+    const getStudentPerformanceRows = (performances: StudentPerformance[], unsortedPerformances: StudentPerformance[]): JSX.Element[] => {
         const topRanks: { [performanceId: number]: { [category: string]: number } } = {}
         if (showMedals) {
             for (const event of (match.events as Array<keyof FullStudentPerformance>).concat(['overall', 'subs', 'objs'])) {
-                const medalGroups = Object.groupBy(performances, perf => (perf as FullStudentPerformance)[event] as number || 0)
+                const medalGroups = Object.groupBy(schoolFilter == -1 ? performances : unsortedPerformances, perf => (perf as FullStudentPerformance)[event] as number || 0)
                 if (!medalGroups) continue
                 const sortedKeys = Object.keys(medalGroups).map(Number).sort((a, b) => b - a)
                 for (let i = 0; i < Math.min(3, sortedKeys.length); i++) {
@@ -246,23 +252,24 @@ export default function MatchResult2() {
                 return cmp
             })
             for (const key of sortedKeys) {
+                let addAggregate = false
                 studentPerformancesByTeam[key]?.forEach((performance) => {
-                    rows.push(<StudentPerformanceRow data={performance} teams={teams} ranks={topRanks[performance.id] || {}} teamNumber={teamIdToNumber[performance.team.id]} editingEnabled={editing} events={match.events} key={performance.id} />)
+                    (schoolFilter == -1 || performance.team.schoolId == schoolFilter) && rows.push(<StudentPerformanceRow data={performance} teams={teams} ranks={topRanks[performance.id] || {}} teamNumber={teamIdToNumber[performance.team.id]} editingEnabled={editing} events={match.events} key={performance.id} />) && (addAggregate = true)
                 })
                 const teamId = (studentPerformancesByTeam[key] && studentPerformancesByTeam[key][0].teamId) || 0
-                rows.push(<StudentAggregateRow key={teamId} data={match.aggregates[teamId]} events={match.events} />)
+                addAggregate && rows.push(<StudentAggregateRow key={teamId} data={match.aggregates[teamId]} events={match.events} />)
             }
             return rows
         } else {
-            return performances.map((performance, index) => {
-                return <StudentPerformanceRow key={performance.id} teams={teams} ranks={topRanks[performance.id] || {}} data={performance} teamNumber={teamIdToNumber[performance.team.id]} editingEnabled={editing} events={match.events} index={sortIndex > 3 ? index : undefined} />
-            })
+            return performances.reduce((prev: JSX.Element[], performance, index) => {
+                return (schoolFilter == -1 || performance.team.schoolId == schoolFilter) ? [...prev, <StudentPerformanceRow key={performance.id} teams={teams} ranks={topRanks[performance.id] || {}} data={performance} teamNumber={teamIdToNumber[performance.team.id]} editingEnabled={editing} events={match.events} index={sortIndex > 3 ? index : undefined} />] : prev
+            }, [])
         }
     }
 
     const studentPerformanceRowsByDivision: { [division: string]: JSX.Element[] } = Object.keys(studentsByDivision).reduce((prev, division) => {
-        if (!studentsByDivision[division]) return { ...prev, [division]: [] }
-        return { ...prev, [division]: getStudentPerformanceRows(studentsByDivision[division]) }
+        if (!studentsByDivision[division] || !unsortedStudentsByDivision[division]) return { ...prev, [division]: [] }
+        return { ...prev, [division]: getStudentPerformanceRows(studentsByDivision[division], unsortedStudentsByDivision[division]) }
     }, {})
 
     const teamColumnNames = ['Rank', 'Team', 'Overall', 'Obj', 'Sub']
@@ -364,7 +371,7 @@ export default function MatchResult2() {
                 {hasStudentData &&
                     <div className='info-page-section-header'>Individual Scores</div>}
 
-                {hasStudentData && Object.keys(studentPerformanceRowsByDivision).sort(divisionSort).map(division => {
+                {hasStudentData && Object.keys(studentPerformanceRowsByDivision).sort(divisionSort).filter(d => studentPerformanceRowsByDivision[d].length > 0).map(division => {
                     return (
                         <div key={division}>
                             {match.hasDivisions && <h3 className="info-page-subhead">{divisions[division]}</h3>}
