@@ -1,5 +1,5 @@
 #!/bin/sh
-source ./bashrc
+source ~/.bashrc
 cd /var/www/addb
 sudo npm install
 sudo npm run build
