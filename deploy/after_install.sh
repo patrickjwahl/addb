@@ -1,4 +1,5 @@
 #!/bin/sh
+whoami
 cd /home/ec2-user/addb
 npm install
 npm run build
