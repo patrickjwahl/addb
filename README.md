@@ -6,8 +6,6 @@ Make sure you have Node.js and MongoDB installed. Clone the repository, cd into 
 
 Also add a line `DATABASE_URL="postgresql://johndoe:randompassword@localhost:5432/mydb?schema=public"` with your PostgreSQL connection info.
 
-Start Mongo by running `mongod --dbpath <path to your DB>`
+Then, from the AD-DB root directory, run `npm run dev`.
 
-Then, from the AD-DB root directory, run `npm run start-dev`.
-
-And that's it! The website will open on port 3000, with the API listening on 3001. API calls to 3000 will be proxied to 3001 so you can use either to test with Postman or whatever. 
+And that's it! The website will open on port 5173, with the API listening on 3001. API calls to 5173 will be proxied to 3001 so you can use either to test with Postman or whatever. 

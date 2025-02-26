@@ -1,6 +1,6 @@
-const PrismaClient = require('@prisma/client').PrismaClient;
-const fs = require('node:fs');
-const { exit } = require('node:process');
+import { PrismaClient } from '@prisma/client';
+import fs from 'node:fs'
+import { exit } from 'node:process'
 
 const prisma = new PrismaClient()
 let data
@@ -85,27 +85,32 @@ let rootdir = process.argv[2];
         stateNameToId[ms.state] = state.id
         const stateId = state.id
 
-        let region = await prisma.region.findFirst({
-            where: {
-                name: ms.region,
-                stateId: stateId
-            }
-        })
-        if (!region) {
-            region = await prisma.region.create({
-                data: {
+        let regionId = null
+        if (ms.region) {
+            let region = await prisma.region.findFirst({
+                where: {
                     name: ms.region,
                     stateId: stateId
                 }
             })
-            regionToId[`${ms.state}-${ms.region}`] = region.id
+            if (!region) {
+                region = await prisma.region.create({
+                    data: {
+                        name: ms.region,
+                        stateId: stateId
+                    }
+                })
+                regionToId[`${ms.state}-${ms.region}`] = region.id
+            }
+            regionId = region.id
         }
-        const regionId = region.id
+
 
         const school = {
             name: ms.name,
             city: ms.city,
             regionId: regionId,
+            stateId: stateId,
             district: ms.district,
             fullName: ms.fullName
         }
@@ -124,8 +129,7 @@ let rootdir = process.argv[2];
     let studentMidToId = {}
     for (const ms of mongoStudents) {
         const student = {
-            name: ms.name,
-            schoolId: schoolMidToId[ms.schoolId]
+            name: ms.name
         }
         const newStudent = await prisma.student.create({
             data: student
@@ -136,6 +140,7 @@ let rootdir = process.argv[2];
 
     // MATCHES
 
+    const eventOrdering = ['math', 'music', 'econ', 'science', 'lit', 'art', 'socialScience', 'essay', 'speech', 'interview']
     const mongoMatches = readLines('matches.json')
     for (const mm of mongoMatches) {
 
@@ -143,11 +148,8 @@ let rootdir = process.argv[2];
             continue
         }
 
-        const eventSchedule = mm.events
-        const newEventSchedule = await prisma.eventSchedule.create({
-            data: eventSchedule
-        })
-        const scheduleId = newEventSchedule.id
+        let eventSchedule = Object.keys(mm.events).filter(key => (mm.events[key] == true && eventOrdering.indexOf(key) >= 0))
+        eventSchedule.sort((a, b) => { return eventOrdering.indexOf(a) - eventOrdering.indexOf(b) })
 
         let match = {
             search1: mm.search1,
@@ -161,14 +163,11 @@ let rootdir = process.argv[2];
             incompleteData: mm.incompleteData,
             hasDivisions: mm.hasDivisions,
             access: mm.access,
-            eventScheduleId: scheduleId
+            events: eventSchedule
         }
 
         if (mm.round != 'nationals') {
             match['stateId'] = stateNameToId[mm.state]
-            if (!match.stateId) {
-                console.log('uh oh!');
-            }
             if (mm.round != 'state') {
                 match['regionId'] = regionToId[`${mm.state}-${mm.region}`]
             }
@@ -178,7 +177,6 @@ let rootdir = process.argv[2];
             data: match
         })
         const matchId = newMatch.id
-        console.log(newMatch);
 
         let teamNameToNumber = {}
         let teamNameToId = {}
@@ -214,11 +212,11 @@ let rootdir = process.argv[2];
                 teamId: teamId,
                 number: teamNumber,
                 rank: mt.rank,
-                overall: mt.overall,
-                objs: mt.objs,
-                subs: mt.subs,
+                overall: parseFloat(mt.overall?.replace(',', '')),
+                objs: parseFloat(mt.objs?.replace(',', '')),
+                subs: parseFloat(mt.subs?.replace(',', '')),
                 division: mt.division,
-                sq: mt.sq
+                sq: parseFloat(mt.sq?.replace(',', ''))
             }
 
             await prisma.teamPerformance.create({ data: teamPerformance })
@@ -231,19 +229,19 @@ let rootdir = process.argv[2];
                 matchId: matchId,
                 teamId: teamNameToId[ms.teamName],
                 gpa: ms.gpa,
-                math: ms.math,
-                music: ms.music,
-                econ: ms.econ,
-                science: ms.science,
-                lit: ms.lit,
-                art: ms.art,
-                socialScience: ms.socialScience,
-                essay: ms.essay,
-                speech: ms.speech,
-                interview: ms.interview,
-                overall: ms.overall,
-                objs: ms.objs,
-                subs: ms.subs
+                math: parseFloat(ms.math?.replace(',', '')),
+                music: parseFloat(ms.music?.replace(',', '')),
+                econ: parseFloat(ms.econ?.replace(',', '')),
+                science: parseFloat(ms.science?.replace(',', '')),
+                lit: parseFloat(ms.lit?.replace(',', '')),
+                art: parseFloat(ms.art?.replace(',', '')),
+                socialScience: parseFloat(ms.socialScience?.replace(',', '')),
+                essay: parseFloat(ms.essay?.replace(',', '')),
+                speech: parseFloat(ms.speech?.replace(',', '')),
+                interview: parseFloat(ms.interview?.replace(',', '')),
+                overall: parseFloat(ms.overall?.replace(',', '')),
+                objs: parseFloat(ms.objs?.replace(',', '')),
+                subs: parseFloat(ms.subs?.replace(',', ''))
             }
 
             await prisma.studentPerformance.create({ data: studentPerformance })

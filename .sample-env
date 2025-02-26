@@ -1,2 +1,5 @@
 # Create a .env file like this and replace "deadlydeadlysecret" with your own secret key!
 SESSIONS_SECRET=deadlydeadlysecret
+
+# Replace the information below with your postgresql credentials
+DATABASE_URL="postgresql://user:password@localhost:5432/addb"

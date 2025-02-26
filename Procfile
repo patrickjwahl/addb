@@ -1,2 +1,2 @@
-web: react-scripts start
-api: nodemon server.js
+web: vite
+api: npx tsx src/server/server.ts

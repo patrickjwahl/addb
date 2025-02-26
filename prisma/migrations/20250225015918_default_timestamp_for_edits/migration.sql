@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "edits" ALTER COLUMN "datetime" SET DEFAULT CURRENT_TIMESTAMP;

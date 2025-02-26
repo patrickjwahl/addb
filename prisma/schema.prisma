@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearchPostgres"]
+  previewFeatures = ["fullTextSearchPostgres", "typedSql"]
 }
 
 datasource db {
@@ -13,11 +13,13 @@ model School {
   name     String
   fullName String? @map("full_name")
   city     String?
-  region   Region  @relation(fields: [regionId], references: [id])
+  region   Region? @relation(fields: [regionId], references: [id])
+  state    State?  @relation(fields: [stateId], references: [id])
   district String?
   info     String?
   teams    Team[]
-  regionId Int     @map("region_id")
+  regionId Int?    @map("region_id")
+  stateId  Int?    @map("state_id")
 
   @@map("schools")
 }
@@ -25,8 +27,8 @@ model School {
 model Team {
   id                  Int                  @id @default(autoincrement())
   name                String
-  school              School               @relation(fields: [schoolId], references: [id])
-  schoolId            Int                  @map("school_id")
+  school              School?              @relation(fields: [schoolId], references: [id])
+  schoolId            Int?                 @map("school_id")
   studentPerformances StudentPerformance[]
   performances        TeamPerformance[]
 
@@ -50,31 +52,11 @@ model Match {
   incompleteData      Boolean              @default(false) @map("incomplete_data")
   hasDivisions        Boolean              @default(false) @map("has_divisions")
   access              Int
-  events              EventSchedule        @relation(fields: [eventScheduleId], references: [id])
-  eventScheduleId     Int                  @unique @map("event_schedule_id")
+  events              Category[]
   studentPerformances StudentPerformance[]
   teamPerformances    TeamPerformance[]
 
   @@map("matches")
-}
-
-model EventSchedule {
-  id            Int     @id @default(autoincrement())
-  math          Boolean @default(true)
-  music         Boolean @default(true)
-  econ          Boolean @default(true)
-  science       Boolean @default(true)
-  lit           Boolean @default(true)
-  art           Boolean @default(true)
-  socialScience Boolean @default(true) @map("social_science")
-  essay         Boolean @default(true)
-  speech        Boolean @default(true)
-  interview     Boolean @default(true)
-  objs          Boolean @default(true)
-  subs          Boolean @default(true)
-  match         Match?
-
-  @@map("event_schedules")
 }
 
 model Student {
@@ -94,19 +76,19 @@ model StudentPerformance {
   team          Team     @relation(fields: [teamId], references: [id])
   teamId        Int      @map("team_id")
   gpa           String
-  math          String?
-  music         String?
-  econ          String?
-  science       String?
-  lit           String?
-  art           String?
-  socialScience String?  @map("social_science")
-  essay         String?
-  speech        String?
-  interview     String?
-  overall       String?
-  objs          String?
-  subs          String?
+  math          Float?
+  music         Float?
+  econ          Float?
+  science       Float?
+  lit           Float?
+  art           Float?
+  socialScience Float?   @map("social_science")
+  essay         Float?
+  speech        Float?
+  interview     Float?
+  overall       Float?
+  objs          Float?
+  subs          Float?
 
   @@map("student_performances")
 }
@@ -119,11 +101,11 @@ model TeamPerformance {
   teamId   Int     @map("team_id")
   number   Int?
   rank     Int
-  overall  String
-  objs     String?
-  subs     String?
+  overall  Float
+  objs     Float?
   division String?
-  sq       String?
+  subs     Float?
+  sq       Float?
 
   @@map("team_performances")
 }
@@ -144,6 +126,7 @@ model State {
   name    String
   regions Region[]
   matches Match[]
+  School  School[]
 
   @@map("states")
 }
@@ -163,17 +146,29 @@ model Edit {
   id       Int      @id @default(autoincrement())
   user     User     @relation(fields: [userId], references: [id])
   userId   Int      @map("user_id")
-  datetime DateTime
+  datetime DateTime @default(now())
   summary  String?
-  prev     String?
-  new      String?
+  diff     String?
 
   @@map("edits")
 }
 
 enum Round {
-  round_one
+  roundone
   regionals
   state
   nationals
+}
+
+enum Category {
+  math
+  music
+  econ
+  science
+  lit
+  art
+  socialScience
+  essay
+  speech
+  interview
 }

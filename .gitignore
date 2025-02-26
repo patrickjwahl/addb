@@ -23,4 +23,12 @@ yarn-debug.log*
 yarn-error.log*
 
 .vscode
-n
+
+users.json
+edits.json
+people.json
+schools.json
+matches.json
+
+/dist
+*.csv

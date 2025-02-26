@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "nodenext",
+        "outDir": "dist/server",
+        "rootDir": "src/",
+        "strict": true,
+        "esModuleInterop": true,
+        "moduleResolution": "nodenext",
+        "types": [
+            "node"
+        ],
+        "skipLibCheck": true
+    },
+    "include": [
+        "src/"
+    ],
+    "exclude": [
+        "src/client"
+    ]
+}
