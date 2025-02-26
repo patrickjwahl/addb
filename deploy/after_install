@@ -1,5 +1,5 @@
 #!/bin/sh
-source /home/ec2-instance/.bashrc
+source /home/ec2-user/.bashrc
 cd /home/ec2-user/addb
 npm install
 npm run build
