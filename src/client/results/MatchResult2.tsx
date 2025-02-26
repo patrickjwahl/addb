@@ -24,7 +24,7 @@ export default function MatchResult2() {
 
     const [match, setMatch] = useState<Match>()
     const [editing, setEditing] = useState(false)
-    const [showDivisions, setShowDivisions] = useState(true)
+    const [showDivisions, setShowDivisions] = useState(false)
     const [sortIndex, setSortIndex] = useState(1)
     const [sortDesc, setSortDesc] = useState(false)
     const [isDeleted, setIsDeleted] = useState(false)
