@@ -1,5 +1,5 @@
 #!/bin/sh
 source ~/.bashrc
-cd /var/www/addb
-sudo npm install
-sudo npm run build
+cd /home/ec2-user/addb
+npm install
+npm run build
