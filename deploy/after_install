@@ -1,6 +1,5 @@
 #!/bin/sh
-source /home/ec2-user/.bashrc
 cd /home/ec2-user/addb
-npm install
-npm run build
-pm2 reload server
+/usr/bin/node/npm install
+/usr/bin/node/npm run build
+/usr/bin/node/pm2 reload server
