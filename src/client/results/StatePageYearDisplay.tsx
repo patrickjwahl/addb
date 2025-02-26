@@ -33,8 +33,8 @@ export default function StatePageYearDisplay({ year, data }: {
         content = (
             <>
                 <div className='search-result-subtitle'>1. {m.first} - {m.firstScore}</div>
-                <div className='search-result-subtitle'>1. {m.second} - {m.secondScore}</div>
-                <div className='search-result-subtitle'>1. {m.third} - {m.thirdScore}</div>
+                <div className='search-result-subtitle'>2. {m.second} - {m.secondScore}</div>
+                <div className='search-result-subtitle'>3. {m.third} - {m.thirdScore}</div>
             </>
         )
     } else {
@@ -82,7 +82,7 @@ export default function StatePageYearDisplay({ year, data }: {
                                 <div className='search-result-title'>{match.region}</div>
                                 <div className='search-result-subtitle'>1. {match.first} - {match.firstScore}</div>
                                 <div className='search-result-subtitle'>2. {match.second} - {match.secondScore}</div>
-                                <div className='search-result-subtitle'>2. {match.third} - {match.thirdScore}</div>
+                                <div className='search-result-subtitle'>3. {match.third} - {match.thirdScore}</div>
                             </div>
                         </Link>
                     )
@@ -150,7 +150,7 @@ export default function StatePageYearDisplay({ year, data }: {
                                 <div className='search-result-title'>{match.region}</div>
                                 <div className='search-result-subtitle'>1. {match.first} - {match.firstScore}</div>
                                 <div className='search-result-subtitle'>2. {match.second} - {match.secondScore}</div>
-                                <div className='search-result-subtitle'>2. {match.third} - {match.thirdScore}</div>
+                                <div className='search-result-subtitle'>3. {match.third} - {match.thirdScore}</div>
                             </div>
                         </Link>
                     )

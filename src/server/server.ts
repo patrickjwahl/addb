@@ -1702,6 +1702,9 @@ router.route('/state/:name')
                 teamPerformances: {
                     include: {
                         team: true
+                    },
+                    orderBy: {
+                        rank: 'asc'
                     }
                 }
             }
