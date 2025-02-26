@@ -1,11 +1,10 @@
-import howdyImg from './assets/img/howdy.jpg'
 import { Helmet } from 'react-helmet'
 
 let Register = () => {
     return (
         <div className='form-container'>
             <Helmet><title>Register | AcDecDB</title></Helmet>
-            <img src={howdyImg} width={200} />
+            <img src="/img/howdy.jpg" width={200} />
             <div style={{ textAlign: 'left' }}>
                 <p>Well, howdy! Looks like y'all're here to open up a tab at the ol' Saloon.</p>
                 <p>Improptitiously for your hankerin' hide, we don't let just anyone in.</p>

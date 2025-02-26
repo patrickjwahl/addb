@@ -1,6 +1,5 @@
 import API from '@/client/API'
 import { Navigate, useLocation } from 'react-router-dom'
-import logImg from './assets/img/log.jpg'
 import { Helmet } from 'react-helmet'
 import { useState } from 'react'
 import { ApiResponse, LoginResult } from '../shared/types/response'
@@ -46,7 +45,7 @@ export default function Login() {
             <Helmet><title>Login | AcDecDB</title></Helmet>
             {admonishment}
             <div className='form-container'>
-                <img src={logImg} width={150} style={{ margin: '10px 0' }} />
+                <img src='/img/log.jpg' width={150} style={{ margin: '10px 0' }} />
                 <form className='login-form' onSubmit={handleSubmit}>
                     <div className='form-field'>
                         <label className='form-label' htmlFor="nam">Username</label>

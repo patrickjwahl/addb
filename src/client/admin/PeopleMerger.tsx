@@ -1,6 +1,5 @@
 import PersonSelect from '@/client/admin/PersonSelect'
 import API from '@/client/API'
-import mergeImg from '@/client/assets/img/merge.jpg'
 import { useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useState } from 'react'
@@ -43,7 +42,7 @@ export default function PeopleMerger() {
     return (
         <div className='form-container'>
             <Helmet><title>PeopleMerger-9000 | AcDecDB</title></Helmet>
-            <img src={mergeImg} width={150} style={{ margin: '10px 0' }} />
+            <img src="/img/merge.jpg" width={150} style={{ margin: '10px 0' }} />
             <PersonSelect currentName={'God'} selectedPerson={god}
                 selectPerson={selectGod} unselectPerson={unselectGod} />
             <PersonSelect currentName={'Peon'} selectedPerson={peon}

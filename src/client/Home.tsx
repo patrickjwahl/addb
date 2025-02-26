@@ -25,7 +25,7 @@ export default function Home() {
 
     let matchResults = (null)
 
-    let statesList = ['California', 'Texas', 'Arizona', 'Wisconsin', 'Ohio', "Pennsylvania", 'Alaska',
+    let statesList = ['California', 'Indiana', 'Connecticut', 'Texas', 'Arizona', 'Wisconsin', 'Ohio', "Pennsylvania", 'Alaska',
         'Illinois', 'Iowa', 'Massachusetts', 'New_Jersey', 'Nebraska', 'Utah', 'Georgia', 'Maine', 'Rhode_Island'].sort()
 
     let stateLinks = (
