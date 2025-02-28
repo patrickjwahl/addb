@@ -3,8 +3,8 @@ import Table, { Column } from "@/client/components/table/Table"
 import { FullStudentPerformance, Match, StudentPerformance, TeamPerformance } from "@/shared/types/response"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
-import { hasObjs as _hasObjs, hasSubs as _hasSubs, divisionSort } from "@/shared/util/functions"
-import { divisions, friendlyColumn, friendlyRound } from "@/shared/util/consts"
+import { hasObjs as _hasObjs, hasSubs as _hasSubs, divisionSort, partitionSort } from "@/shared/util/functions"
+import { divisions, friendlyColumn, friendlyGPA, friendlyRound } from "@/shared/util/consts"
 import StudentPerformanceRow from "@/client/components/table/StudentPerformanceRow"
 import { ColorRing } from "react-loader-spinner"
 import { Helmet } from "react-helmet"
@@ -17,6 +17,37 @@ type StudentPerformanceColumn = {
     sortKey: (val: StudentPerformance) => number | string
 }
 
+type ShowMedalsOptions = {
+    overall: string,
+    none: string,
+    division: string,
+    gpa: string,
+    gpa_division: string
+}
+
+// Returns a mapping from a student performance's ID to its rank, by the specified partitions
+const calculateRanks = (performances: FullStudentPerformance[], sortKey: (perf: StudentPerformance) => string | number, byDivision: boolean, byGpa: boolean, teamIdToDivision: { [id: number]: string }): { [id: number]: number } => {
+    let partitions: Array<FullStudentPerformance[] | undefined> = [performances]
+    if (byDivision) {
+        partitions = partitions.flatMap(partition => Object.values(Object.groupBy(partition || [], perf => teamIdToDivision[perf.teamId])))
+    }
+    if (byGpa) {
+        partitions = partitions.flatMap(partition => Object.values(Object.groupBy(partition || [], perf => perf.gpa)))
+    }
+
+    const scorePartitions = partitions.map(partition => Object.groupBy(partition || [], perf => parseFloat(sortKey(perf).toString()) || 0))
+    const result: { [id: number]: number } = {}
+    scorePartitions.forEach(partition => {
+        Object.keys(partition).sort((a, b) => parseFloat(b) - parseFloat(a)).forEach((scoreStr, index) => {
+            const score = parseFloat(scoreStr)
+            partition[score] && partition[score].forEach(perf => {
+                result[perf.id] = index
+            })
+        })
+    })
+    return result
+}
+
 export default function MatchResult2() {
 
     const [searchParams] = useSearchParams()
@@ -24,13 +55,15 @@ export default function MatchResult2() {
 
     const [match, setMatch] = useState<Match>()
     const [editing, setEditing] = useState(false)
-    const [showDivisions, setShowDivisions] = useState(false)
     const [sortIndex, setSortIndex] = useState(1)
     const [sortDesc, setSortDesc] = useState(false)
     const [isDeleted, setIsDeleted] = useState(false)
     const [gpaFilter, setGpaFilter] = useState('all')
     const [schoolFilter, setSchoolFilter] = useState(parseInt(schoolInitFilter || '') || -1)
+    const [divisionFilter, setDivisionFilter] = useState('all')
+    const [partitionBy, setParitionBy] = useState<keyof ShowMedalsOptions>('overall')
     const [showMedals, setShowMedals] = useState(true)
+    const [rankBy, setRankBy] = useState<keyof ShowMedalsOptions>('overall')
 
     const params = useParams()
 
@@ -136,18 +169,11 @@ export default function MatchResult2() {
 
     const teamsByDivision: Partial<Record<string, TeamPerformance[]>> = (() => {
         if (!match) return {}
-        if (showDivisions) return Object.groupBy(match.teamPerformances, perf => (perf.division || 'null'))
+        if (partitionBy == 'division' || partitionBy == 'gpa_division') return Object.groupBy(match.teamPerformances, perf => (perf.division || 'null'))
         return { all: match.teamPerformances }
     })()
 
-    if (!match) {
-        return <ColorRing
-            height={40}
-            width={40}
-            wrapperStyle={{ marginTop: '50px' }}
-            visible
-        />
-    }
+    const uniqueDivisions = [...new Set(match?.teamPerformances.map(perf => perf.division))].filter(d => d != null)
 
     const studentColumnDefs: StudentPerformanceColumn[] = [
         {
@@ -172,7 +198,7 @@ export default function MatchResult2() {
         }
     ]
 
-    match.events.forEach(event => {
+    match?.events.forEach(event => {
         studentColumnDefs.push({
             name: friendlyColumn[event],
             sortKey: (a: StudentPerformance) => (a as FullStudentPerformance)[event] || 0
@@ -188,17 +214,40 @@ export default function MatchResult2() {
         sortKey: a => (a as FullStudentPerformance).subs || 0
     })
 
-    const studentColumns: Column[] = studentColumnDefs.map(def => ({ name: def.name, sortingAllowed: true }))
-    if (sortIndex > 3) studentColumns.unshift({ name: 'Rank', sortingAllowed: false })
+    if (!match) {
+        return <ColorRing
+            height={40}
+            width={40}
+            wrapperStyle={{ marginTop: '50px' }}
+            visible
+        />
+    }
 
-    editing && studentColumns.push({ name: "Edit", sortingAllowed: false })
+    const ranksByCol: { [index: number]: { [id: number]: number } } = studentColumnDefs.reduce((prev, col, index) => {
+        if (index < 4) return prev
+        return {
+            ...prev, [index]: calculateRanks(match.studentPerformances as FullStudentPerformance[],
+                col.sortKey, rankBy == 'division' || rankBy == 'gpa_division', rankBy == 'gpa' || rankBy == 'gpa_division', teamIdToDivision)
+        }
+    }, {})
 
-    const sortedStudentPerformances = [...match.studentPerformances.filter(p => (gpaFilter == 'all' || p.gpa == gpaFilter))]
+    const ranksByPerfId = Object.entries(ranksByCol).reduce((prev: { [id: number]: { [index: number]: number } }, [event, ranksByPerf]) => {
+        Object.entries(ranksByPerf).forEach(([perf, rank]) => {
+            if (!prev[parseInt(perf)]) prev[parseInt(perf)] = {} // Initialize if doesn't exist
+            prev[parseInt(perf)][parseInt(event)] = rank // Swap mapping
+        })
+        return prev
+    }, {})
+
+    const filteredStudentPerformances = [...match?.studentPerformances].filter(perf => {
+        return (divisionFilter == 'all' || teamIdToDivision[perf.teamId] == divisionFilter)
+            && (gpaFilter == 'all' || perf.gpa == gpaFilter)
+            && (schoolFilter == -1 || perf.team.schoolId == schoolFilter)
+    })
+
     const sortKey = studentColumnDefs[sortIndex].sortKey
-    sortedStudentPerformances.sort((a, b) => {
-        const valA = sortKey(a)
-        const valB = sortKey(b)
-
+    const sortedStudentPerformances = filteredStudentPerformances.sort((a, b) => {
+        const valA = sortKey(a), valB = sortKey(b)
         // Handle both numbers and strings
         let cmp
         if (typeof valA === "number" && typeof valB === "number") {
@@ -210,40 +259,41 @@ export default function MatchResult2() {
         return cmp
     })
 
-    const studentsByDivision: Partial<Record<string, StudentPerformance[]>> = (() => {
-        if (!match) return {}
-        if (showDivisions) return Object.groupBy(sortedStudentPerformances, perf => teamIdToDivision[perf.teamId])
-        return { all: sortedStudentPerformances }
-    })()
+    const studentColumns: Column[] = studentColumnDefs.map(def => ({ name: def.name, sortingAllowed: true }))
+    if (sortIndex > 3) studentColumns.unshift({ name: 'Rank', sortingAllowed: false })
 
-    const unsortedStudentsByDivision: Partial<Record<string, StudentPerformance[]>> = (() => {
-        if (!match) return {}
-        if (showDivisions) return Object.groupBy(match.studentPerformances, perf => teamIdToDivision[perf.teamId])
-        return { all: match.studentPerformances }
-    })()
+    editing && studentColumns.push({ name: "Edit", sortingAllowed: false })
 
-    const getStudentPerformanceRows = (performances: StudentPerformance[], unsortedPerformances: StudentPerformance[]): JSX.Element[] => {
-        const topRanks: { [performanceId: number]: { [category: string]: number } } = {}
-        if (showMedals) {
-            for (const event of (match.events as Array<keyof FullStudentPerformance>).concat(['overall', 'subs', 'objs'])) {
-                const medalGroups = Object.groupBy(schoolFilter == -1 ? performances : unsortedPerformances, perf => (perf as FullStudentPerformance)[event] as number || 0)
-                if (!medalGroups) continue
-                const sortedKeys = Object.keys(medalGroups).map(Number).sort((a, b) => b - a)
-                for (let i = 0; i < Math.min(3, sortedKeys.length); i++) {
-                    const group = medalGroups[sortedKeys[i]]
-                    if (group) {
-                        for (const perf of group) {
-                            if (perf.id in topRanks) {
-                                topRanks[perf.id][event] = i + 1
-                            } else {
-                                topRanks[perf.id] = { [event]: i + 1 }
-                            }
-                        }
-                    }
-                }
-            }
+    const partitionKey = (perf: StudentPerformance) => {
+        let partition = ''
+        if (partitionBy == 'division' || partitionBy == 'gpa_division') {
+            partition += `_${teamIdToDivision[perf.teamId]}`
         }
-        if (sortIndex < 2 && match.aggregates && gpaFilter == 'all') {
+        if (partitionBy == 'gpa' || partitionBy == 'gpa_division') {
+            partition += `_${perf.gpa}`
+        }
+        return partition
+    }
+
+    const friendlyPartition = (key: string): string => {
+        const strippedKey = key.slice(1)
+        if (partitionBy == 'division') {
+            return divisions[strippedKey]
+        } else if (partitionBy == 'gpa') {
+            return friendlyGPA[strippedKey]
+        } else if (partitionBy == 'gpa_division') {
+            const splitKey = strippedKey.split('_')
+            return `${divisions[splitKey[0]]} - ${friendlyGPA[splitKey[1]]}`
+        }
+
+        return ''
+    }
+
+    const studentsByPartition: Partial<Record<string, StudentPerformance[]>> =
+        Object.groupBy(sortedStudentPerformances, perf => partitionKey(perf))
+
+    const getStudentPerformanceRows = (performances: StudentPerformance[]): JSX.Element[] => {
+        if (sortIndex < 2 && match.aggregates && gpaFilter == 'all' && partitionBy != 'gpa' && partitionBy != 'gpa_division') {
             let rows = []
             const studentPerformancesByTeam = Object.groupBy(performances, perf => sortKey(perf))
             const sortedKeys = Object.keys(studentPerformancesByTeam).sort((a, b) => {
@@ -254,22 +304,22 @@ export default function MatchResult2() {
             for (const key of sortedKeys) {
                 let addAggregate = false
                 studentPerformancesByTeam[key]?.forEach((performance) => {
-                    (schoolFilter == -1 || performance.team.schoolId == schoolFilter) && rows.push(<StudentPerformanceRow data={performance} teams={teams} ranks={topRanks[performance.id] || {}} teamNumber={teamIdToNumber[performance.team.id]} editingEnabled={editing} events={match.events} key={performance.id} />) && (addAggregate = true)
+                    (schoolFilter == -1 || performance.team.schoolId == schoolFilter) && rows.push(<StudentPerformanceRow data={performance} teams={teams} rankByCol={ranksByPerfId[performance.id]} teamNumber={teamIdToNumber[performance.team.id]} editingEnabled={editing} events={match.events} key={performance.id} showMedals={showMedals} />) && (addAggregate = true)
                 })
                 const teamId = (studentPerformancesByTeam[key] && studentPerformancesByTeam[key][0].teamId) || 0
                 addAggregate && rows.push(<StudentAggregateRow key={teamId} data={match.aggregates[teamId]} events={match.events} />)
             }
             return rows
         } else {
-            return performances.reduce((prev: JSX.Element[], performance, index) => {
-                return (schoolFilter == -1 || performance.team.schoolId == schoolFilter) ? [...prev, <StudentPerformanceRow key={performance.id} teams={teams} ranks={topRanks[performance.id] || {}} data={performance} teamNumber={teamIdToNumber[performance.team.id]} editingEnabled={editing} events={match.events} index={sortIndex > 3 ? index : undefined} />] : prev
+            return performances.reduce((prev: JSX.Element[], performance) => {
+                return (schoolFilter == -1 || performance.team.schoolId == schoolFilter) ? [...prev, <StudentPerformanceRow key={performance.id} teams={teams} rankByCol={ranksByPerfId[performance.id]} data={performance} teamNumber={teamIdToNumber[performance.team.id]} editingEnabled={editing} events={match.events} rank={sortIndex > 3 ? ranksByPerfId[performance.id][sortIndex] : undefined} showMedals={showMedals} />] : prev
             }, [])
         }
     }
 
-    const studentPerformanceRowsByDivision: { [division: string]: JSX.Element[] } = Object.keys(studentsByDivision).reduce((prev, division) => {
-        if (!studentsByDivision[division] || !unsortedStudentsByDivision[division]) return { ...prev, [division]: [] }
-        return { ...prev, [division]: getStudentPerformanceRows(studentsByDivision[division], unsortedStudentsByDivision[division]) }
+    const studentPerformanceRowsByPartition: { [partition: string]: JSX.Element[] } = Object.keys(studentsByPartition).reduce((prev, partition) => {
+        if (!studentsByPartition[partition]) return { ...prev, [partition]: [] }
+        return { ...prev, [partition]: getStudentPerformanceRows(studentsByPartition[partition]) }
     }, {})
 
     const teamColumnNames = ['Rank', 'Team', 'Overall', 'Obj', 'Sub']
@@ -280,7 +330,7 @@ export default function MatchResult2() {
 
     const teamPerformanceRowsByDivision: { [division: string]: JSX.Element[] } = Object.keys(teamsByDivision).reduce((prev, division) => {
         if (!teamsByDivision[division]) return { ...prev, [division]: [] }
-        const sortedTeamPerformances = [...teamsByDivision[division].filter(perf => (schoolFilter == -1 || perf.team.schoolId == schoolFilter))]
+        const sortedTeamPerformances = [...teamsByDivision[division].filter(perf => divisionFilter == 'all' || perf.division == divisionFilter).filter(perf => (schoolFilter == -1 || perf.team.schoolId == schoolFilter))]
         if (sortedTeamPerformances.length == 0) return prev
         sortedTeamPerformances.sort((a, b) => a.rank - b.rank)
         const teamPerformanceRows = sortedTeamPerformances.map((performance, index) => {
@@ -334,18 +384,32 @@ export default function MatchResult2() {
                     </div>
                 }
                 <div className="divisions-and-filters">
-                    {match.hasDivisions &&
-
+                    <div className="left-align-column">
+                        <div className="title">Partition By</div>
+                        <select style={{ fontWeight: partitionBy == 'overall' ? 'normal' : 'bold' }} value={partitionBy} onChange={e => setParitionBy(e.target.value as keyof ShowMedalsOptions)}>
+                            <option value={'overall'}>Overall</option>
+                            {match.hasDivisions && <option value={'division'}>Division</option>}
+                            <option value={'gpa'}>GPA</option>
+                            {match.hasDivisions && <option value="gpa_division">Division & GPA</option>}
+                        </select>
+                    </div>
+                    {
+                        match.hasDivisions &&
                         <div className="left-align-column">
-                            <div className="title">{showDivisions ? 'Results by Division' : 'Overall Results'}</div>
-                            <button className="divisions-button" onClick={() => setShowDivisions(!showDivisions)}>
-                                {!showDivisions ? 'Show by Division' : 'Show Overall'}
-                            </button>
+                            <div className="title">Filter by Division</div>
+                            <select style={{ fontWeight: divisionFilter == 'all' ? 'normal' : 'bold' }} value={divisionFilter} onChange={e => setDivisionFilter(e.target.value)}>
+                                <option value={'all'}>All</option>
+                                {
+                                    [...uniqueDivisions].sort(divisionSort).map(division => (
+                                        <option key={division} value={division}>{divisions[division]}</option>
+                                    ))
+                                }
+                            </select>
                         </div>
                     }
                     <div className="left-align-column">
                         <div className="title">Filter by GPA</div>
-                        <select value={gpaFilter} onChange={e => setGpaFilter(e.target.value)}>
+                        <select style={{ fontWeight: gpaFilter == 'all' ? 'normal' : 'bold' }} value={gpaFilter} onChange={e => setGpaFilter(e.target.value)}>
                             <option value='all'>All</option>
                             <option value='H'>H</option>
                             <option value='S'>S</option>
@@ -354,11 +418,20 @@ export default function MatchResult2() {
                     </div>
                     <div className="left-align-column">
                         <div className="title">Filter by School</div>
-                        <select value={schoolFilter} onChange={e => setSchoolFilter(parseInt(e.target.value))}>
+                        <select style={{ fontWeight: schoolFilter == -1 ? 'normal' : 'bold' }} value={schoolFilter} onChange={e => setSchoolFilter(parseInt(e.target.value))}>
                             <option value={-1}>All</option>
                             {Object.keys(schoolNameToId).sort().map(name => {
                                 return <option key={name} value={schoolNameToId[name]}>{name}</option>
                             })}
+                        </select>
+                    </div>
+                    <div className="left-align-column">
+                        <div className="title">Rank By</div>
+                        <select style={{ fontWeight: rankBy == 'overall' ? 'normal' : 'bold' }} value={rankBy} onChange={e => setRankBy(e.target.value as keyof ShowMedalsOptions)}>
+                            <option value={'overall'}>Overall</option>
+                            {match.hasDivisions && <option value={'division'}>Division</option>}
+                            <option value={'gpa'}>GPA</option>
+                            {match.hasDivisions && <option value="gpa_division">Division & GPA</option>}
                         </select>
                     </div>
                     <div className="left-align-column">
@@ -371,12 +444,12 @@ export default function MatchResult2() {
                 {hasStudentData &&
                     <div className='info-page-section-header'>Individual Scores</div>}
 
-                {hasStudentData && Object.keys(studentPerformanceRowsByDivision).sort(divisionSort).filter(d => studentPerformanceRowsByDivision[d].length > 0).map(division => {
+                {hasStudentData && Object.keys(studentPerformanceRowsByPartition).sort(partitionSort).filter(d => studentPerformanceRowsByPartition[d].length > 0).map(partition => {
                     return (
-                        <div key={division}>
-                            {match.hasDivisions && <h3 className="info-page-subhead">{divisions[division]}</h3>}
+                        <div key={partition}>
+                            {partitionBy != 'overall' && <h3 className="info-page-subhead">{friendlyPartition(partition)}</h3>}
                             <Table columns={studentColumns} sortIndex={sortIndex > 3 ? sortIndex + 1 : sortIndex} sortDesc={sortDesc} setSort={setSort}>
-                                {studentPerformanceRowsByDivision[division]}
+                                {studentPerformanceRowsByPartition[partition]}
                             </Table>
                         </div>
                     )

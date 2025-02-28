@@ -1,5 +1,5 @@
 import { Category } from "@prisma/client"
-import { divisionsOrder, objs, roundOrder, subs } from "./consts.js"
+import { divisionsOrder, friendlyGPA, objs, roundOrder, subs } from "./consts.js"
 
 export type CSVColumnDef = {
     name: string,
@@ -21,9 +21,9 @@ export const possiblyShorten = (str: string): string => {
 
 export const rankToClass = (rank: number): string => {
     switch (rank) {
-        case 1: return 'gold'
-        case 2: return 'silver'
-        case 3: return 'bronze'
+        case 0: return 'gold'
+        case 1: return 'silver'
+        case 2: return 'bronze'
         default: return ''
     }
 }
@@ -58,6 +58,12 @@ export const diff = (oldObj: any, newObj: any): any => {
 
 export const divisionSort = (a: string, b: string) => {
     return divisionsOrder.indexOf(a) - divisionsOrder.indexOf(b)
+}
+
+export const partitionsOrder = divisionsOrder.concat(Object.keys(friendlyGPA).sort()).concat(divisionsOrder.flatMap(div => Object.keys(friendlyGPA).sort().map(gpa => `_${div}_${gpa}`)))
+
+export const partitionSort = (a: string, b: string) => {
+    return partitionsOrder.indexOf(a) - partitionsOrder.indexOf(b)
 }
 
 export const roundSort = (a: string, b: string) => {

@@ -119,7 +119,6 @@ export default function SeasonResult() {
                     sortKey: a => a.overall || 0
                 }
             ]
-            console.log(match)
             match.events.forEach(event => {
                 studentColumnDefs.push({
                     name: friendlyColumn[event],
@@ -159,7 +158,6 @@ export default function SeasonResult() {
             })
 
             const getStudentPerformanceRows = (performances: StudentPerformance[]): JSX.Element[] => {
-                const topRanks: { [performanceId: number]: { [category: string]: number } } = {}
                 if (sortIndex < 2 && aggregates && gpaFilter == 'all') {
                     let rows = []
                     const studentPerformancesByTeam = Object.groupBy(performances, perf => sortKey(perf))
@@ -170,15 +168,15 @@ export default function SeasonResult() {
                     })
                     for (const key of sortedKeys) {
                         studentPerformancesByTeam[key]?.forEach((performance) => {
-                            rows.push(<StudentPerformanceRow data={performance} teams={teams} ranks={topRanks[performance.id] || {}} teamNumber={teamIdToNumber[performance.team.id]} editingEnabled={false} events={match.events} key={performance.id} />)
+                            rows.push(<StudentPerformanceRow data={performance} teams={teams} teamNumber={teamIdToNumber[performance.team.id]} editingEnabled={false} events={match.events} key={performance.id} rankByCol={{}} showMedals={false} />)
                         })
                         const teamId = (studentPerformancesByTeam[key] && studentPerformancesByTeam[key][0].teamId) || 0
                         rows.push(<StudentAggregateRow key={teamId} data={aggregates[teamId]} events={match.events} />)
                     }
                     return rows
                 } else {
-                    return performances.map((performance, index) => {
-                        return <StudentPerformanceRow key={performance.id} teams={teams} ranks={topRanks[performance.id] || {}} data={performance} teamNumber={teamIdToNumber[performance.team.id]} editingEnabled={false} events={match.events} index={sortIndex > 3 ? index : undefined} />
+                    return performances.map((performance) => {
+                        return <StudentPerformanceRow key={performance.id} teams={teams} data={performance} teamNumber={teamIdToNumber[performance.team.id]} editingEnabled={false} events={match.events} rankByCol={{}} showMedals={false} />
                     })
                 }
             }
@@ -210,7 +208,7 @@ export default function SeasonResult() {
                 <div className="divisions-and-filters">
                     <div className="left-align-column">
                         <div className="title">Filter by GPA</div>
-                        <select value={gpaFilter} onChange={e => setGpaFilter(e.target.value)}>
+                        <select style={{ fontWeight: gpaFilter == 'all' ? 'normal' : 'bold' }} value={gpaFilter} onChange={e => setGpaFilter(e.target.value)}>
                             <option value='all'>All</option>
                             <option value='H'>H</option>
                             <option value='S'>S</option>

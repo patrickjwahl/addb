@@ -251,7 +251,7 @@ router.route('/search')
         const students = await prisma.student.findMany({
             where: {
                 name: {
-                    startsWith: query,
+                    contains: query,
                     mode: 'insensitive'
                 }
             },

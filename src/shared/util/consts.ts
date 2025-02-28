@@ -23,6 +23,13 @@ export const friendlyColumn: { [category: string]: string } = {
     subs: 'Subs',
     overall: 'Overall'
 }
+
+export const friendlyGPA: { [gpa: string]: string } = {
+    'H': 'Honors',
+    'S': 'Scholastic',
+    'V': 'Varsity'
+}
+
 export const objs: Category[] = ['math', 'music', 'econ', 'science', 'lit', 'art', 'socialScience']
 export const subs: Category[] = ['essay', 'speech', 'interview']
 

@@ -40,7 +40,7 @@ const TeamPerformanceRow: React.FunctionComponent<TeamPerformanceRowProps> = ({ 
         setEditing(false)
     }
 
-    const rankClass = (showMedals && rankToClass(rank)) || ''
+    const rankClass = (showMedals && rankToClass(rank - 1)) || ''
 
     if (!editing) {
         return (

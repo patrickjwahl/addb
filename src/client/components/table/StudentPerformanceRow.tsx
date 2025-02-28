@@ -16,11 +16,12 @@ interface StudentPerformanceRowProps extends TableRowProps {
         name: string,
         id: number
     }>,
-    ranks: { [category: string]: number },
-    index?: number
+    rank?: number,
+    rankByCol: { [index: number]: number },
+    showMedals: boolean
 }
 
-const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps> = ({ data: initPerformance, teamNumber, editingEnabled, events, teams, ranks, index }) => {
+const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps> = ({ data: initPerformance, teamNumber, editingEnabled, events, teams, rank, rankByCol, showMedals }) => {
 
     const [performance, setPerformance] = useState(initPerformance)
     const [editing, setEditing] = useState(false)
@@ -57,7 +58,7 @@ const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps>
         return (
             <tr key={performance.id} className={(canEdit && !performance.studentId ? 'row-warning' : '')}>
                 {
-                    (index != undefined) && <td className="table-cell-small">{index + 1}</td>
+                    (rank != undefined) && <td className="table-cell-small">{rank + 1}</td>
                 }
                 {
                     performance.team.schoolId ? (
@@ -69,17 +70,17 @@ const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps>
                 <td className="right-border">{teamNumber}</td>
                 <td className="is-link table-cell-large"><Link to={`/student/${performance.studentId}`}>{possiblyShorten(performance.student?.name || '')}</Link></td>
                 <td>{performance.gpa}</td>
-                <td className={'bold ' + (!redacted ? 'right-border ' : '') + (rankToClass(ranks['overall']))}>{ftoa(performance.overall)}</td>
-                {!redacted && events.map(event => (
-                    <td key={event} className={`table-cell-small ${rankToClass(ranks[event])}`}>{ftoa((performance as FullStudentPerformance)[event])}</td>
+                <td className={'bold ' + (!redacted ? 'right-border ' : '') + (showMedals ? rankToClass(rankByCol[4]) : '')}>{ftoa(performance.overall)}</td>
+                {!redacted && events.map((event, index) => (
+                    <td key={event} className={`table-cell-small ${showMedals ? rankToClass(rankByCol[5 + index]) : ''}`}>{ftoa((performance as FullStudentPerformance)[event])}</td>
                 ))}
-                {hasObjs && <td className={`${rankToClass(ranks['objs'])} left-border bold table-cell-large`}>{ftoa((performance as FullStudentPerformance).objs)}</td>}
-                {hasSubs && <td className={`${rankToClass(ranks['subs'])} table-cell-large`}>{ftoa((performance as FullStudentPerformance).subs)}</td>}
+                {hasObjs && <td className={`${showMedals ? rankToClass(rankByCol[5 + events.length]) : ''} left-border bold table-cell-large`}>{ftoa((performance as FullStudentPerformance).objs)}</td>}
+                {hasSubs && <td className={`${showMedals ? rankToClass(rankByCol[6 + events.length]) : ''} table-cell-large`}>{ftoa((performance as FullStudentPerformance).subs)}</td>}
                 {editingEnabled && <td><button onClick={() => setEditing(true)}>Edit</button></td>}
             </tr>
         )
     } else {
-        return <StudentPerformanceEdit matchId={performance.matchId} performance={performance as FullStudentPerformance} teams={teams} events={events} index={index} teamNumber={teamNumber} callback={fetchData} />
+        return <StudentPerformanceEdit matchId={performance.matchId} performance={performance as FullStudentPerformance} teams={teams} events={events} index={0} teamNumber={teamNumber} callback={fetchData} />
     }
 }
 
