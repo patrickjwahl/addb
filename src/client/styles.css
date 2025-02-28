@@ -414,6 +414,7 @@ input::-webkit-inner-spin-button {
 .table-wrapper {
     border: 1px solid black;
     border-radius: 5px;
+    overflow-x: auto;
 }
 
 .table-wrapper thead th {
@@ -959,4 +960,31 @@ th {
 
 .info-page-section-header a:hover {
     text-decoration: underline;
+}
+
+
+@media screen and (max-width: 1200px) {
+    .search-submit {
+        display: none;
+    }
+
+    .search-input {
+        border-radius: 5px;
+        max-width: 80vw;
+    }
+
+    .divisions-and-filters {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .info-page {
+        min-width: 0;
+        max-width: 90vw;
+    }
+
+    .table-wrapper {
+        max-width: 100%;
+        overflow-x: auto;
+    }
 }
