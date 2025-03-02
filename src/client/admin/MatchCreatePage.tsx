@@ -13,7 +13,7 @@ export default function MatchCreatePage() {
         <div className="info-page">
             <h1 style={{ textAlign: 'center' }}>New Match</h1>
             <div className="header-image">
-                <img style={{ height: 200 }} src="/img/fiona.png" />
+                <img style={{ height: 200 }} src="/img/elgreco.jpg" />
             </div>
             <MatchPropertiesEdit match={null} callback={matchCreated} />
         </div>

@@ -12,9 +12,9 @@ export default function SchoolCreatePage() {
     return (
         <div className="info-page">
             <h1 style={{ textAlign: 'center' }}>New School</h1>
-            <div className="header-image">
-                <img style={{ height: 200 }} src="/img/thedan.jpg" />
-            </div>
+            {/* <div className="header-image">
+                <img style={{ height: 200 }} src="/img/magdalene.jpg" />
+            </div> */}
             <SchoolPropertiesEdit school={null} callback={schoolCreated} />
         </div>
     )

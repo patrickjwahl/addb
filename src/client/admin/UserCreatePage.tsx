@@ -12,9 +12,9 @@ export default function UserCreatePage() {
     return (
         <div className="info-page">
             <h1 style={{ textAlign: 'center' }}>New User</h1>
-            <div className="header-image">
+            {/* <div className="header-image">
                 <img style={{ height: 200 }} src="/img/moon.jpg" />
-            </div>
+            </div> */}
             <UserPropertiesEdit user={null} callback={userCreated} />
         </div>
     )

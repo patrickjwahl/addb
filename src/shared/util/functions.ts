@@ -61,7 +61,6 @@ export const divisionSort = (a: string, b: string) => {
 }
 
 export const partitionsOrder = divisionsOrder.concat(Object.keys(friendlyGPA).sort()).concat(divisionsOrder.flatMap(div => Object.keys(friendlyGPA).sort().map(gpa => `_${div}_${gpa}`)))
-console.log(partitionsOrder)
 
 export const partitionSort = (a: string, b: string) => {
     return partitionsOrder.indexOf(a) - partitionsOrder.indexOf(b)
