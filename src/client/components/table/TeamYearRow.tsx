@@ -26,28 +26,28 @@ const TeamYearRow: React.FunctionComponent<TeamYearRowProps> = ({ year, data, sc
             <td className='is-link'><Link to={`/school/${schoolId}/season/${year}`}>{year}</Link></td>
             {
                 data.roundone ? (
-                    <td className={`is-link ${rankToClass(data.roundone.rank)}`}><Link to={`/match/${data.roundone.matchId}?school=${schoolId}`}>{ftoa(data.roundone.overall)} ({data.roundone.rank})</Link></td>
+                    <td className={`is-link ${rankToClass(data.roundone.rank - 1)}`}><Link to={`/match/${data.roundone.matchId}?school=${schoolId}`}>{ftoa(data.roundone.overall)} ({data.roundone.rank})</Link></td>
                 ) : (
                     <td>-</td>
                 )
             }
             {
                 data.regionals ? (
-                    <td className={`is-link ${rankToClass(data.regionals.rank)}`}><Link to={`/match/${data.regionals.matchId}?school=${schoolId}`}>{ftoa(data.regionals.overall)} ({data.regionals.rank})</Link></td>
+                    <td className={`is-link ${rankToClass(data.regionals.rank - 1)}`}><Link to={`/match/${data.regionals.matchId}?school=${schoolId}`}>{ftoa(data.regionals.overall)} ({data.regionals.rank})</Link></td>
                 ) : (
                     <td>-</td>
                 )
             }
             {
                 data.state ? (
-                    <td className={`is-link ${rankToClass(data.state.rank)}`}><Link to={`/match/${data.state.matchId}?school=${schoolId}`}>{ftoa(data.state.overall)} ({data.state.rank})</Link></td>
+                    <td className={`is-link ${rankToClass(data.state.rank - 1)}`}><Link to={`/match/${data.state.matchId}?school=${schoolId}`}>{ftoa(data.state.overall)} ({data.state.rank})</Link></td>
                 ) : (
                     <td>-</td>
                 )
             }
             {
                 data.nationals ? (
-                    <td className={`is-link ${rankToClass(data.nationals.rank)}`}><Link to={`/match/${data.nationals.matchId}?school=${schoolId}`}>{ftoa(data.nationals.overall)} ({data.nationals.rank})</Link></td>
+                    <td className={`is-link ${rankToClass(data.nationals.rank - 1)}`}><Link to={`/match/${data.nationals.matchId}?school=${schoolId}`}>{ftoa(data.nationals.overall)} ({data.nationals.rank})</Link></td>
                 ) : (
                     <td>-</td>
                 )

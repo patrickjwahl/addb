@@ -15,12 +15,24 @@ import { Category, Prisma, PrismaClient } from '@prisma/client'
 
 import { RecentMatches, ApiResponse, StateMatches, Match, StudentAggregates, FullState, SearchResult, SearchResultMatch, SearchResultStudent, FullStudentPerformance, SearchResultSchool, TeamPerformance, SchoolPage, TeamSeasons, SchoolTeam, StudentPage, StudentSeasons, SchoolSeasonPage, LoginResult, EditResult, MergeSuggestion } from '../shared/types/response.js'
 import { CreateUserCredentials, LoginCredentials, MatchMetadata, SchoolMetadata, StudentMetadata, StudentPerformance, TeamPerformance as TeamPerformanceRequest } from '../shared/types/request.js'
+import ConnectPgSimple from 'connect-pg-simple'
+import pg from 'pg'
+const { Pool } = pg
 
 var app = express()
 var router = express.Router()
 
 var storage = multer.memoryStorage()
 var upload = multer({ storage: storage })
+
+const PgSession = ConnectPgSimple(session)
+const pool = new Pool({
+    user: process.env.DATABASE_USER,
+    host: process.env.DATABASE_HOST,
+    password: process.env.DATABASE_PW,
+    database: process.env.DATABASE_DB || 'addb',
+    port: parseInt(process.env.DATABASE_PORT || '5432')
+})
 
 import dotenv from 'dotenv'
 import { divisions, eventOrdering, subs as subList } from '../shared/util/consts.js'
@@ -79,6 +91,10 @@ app.use(bodyParser.json({ limit: '50mb' }))
 app.use(express.static(path.join(__dirname, "dist", "client")))
 app.use(cookieParser())
 app.use(session({
+    store: new PgSession({
+        pool: pool,
+        tableName: 'session'
+    }),
     secret: process.env.SESSIONS_SECRET,
     resave: false,
     saveUninitialized: false,
@@ -610,7 +626,7 @@ router.route('/match/:id/teamcsv')
         const teamData = csvParseResult.data || []
 
         for (const row of teamData) {
-            if (!(row.division in divisions)) {
+            if (row.division && !(row.division in divisions)) {
                 res.json({ success: false, message: `Encountered unsupported division label ${row.division}.` })
             }
 

@@ -61,17 +61,8 @@ class API {
         return '???'
     }
 
-    authenticate = () => {
-        return this.axios.get('/authenticate')
-            .then(res => {
-                if (!res.data.success) {
-                    this.logOut()
-                }
-            })
-            .catch(err => {
-                console.log(err)
-                this.logOut()
-            })
+    authenticate = async (): Promise<ApiResponse<null>> => {
+        return (await this.axios.get('/authenticate')).data
     }
 
     isLoggedIn = () => {

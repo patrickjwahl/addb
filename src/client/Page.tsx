@@ -11,7 +11,7 @@ import Register from '@/client/Register'
 import EditingGuide from '@/client/admin/EditingGuide'
 import { Helmet } from 'react-helmet'
 import tunes from './assets/audio/thedan.mp3'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import StudentCreatePage from './admin/StudentCreatePage'
 import UserCreatePage from '@/client/admin/UserCreatePage'
 
@@ -26,6 +26,18 @@ export default function Page() {
     const playTunes = () => {
         audio.play()
     }
+
+    const checkAuth = async () => {
+        const result = await API.authenticate()
+        if (!result.success) {
+            API.logOut()
+            setlogoutFlip(!logoutFlip)
+        }
+    }
+
+    useEffect(() => {
+        checkAuth()
+    }, [])
 
     const location = useLocation()
 
