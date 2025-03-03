@@ -1669,7 +1669,7 @@ router.route('/school')
             await prisma.edit.create({
                 data: {
                     userId: req.userId || 0,
-                    summary: `Edit School ${newSchool.fullName}`,
+                    summary: `Edit School ${newSchool.fullName || result.fullName}`,
                     diff: JSON.stringify(diff(myOldSchool, newSchool))
                 }
             })
@@ -1684,7 +1684,7 @@ router.route('/school')
             await prisma.edit.create({
                 data: {
                     userId: req.userId || 0,
-                    summary: `Create School ${result.fullName}`
+                    summary: `Create School ${result.fullName || result.name}`
                 }
             })
         }
