@@ -101,7 +101,7 @@ export default function TeamPerformanceEdit({ performance, hasSq, callback, matc
                     <div>
                         <label>
                             Team name:
-                            <input type="text" value={teamName} onChange={e => setTeamName(e.target.value)} />
+                            <input style={{ marginLeft: 10 }} type="text" value={teamName} onChange={e => setTeamName(e.target.value)} />
                         </label>
                     </div>
                 </td>

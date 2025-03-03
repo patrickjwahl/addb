@@ -6,8 +6,11 @@ import { hasObjs, hasSubs } from "@/shared/util/functions"
 import { Category } from "@prisma/client"
 import { useState } from "react"
 
-export default function StudentPerformanceEdit({ performance, events, teams, teamNumber, matchId, index, callback }:
-    { performance?: FullStudentPerformance, teamNumber: number, events: Category[], matchId: number, teams: Array<{ id: number, name: string }>, index?: number, callback: () => void }) {
+export default function StudentPerformanceEdit({ performance, events, teams, teamNumber, matchId, rank, callback }:
+    {
+        performance?: FullStudentPerformance, teamNumber: number, events: Category[], matchId: number, teams: Array<{ id: number, name: string }>, rank?: number,
+        callback: () => void
+    }) {
     const [teamId, setTeamId] = useState(performance?.teamId || (teams.length > 0 && teams[0].id) || 'null')
     const [gpa, setGpa] = useState(performance?.gpa || 'H')
     const [studentId, setStudentId] = useState(performance?.studentId)
@@ -134,7 +137,7 @@ export default function StudentPerformanceEdit({ performance, events, teams, tea
     return (
         <>
             <tr>
-                {index != undefined && <td className="table-cell-small">{index + 1}</td>}
+                {rank != undefined && <td className="table-cell-small">{rank + 1}</td>}
                 <td className='is-link table-cell-large'>
                     <select value={teamId} onChange={e => setTeamId(parseInt(e.target.value))}>
                         <option value="null" hidden disabled>Team...</option>

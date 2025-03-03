@@ -18,12 +18,12 @@ interface StudentPerformanceRowProps extends TableRowProps {
     }>,
     rank?: number,
     rankByCol: { [index: number]: number },
-    showMedals: boolean
+    showMedals: boolean,
+    editCallback?: () => void
 }
 
-const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps> = ({ data: initPerformance, teamNumber, editingEnabled, events, teams, rank, rankByCol, showMedals }) => {
+const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps> = ({ data: performance, teamNumber, editCallback, editingEnabled, events, teams, rank, rankByCol, showMedals }) => {
 
-    const [performance, setPerformance] = useState(initPerformance)
     const [editing, setEditing] = useState(false)
 
     const redacted = events.length == 0
@@ -33,8 +33,8 @@ const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps>
     const fetchData = async () => {
         const result = (await api.getStudentPerformance(performance.id))
         if (result.success) {
-            result.data && setPerformance(result.data)
             setEditing(false)
+            editCallback && editCallback()
         }
     }
 
@@ -80,7 +80,7 @@ const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps>
             </tr>
         )
     } else {
-        return <StudentPerformanceEdit matchId={performance.matchId} performance={performance as FullStudentPerformance} teams={teams} events={events} index={0} teamNumber={teamNumber} callback={fetchData} />
+        return <StudentPerformanceEdit matchId={performance.matchId} performance={performance as FullStudentPerformance} teams={teams} events={events} rank={rank} teamNumber={teamNumber} callback={fetchData} />
     }
 }
 

@@ -35,7 +35,7 @@ const pool = new Pool({
 })
 
 import dotenv from 'dotenv'
-import { divisions, eventOrdering, subs as subList } from '../shared/util/consts.js'
+import { divisions, eventOrdering, gpaOptions, subs as subList } from '../shared/util/consts.js'
 dotenv.config()
 
 const __dirname = path.resolve()
@@ -421,7 +421,9 @@ router.route('/match/:id/studentcsv')
         let perfsToCreate: StudentPerformanceInput[] = []
         let teamNumberToObj: { [number: number]: Prisma.TeamGetPayload<{}> } = {}
         let teamNumberToName: { [number: number]: string } = {}
+        let i = 0
         for (const row of studentData) {
+            i += 1
             let overall = 0
             let objs = 0
             let subs = 0
@@ -432,6 +434,13 @@ router.route('/match/:id/studentcsv')
                 if (subList.includes(event)) subs += row[event] as number
                 else objs += row[event] as number
             })
+
+            if (!(row.gpa.toString().toUpperCase() in gpaOptions)) {
+                res.json({ success: false, message: `Encountered unsupported GPA ${row.gpa.toString().toUpperCase()} in row ${i}. GPA must be H, S, V, A, B, or C.` })
+                return
+            }
+
+            row.gpa = gpaOptions[row.gpa.toString().toUpperCase()]
 
             if (!(row.teamNumber in teamNumberToObj)) {
                 const team = (await prisma.teamPerformance.findFirst({
@@ -626,12 +635,9 @@ router.route('/match/:id/teamcsv')
         const teamData = csvParseResult.data || []
 
         for (const row of teamData) {
-            if (row.division && !(row.division in divisions)) {
+            if (match.hasDivisions && !(row.division in divisions)) {
                 res.json({ success: false, message: `Encountered unsupported division label ${row.division}.` })
-            }
-
-            if (!(row.gpa in ['H', 'S', 'V'])) {
-                res.json({ success: false, message: `Encountered unsupported GPA ${row.gpa}. GPA must be H, S, or V.` })
+                return
             }
         }
 
@@ -997,27 +1003,25 @@ router.route('/teamperformance')
                 return
             }
 
-            if (req.body.teamName != perfToEdit.team.name) {
-                const possibleTeam = await prisma.team.findFirst({
-                    where: {
+            const currTeamId = perfToEdit.teamId
+
+            const possibleTeam = await prisma.team.findFirst({
+                where: {
+                    name: req.body.teamName,
+                    schoolId: req.body.schoolId
+                }
+            })
+
+            if (possibleTeam) {
+                data.teamId = possibleTeam.id
+            } else {
+                data.teamId = (await prisma.team.create({
+                    data: {
                         name: req.body.teamName,
                         schoolId: req.body.schoolId
                     }
-                })
 
-                if (possibleTeam) {
-                    data.teamId = possibleTeam.id
-                } else {
-                    data.teamId = (await prisma.team.create({
-                        data: {
-                            name: req.body.teamName,
-                            schoolId: req.body.schoolId
-                        }
-
-                    })).id
-                }
-            } else {
-                data.teamId = perfToEdit.teamId
+                })).id
             }
 
             const newPerf = await prisma.teamPerformance.update({
@@ -1025,6 +1029,16 @@ router.route('/teamperformance')
                     id: id
                 },
                 data: data
+            })
+
+            await prisma.studentPerformance.updateMany({
+                where: {
+                    matchId: perfToEdit.matchId,
+                    teamId: currTeamId
+                },
+                data: {
+                    teamId: data.teamId
+                }
             })
 
             const { team, match, ...oldPerf } = perfToEdit
@@ -1200,9 +1214,35 @@ router.route('/match')
             })
         } else {
             const data: any = { ...req.body }
-            data.search1 = `${data.year} ${data.round !== 'nationals' ? data.state + ' ' : ''}${data.round !== 'nationals' && data.round !== 'state' ? data.region + ' ' : ''}${roundMap[data.round as keyof RoundMap]}`
-            data.search2 = `${data.year} ${roundMap[data.round as keyof RoundMap]} ${data.round !== 'nationals' ? data.state + ' ' : ''}${data.round !== 'nationals' && data.round !== 'state' ? data.region + ' ' : ''}`
-            data.search3 = `${data.round !== 'nationals' ? data.state + ' ' : ''}${data.round !== 'nationals' && data.round !== 'state' ? data.region + ' ' : ''}${roundMap[data.round as keyof RoundMap]} ${data.year}`
+
+            let regionName: string | undefined
+            let stateName: string | undefined
+
+            if (data.round !== 'nationals') {
+                if (data.round !== 'state') {
+                    const region = await prisma.region.findFirst({
+                        where: {
+                            id: data.regionId
+                        },
+                        include: {
+                            state: true
+                        }
+                    })
+                    regionName = region?.name
+                    stateName = region?.state.name
+                } else {
+                    const state = await prisma.state.findFirst({
+                        where: {
+                            id: data.stateId
+                        }
+                    })
+                    stateName = state?.name
+                }
+            }
+
+            data.search1 = `${data.year} ${data.round !== 'nationals' ? stateName + ' ' : ''}${data.round !== 'nationals' && data.round !== 'state' ? regionName + ' ' : ''}${roundMap[data.round as keyof RoundMap]}`
+            data.search2 = `${data.year} ${roundMap[data.round as keyof RoundMap]} ${data.round !== 'nationals' ? stateName + ' ' : ''}${data.round !== 'nationals' && data.round !== 'state' ? regionName + ' ' : ''}`
+            data.search3 = `${data.round !== 'nationals' ? stateName + ' ' : ''}${data.round !== 'nationals' && data.round !== 'state' ? regionName + ' ' : ''}${roundMap[data.round as keyof RoundMap]} ${data.year}`
             data.incompleteData = false
             const match = await prisma.match.create({
                 data: data

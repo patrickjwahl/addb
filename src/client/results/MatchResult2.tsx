@@ -107,27 +107,27 @@ export default function MatchResult2() {
     const uploadTeamCSV = async () => {
         let formData = new FormData()
         const input = document.getElementById('team-data-upload') as HTMLInputElement
+        setMatch(null)
         if (!match || !input.files || input.files.length < 1) return
         formData.append('teamData', input.files[0])
         const result = await api.uploadTeamPerformances(match.id, formData)
         if (!result.success) {
             alert(result.message)
-        } else {
-            fetchMatch()
         }
+        fetchMatch()
     }
 
     const uploadStudentCSV = async () => {
         let formData = new FormData()
         const input = document.getElementById('student-data-upload') as HTMLInputElement
+        setMatch(null)
         if (!match || !input.files || input.files.length < 1) return
         formData.append('studentData', input.files[0])
         const result = await api.uploadStudentPerformances(match.id, formData)
         if (!result.success) {
             alert(result.message)
-        } else {
-            fetchMatch()
         }
+        fetchMatch()
     }
 
     const teams = match?.teamPerformances.map(perf => ({
@@ -304,7 +304,7 @@ export default function MatchResult2() {
             for (const key of sortedKeys) {
                 let addAggregate = false
                 studentPerformancesByTeam[key]?.forEach((performance) => {
-                    (schoolFilter == -1 || performance.team.schoolId == schoolFilter) && rows.push(<StudentPerformanceRow data={performance} teams={teams} rankByCol={ranksByPerfId[performance.id]} teamNumber={teamIdToNumber[performance.team.id]} editingEnabled={editing} events={match.events} key={performance.id} showMedals={showMedals} />) && (addAggregate = true)
+                    (schoolFilter == -1 || performance.team.schoolId == schoolFilter) && rows.push(<StudentPerformanceRow data={performance} teams={teams} rankByCol={ranksByPerfId[performance.id]} teamNumber={teamIdToNumber[performance.team.id]} editCallback={fetchMatch} editingEnabled={editing} events={match.events} key={performance.id} showMedals={showMedals} />) && (addAggregate = true)
                 })
                 const teamId = (studentPerformancesByTeam[key] && studentPerformancesByTeam[key][0].teamId) || 0
                 addAggregate && rows.push(<StudentAggregateRow key={teamId} data={match.aggregates[teamId]} events={match.events} />)
@@ -312,7 +312,7 @@ export default function MatchResult2() {
             return rows
         } else {
             return performances.reduce((prev: JSX.Element[], performance) => {
-                return (schoolFilter == -1 || performance.team.schoolId == schoolFilter) ? [...prev, <StudentPerformanceRow key={performance.id} teams={teams} rankByCol={ranksByPerfId[performance.id]} data={performance} teamNumber={teamIdToNumber[performance.team.id]} editingEnabled={editing} events={match.events} rank={sortIndex > 3 ? ranksByPerfId[performance.id][sortIndex] : undefined} showMedals={showMedals} />] : prev
+                return (schoolFilter == -1 || performance.team.schoolId == schoolFilter) ? [...prev, <StudentPerformanceRow key={performance.id} teams={teams} rankByCol={ranksByPerfId[performance.id]} data={performance} teamNumber={teamIdToNumber[performance.team.id]} editCallback={fetchMatch} editingEnabled={editing} events={match.events} rank={sortIndex > 3 ? ranksByPerfId[performance.id][sortIndex] : undefined} showMedals={showMedals} />] : prev
             }, [])
         }
     }
@@ -334,7 +334,7 @@ export default function MatchResult2() {
         if (sortedTeamPerformances.length == 0) return prev
         sortedTeamPerformances.sort((a, b) => a.rank - b.rank)
         const teamPerformanceRows = sortedTeamPerformances.map((performance, index) => {
-            return <TeamPerformanceRow data={performance} rank={schoolFilter == -1 ? index + 1 : performance.rank} editingEnabled={editing} events={match.events} hasSq={match.hasSq} key={performance.id} match={match} showMedals={showMedals} />
+            return <TeamPerformanceRow data={performance} rank={schoolFilter == -1 ? index + 1 : performance.rank} editCallback={fetchMatch} editingEnabled={editing} events={match.events} hasSq={match.hasSq} key={performance.id} match={match} showMedals={showMedals} />
         })
         return { ...prev, [division]: teamPerformanceRows }
     }, {})

@@ -14,19 +14,19 @@ interface TeamPerformanceRowProps extends TableRowProps {
     rank: number,
     hasSq: boolean,
     match?: Match,
-    showMedals: boolean
+    showMedals: boolean,
+    editCallback?: () => void
 }
 
-const TeamPerformanceRow: React.FunctionComponent<TeamPerformanceRowProps> = ({ data: initPerformance, editingEnabled, rank, hasSq, match, showMedals }) => {
+const TeamPerformanceRow: React.FunctionComponent<TeamPerformanceRowProps> = ({ data: performance, editingEnabled, rank, hasSq, match, showMedals, editCallback }) => {
 
-    const [performance, setPerformance] = useState(initPerformance)
     const [editing, setEditing] = useState(false)
 
     const fetchData = async () => {
         const result = (await api.getTeamPerformance(performance.id))
         if (result.success) {
-            result.data && setPerformance(result.data)
             setEditing(false)
+            editCallback && editCallback()
         }
     }
 

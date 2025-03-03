@@ -30,6 +30,15 @@ export const friendlyGPA: { [gpa: string]: string } = {
     'V': 'Varsity'
 }
 
+export const gpaOptions: { [gpa: string]: string } = {
+    'A': 'H',
+    'B': 'S',
+    'C': 'V',
+    'H': 'H',
+    'S': 'S',
+    'V': 'V'
+}
+
 export const objs: Category[] = ['math', 'music', 'econ', 'science', 'lit', 'art', 'socialScience']
 export const subs: Category[] = ['essay', 'speech', 'interview']
 

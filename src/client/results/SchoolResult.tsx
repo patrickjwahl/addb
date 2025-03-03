@@ -27,7 +27,6 @@ export default function SchoolResult() {
     const getSchool = async () => {
         const result = await API.getSchool(parseInt(params.id || '0'))
         if (result.success) {
-            console.log(result.data)
             setResult(result.data)
         } else {
             alert("Couldn't find school")
@@ -99,7 +98,7 @@ export default function SchoolResult() {
             teamData = (
                 <div>
                     <div className='info-page-section-header'>Match Results</div>
-                    {Object.keys(teamRows).sort().map(teamName => (
+                    {Object.keys(teamRows).filter(teamName => teamRows[teamName].length > 0).sort().map(teamName => (
                         <div key={teamName}>
                             <div className='info-page-subsection'>{teamName}</div>
                             <Table columns={teamResultCols}>

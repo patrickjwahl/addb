@@ -90,6 +90,9 @@ export const parseCsv = (csvStr: string, cols: CSVColumnDef[]): CSVParseResult =
         i += 1
         let lineResult: { [key: string]: string | number } = {}
         const lineSpl = line.split(',')
+        if (lineSpl.length < 2 && i == lines.length) {
+            continue
+        }
         if (lineSpl.length != cols.length) {
             return {
                 success: false, message: `Row ${i} has len ${lineSpl.length}, expected ${cols.length}`
@@ -100,13 +103,13 @@ export const parseCsv = (csvStr: string, cols: CSVColumnDef[]): CSVParseResult =
                 lineResult[cols[j].name] = lineSpl[j]
             } else if (cols[j].type == 'float') {
                 const fl = parseFloat(lineSpl[j])
-                if (!fl) {
+                if (!fl && fl != 0) {
                     return { success: false, message: `Row ${i} column ${j + 1} could not be parsed as decimal number` }
                 }
                 lineResult[cols[j].name] = fl
             } else {
                 const integ = parseInt(lineSpl[j])
-                if (!integ) {
+                if (!integ && integ != 0) {
                     return { success: false, message: `Row ${i} column ${j + 1} could not be parsed as integer` }
                 }
                 lineResult[cols[j].name] = integ
