@@ -1643,7 +1643,7 @@ router.route('/school')
 
         let result: SearchResultSchool
         if (id != undefined) {
-            const myOldSchool = prisma.school.findFirst({
+            const myOldSchool = await prisma.school.findFirst({
                 where: {
                     id: id
                 }
