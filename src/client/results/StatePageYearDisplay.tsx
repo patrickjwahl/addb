@@ -215,9 +215,7 @@ export default function StatePageYearDisplay({ year, data }: {
                 <span>{year}</span>
             </div>
             {stateBox}
-            <div style={{ borderLeft: "1px solid #777" }} hidden={!open}></div>
             {regionalsBox}
-            <div style={{ borderLeft: "1px solid #777" }} hidden={!open}></div>
             {roundoneBox}
         </div>
     )

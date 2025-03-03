@@ -773,7 +773,9 @@ th {
     background-color: white;
     margin-bottom: 10px;
     display: flex;
+    gap: 10px;
     align-items: flex-start;
+    min-width: 70vw;
     margin-left: 80px;
     margin-right: 80px;
     padding: 20px;
@@ -812,7 +814,6 @@ th {
     padding: 10px;
     border: 1px solid black;
     border-radius: 10px;
-    min-width: 300px;
     flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -843,9 +844,6 @@ th {
     flex-direction: column;
     gap: 10px;
     flex: 1;
-    margin-left: 10px;
-    min-width: 200px;
-    margin-right: 10px;
 }
 
 .state-page-stack .state-page-link:last-of-type {
@@ -992,7 +990,7 @@ th {
         flex-direction: column;
         align-items: stretch;
         gap: 10px;
-        width: 90vw;
+        width: 80vw;
         margin-left: 0;
         margin-right: 0;
     }
