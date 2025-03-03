@@ -70,7 +70,9 @@ export type SchoolMetadata = {
     city?: string,
     district?: string,
     info?: string,
-    regionId?: number
+    regionId?: number | null,
+    stateId?: number | null,
+    newRegion?: string
 }
 
 export type StudentMetadata = {

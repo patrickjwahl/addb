@@ -6,8 +6,8 @@ import { useEffect, useMemo, useState } from "react"
 
 export default function SchoolPropertiesEdit({ school, callback }: { school?: Prisma.SchoolGetPayload<{ include: { region: true } }> | null, callback: (schoolId: number) => void }) {
 
-    const [regionId, setRegionId] = useState(school?.regionId || -1)
-    const [stateId, setStateId] = useState(school?.region?.stateId || -1)
+    const [regionId, setRegionId] = useState<'_new' | '_none' | number>(school?.regionId || '_none')
+    const [stateId, setStateId] = useState<'_none' | number>(school?.stateId || '_none')
     const [states, setStates] = useState<{ [id: number]: FullState }>({})
     const [name, setName] = useState(school?.name || '')
     const [fullName, setFullName] = useState(school?.fullName || '')
@@ -15,6 +15,7 @@ export default function SchoolPropertiesEdit({ school, callback }: { school?: Pr
     const [district, setDistrict] = useState(school?.district || '')
     const [validationError, setValidationError] = useState<string | null>(null)
     const [message, setMessage] = useState<string | null>(null)
+    const [newRegion, setNewRegion] = useState('')
 
     const getStates = async () => {
         const states = await api.getStates()
@@ -33,12 +34,31 @@ export default function SchoolPropertiesEdit({ school, callback }: { school?: Pr
         getStates()
     }, [])
 
+    const changeRegion = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        if (e.target.value == '_new') {
+            setRegionId('_new')
+        } else {
+            setRegionId(parseInt(e.target.value))
+        }
+    }
+
+    const changeState = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        if (e.target.value == '_none') {
+            setStateId('_none')
+        } else {
+            setStateId(parseInt(e.target.value))
+        }
+    }
+
     const validateInput = (): string | null => {
         if (!name) {
             return "Please enter the name."
         }
-        if (regionId == -1) {
-            return "Please select a state and region."
+        if (stateId == -1) {
+            return "Please select a state."
+        }
+        if (regionId == '_new' && !newRegion) {
+            return "Please enter a region name."
         }
 
         return null
@@ -56,7 +76,9 @@ export default function SchoolPropertiesEdit({ school, callback }: { school?: Pr
         const schoolMetadata: SchoolMetadata = {
             id: school?.id,
             name: name,
-            regionId: regionId,
+            regionId: (regionId == '_none') ? null : (regionId == '_new') ? null : regionId,
+            newRegion: newRegion,
+            stateId: stateId == '_none' ? null : stateId,
             city: city,
             district: district,
             fullName: fullName
@@ -83,23 +105,32 @@ export default function SchoolPropertiesEdit({ school, callback }: { school?: Pr
                 <input style={{ width: 250 }} placeholder="Full Name" type="text" value={fullName} onChange={e => setFullName(e.target.value)} />
             </div>
             <div className="edit-form-row">
-                <select value={stateId} onChange={e => { setStateId(parseInt(e.target.value)); setRegionId(-1) }}>
-                    <option value={-1} disabled hidden>State</option>
+                <select value={stateId} onChange={changeState}>
+                    <option value={'_none'} disabled hidden>State</option>
                     {
                         sortedStateIds.map(id => (
                             <option key={id} value={id}>{states[id].name}</option>
                         ))
                     }
                 </select>
-                <select value={regionId} onChange={e => setRegionId(parseInt(e.target.value))}>
-                    <option value={-1} disabled hidden>Region</option>
-                    {
-                        states[stateId]?.regions.map(region => (
-                            <option key={region.id} value={region.id}>{region.name}</option>
-                        ))
-                    }
-                </select>
+                {
+                    stateId != '_none' &&
+                    <select value={regionId || undefined} onChange={changeRegion}>
+                        <option value={undefined} disabled hidden>Region</option>
+                        {
+                            states[stateId]?.regions.map(region => (
+                                <option key={region.id} value={region.id}>{region.name}</option>
+                            ))
+                        }
+                        <option value={'_new'}>New Region</option>
+                    </select>
+                }
             </div>
+            {
+                regionId == '_new' && <div className="edit-form-row">
+                    <input placeholder="Region name" type="text" value={newRegion} onChange={e => setNewRegion(e.target.value)} />
+                </div>
+            }
             <div className="edit-form-row">
                 <input type="text" placeholder="City" value={city || ''} onChange={e => setCity(e.target.value)} />
                 <input type="text" placeholder="District" value={district || ''} onChange={e => setDistrict(e.target.value)} />
@@ -110,16 +141,20 @@ export default function SchoolPropertiesEdit({ school, callback }: { school?: Pr
             <div style={{ marginTop: '10px' }} className="edit-form-row">
                 <input type="submit" value={!school ? "Create" : "Save"} />
             </div>
-            {validationError && (
-                <div className="edit-form-row">
-                    <span className="validation-error">{validationError}</span>
-                </div>
-            )}
-            {message && (
-                <div className="edit-form-row">
-                    <span className="edit-form-message">{message}</span>
-                </div>
-            )}
-        </form>
+            {
+                validationError && (
+                    <div className="edit-form-row">
+                        <span className="validation-error">{validationError}</span>
+                    </div>
+                )
+            }
+            {
+                message && (
+                    <div className="edit-form-row">
+                        <span className="edit-form-message">{message}</span>
+                    </div>
+                )
+            }
+        </form >
     )
 }

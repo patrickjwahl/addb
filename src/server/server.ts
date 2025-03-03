@@ -1628,6 +1628,21 @@ router.route('/school')
 
         const { id } = req.body
 
+        if (req.body.newRegion) {
+            if (!req.body.stateId) {
+                res.json({ success: false, message: 'Cannot create new region without state' })
+                return
+            }
+            const newRegionId = (await prisma.region.create({
+                data: {
+                    name: req.body.newRegion,
+                    stateId: req.body.stateId
+                }
+            })).id
+            req.body.regionId = newRegionId
+            delete req.body.newRegion
+        }
+
         let result: SearchResultSchool
         if (id != undefined) {
             const myOldSchool = prisma.school.findFirst({
