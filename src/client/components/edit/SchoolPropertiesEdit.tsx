@@ -47,6 +47,7 @@ export default function SchoolPropertiesEdit({ school, callback }: { school?: Pr
             setStateId('_none')
         } else {
             setStateId(parseInt(e.target.value))
+            setRegionId('_none')
         }
     }
 
@@ -77,12 +78,12 @@ export default function SchoolPropertiesEdit({ school, callback }: { school?: Pr
             id: school?.id,
             name: name,
             regionId: (regionId == '_none') ? null : (regionId == '_new') ? null : regionId,
-            newRegion: newRegion,
             stateId: stateId == '_none' ? null : stateId,
             city: city,
             district: district,
             fullName: fullName
         }
+        if (newRegion) schoolMetadata.newRegion = newRegion
 
         const result = await api.upsertSchool(schoolMetadata)
         if (!result.success) {
@@ -115,8 +116,8 @@ export default function SchoolPropertiesEdit({ school, callback }: { school?: Pr
                 </select>
                 {
                     stateId != '_none' &&
-                    <select value={regionId || undefined} onChange={changeRegion}>
-                        <option value={undefined} disabled hidden>Region</option>
+                    <select value={regionId} onChange={changeRegion}>
+                        <option value={'_none'} disabled hidden>Region</option>
                         {
                             states[stateId]?.regions.map(region => (
                                 <option key={region.id} value={region.id}>{region.name}</option>
