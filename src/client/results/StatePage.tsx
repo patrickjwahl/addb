@@ -2,6 +2,7 @@ import API from '@/client/API'
 import StatePageYearDisplay from '@/client/results/StatePageYearDisplay'
 import { StateMatches } from '@/shared/types/response'
 import { taglines } from '@/shared/util/consts'
+import { groupBy } from '@/shared/util/functions'
 import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
 import { useParams } from 'react-router-dom'
@@ -25,7 +26,7 @@ export default function StatePage() {
 
     let retval
 
-    let matchesByYear = Object.groupBy(matches || [], match => match.year)
+    let matchesByYear = groupBy(matches || [], match => match.year)
 
     let resultsFound = false
 

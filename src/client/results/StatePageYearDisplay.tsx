@@ -1,5 +1,5 @@
 import { StateMatches } from '@/shared/types/response'
-import { ftoa } from '@/shared/util/functions'
+import { ftoa, groupBy } from '@/shared/util/functions'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -18,7 +18,7 @@ export default function StatePageYearDisplay({ year, data }: {
 
     if (!data) return (null)
 
-    const matchesByRound: MatchesByRoundType = Object.groupBy(data, match => match.round)
+    const matchesByRound: MatchesByRoundType = groupBy(data, match => match.round)
 
     const canOpen = matchesByRound.regionals && matchesByRound.regionals.length > 1 || matchesByRound.roundone && matchesByRound.roundone.length > 1
 

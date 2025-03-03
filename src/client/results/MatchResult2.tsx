@@ -3,7 +3,7 @@ import Table, { Column } from "@/client/components/table/Table"
 import { FullStudentPerformance, Match, StudentPerformance, TeamPerformance } from "@/shared/types/response"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
-import { hasObjs as _hasObjs, hasSubs as _hasSubs, divisionSort, partitionSort } from "@/shared/util/functions"
+import { hasObjs as _hasObjs, hasSubs as _hasSubs, divisionSort, groupBy, partitionSort } from "@/shared/util/functions"
 import { divisions, friendlyColumn, friendlyGPA, friendlyRound } from "@/shared/util/consts"
 import StudentPerformanceRow from "@/client/components/table/StudentPerformanceRow"
 import { ColorRing } from "react-loader-spinner"
@@ -29,13 +29,13 @@ type ShowMedalsOptions = {
 const calculateRanks = (performances: FullStudentPerformance[], sortKey: (perf: StudentPerformance) => string | number, byDivision: boolean, byGpa: boolean, teamIdToDivision: { [id: number]: string }): { [id: number]: number } => {
     let partitions: Array<FullStudentPerformance[] | undefined> = [performances]
     if (byDivision) {
-        partitions = partitions.flatMap(partition => Object.values(Object.groupBy(partition || [], perf => teamIdToDivision[perf.teamId])))
+        partitions = partitions.flatMap(partition => Object.values(groupBy(partition || [], perf => teamIdToDivision[perf.teamId])))
     }
     if (byGpa) {
-        partitions = partitions.flatMap(partition => Object.values(Object.groupBy(partition || [], perf => perf.gpa)))
+        partitions = partitions.flatMap(partition => Object.values(groupBy(partition || [], perf => perf.gpa)))
     }
 
-    const scorePartitions = partitions.map(partition => Object.groupBy(partition || [], perf => parseFloat(sortKey(perf).toString()) || 0))
+    const scorePartitions = partitions.map(partition => groupBy(partition || [], perf => parseFloat(sortKey(perf).toString()) || 0))
     const result: { [id: number]: number } = {}
     scorePartitions.forEach(partition => {
         Object.keys(partition).sort((a, b) => parseFloat(b) - parseFloat(a)).forEach((scoreStr, index) => {
@@ -169,7 +169,7 @@ export default function MatchResult2() {
 
     const teamsByDivision: Partial<Record<string, TeamPerformance[]>> = (() => {
         if (!match) return {}
-        if (partitionBy == 'division' || partitionBy == 'gpa_division') return Object.groupBy(match.teamPerformances, perf => (perf.division || 'null'))
+        if (partitionBy == 'division' || partitionBy == 'gpa_division') return groupBy(match.teamPerformances, perf => (perf.division || 'null'))
         return { all: match.teamPerformances }
     })()
 
@@ -290,12 +290,12 @@ export default function MatchResult2() {
     }
 
     const studentsByPartition: Partial<Record<string, StudentPerformance[]>> =
-        Object.groupBy(sortedStudentPerformances, perf => partitionKey(perf))
+        groupBy(sortedStudentPerformances, perf => partitionKey(perf))
 
     const getStudentPerformanceRows = (performances: StudentPerformance[]): JSX.Element[] => {
         if (sortIndex < 2 && match.aggregates && gpaFilter == 'all' && partitionBy != 'gpa' && partitionBy != 'gpa_division') {
             let rows = []
-            const studentPerformancesByTeam = Object.groupBy(performances, perf => sortKey(perf))
+            const studentPerformancesByTeam = groupBy(performances, perf => sortKey(perf))
             const sortedKeys = Object.keys(studentPerformancesByTeam).sort((a, b) => {
                 let cmp = String(a).localeCompare(String(b), undefined, { numeric: true })
                 sortDesc && (cmp *= -1)

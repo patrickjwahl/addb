@@ -1,5 +1,6 @@
 import { Category } from "@prisma/client"
 import { divisionsOrder, friendlyGPA, objs, roundOrder, subs } from "./consts.js"
+import shimGroupBy from 'object.groupby'
 
 export type CSVColumnDef = {
     name: string,
@@ -10,6 +11,14 @@ export type CSVParseResult = {
     success: boolean,
     message?: string,
     data?: { [colName: string]: string | number }[]
+}
+
+export const groupBy = <K extends PropertyKey, T>(arr: Iterable<T>, keySelector: (item: T, index: number) => K): Partial<Record<K, T[]>> => {
+    if ('groupBy' in Object) {
+        return Object.groupBy(arr, keySelector)
+    } else {
+        return shimGroupBy(arr, keySelector)
+    }
 }
 
 export const possiblyShorten = (str: string): string => {

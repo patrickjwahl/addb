@@ -3,7 +3,7 @@ import Table, { Column } from "@/client/components/table/Table"
 import { FullStudentPerformance, SchoolSeasonPage, SchoolSeasonRound, StudentPerformance } from "@/shared/types/response"
 import { useCallback, useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
-import { hasObjs as _hasObjs, hasSubs as _hasSubs, roundSort } from "@/shared/util/functions"
+import { hasObjs as _hasObjs, hasSubs as _hasSubs, groupBy, roundSort } from "@/shared/util/functions"
 import { friendlyColumn, friendlyRound } from "@/shared/util/consts"
 import StudentPerformanceRow from "@/client/components/table/StudentPerformanceRow"
 import { ColorRing } from "react-loader-spinner"
@@ -38,7 +38,6 @@ export default function SeasonResult() {
 
     const fetchData = useCallback(async () => {
         const result = (await api.getSeason(parseInt(params.id || '-1') || -1, parseInt(year || '-1') || -1)).data
-        console.log(result)
         setResult(result)
     }, [])
 
@@ -160,7 +159,7 @@ export default function SeasonResult() {
             const getStudentPerformanceRows = (performances: StudentPerformance[]): JSX.Element[] => {
                 if (sortIndex < 2 && aggregates && gpaFilter == 'all') {
                     let rows = []
-                    const studentPerformancesByTeam = Object.groupBy(performances, perf => sortKey(perf))
+                    const studentPerformancesByTeam = groupBy(performances, perf => sortKey(perf))
                     const sortedKeys = Object.keys(studentPerformancesByTeam).sort((a, b) => {
                         let cmp = String(a).localeCompare(String(b), undefined, { numeric: true })
                         sortDesc && (cmp *= -1)
