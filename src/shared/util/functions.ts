@@ -84,7 +84,7 @@ export const parseCsv = (csvStr: string, cols: CSVColumnDef[]): CSVParseResult =
 
     let result = []
 
-    const lines = csvStr.split('\n')
+    const lines = csvStr.split(/\r?\n/)
     let i = 0
     for (const line of lines) {
         i += 1
