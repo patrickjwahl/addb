@@ -646,9 +646,7 @@ router.route('/match/:id/teamcsv')
                 where: {
                     name: row.team as string,
                     school: {
-                        region: {
-                            stateId: match.stateId || undefined
-                        }
+                        stateId: match.stateId
                     }
                 }
             })
