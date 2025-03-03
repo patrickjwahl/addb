@@ -205,7 +205,7 @@ export default function MatchPropertiesEdit({ match, callback }: { match: Match,
                 </label>
             </div>
             <div style={{ marginTop: '10px' }} className="edit-form-row">
-                <input type="submit" value={!match ? "Create" : "Save"} />
+                <input type="submit" value={!match ? "Create" : "Save Match Info"} />
             </div>
             {validationError && (
                 <div className="edit-form-row">
