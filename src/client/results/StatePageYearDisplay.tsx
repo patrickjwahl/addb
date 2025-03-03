@@ -1,4 +1,5 @@
 import { StateMatches } from '@/shared/types/response'
+import { ftoa } from '@/shared/util/functions'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -32,9 +33,9 @@ export default function StatePageYearDisplay({ year, data }: {
         const m = matchesByRound.state[0]
         content = (
             <>
-                <div className='search-result-subtitle'>1. {m.first} - {m.firstScore}</div>
-                <div className='search-result-subtitle'>2. {m.second} - {m.secondScore}</div>
-                <div className='search-result-subtitle'>3. {m.third} - {m.thirdScore}</div>
+                <div className='search-result-subtitle'>1. {m.first} - {ftoa(m.firstScore)}</div>
+                <div className='search-result-subtitle'>2. {m.second} - {ftoa(m.secondScore)}</div>
+                <div className='search-result-subtitle'>3. {m.third} - {ftoa(m.thirdScore)}</div>
             </>
         )
     } else {
@@ -80,9 +81,9 @@ export default function StatePageYearDisplay({ year, data }: {
                         <Link key={match.id} to={`/match/${match.id}`} className='state-page-stack-link' >
                             <div className='state-page-link'>
                                 <div className='search-result-title'>{match.region}</div>
-                                <div className='search-result-subtitle'>1. {match.first} - {match.firstScore}</div>
-                                <div className='search-result-subtitle'>2. {match.second} - {match.secondScore}</div>
-                                <div className='search-result-subtitle'>3. {match.third} - {match.thirdScore}</div>
+                                <div className='search-result-subtitle'>1. {match.first} - {ftoa(match.firstScore)}</div>
+                                <div className='search-result-subtitle'>2. {match.second} - {ftoa(match.secondScore)}</div>
+                                <div className='search-result-subtitle'>3. {match.third} - {ftoa(match.thirdScore)}</div>
                             </div>
                         </Link>
                     )
@@ -97,7 +98,7 @@ export default function StatePageYearDisplay({ year, data }: {
         allScores = allScores.sort((a, b) => b.score - a.score).slice(0, 3)
 
         let content = allScores.map((entry, index) => (
-            <div key={index} className='search-result-subtitle'>{index + 1}. {entry.name} - {entry.score}</div>
+            <div key={index} className='search-result-subtitle'>{index + 1}. {entry.name} - {ftoa(entry.score)}</div>
         ))
         let disableLink = content.length === 0
         if (content.length === 0) {
@@ -148,9 +149,9 @@ export default function StatePageYearDisplay({ year, data }: {
                         <Link key={match.id} to={`/match/${match.id}`} className='state-page-stack-link' >
                             <div className='state-page-link'>
                                 <div className='search-result-title'>{match.region}</div>
-                                <div className='search-result-subtitle'>1. {match.first} - {match.firstScore}</div>
-                                <div className='search-result-subtitle'>2. {match.second} - {match.secondScore}</div>
-                                <div className='search-result-subtitle'>3. {match.third} - {match.thirdScore}</div>
+                                <div className='search-result-subtitle'>1. {match.first} - {ftoa(match.firstScore)}</div>
+                                <div className='search-result-subtitle'>2. {match.second} - {ftoa(match.secondScore)}</div>
+                                <div className='search-result-subtitle'>3. {match.third} - {ftoa(match.thirdScore)}</div>
                             </div>
                         </Link>
                     )
@@ -165,7 +166,7 @@ export default function StatePageYearDisplay({ year, data }: {
         allScores = allScores.sort((a, b) => b.score - a.score).slice(0, 3)
 
         let content = allScores.map((entry, index) => (
-            <div key={index} className='search-result-subtitle'>{index + 1}. {entry.name} - {entry.score}</div>
+            <div key={index} className='search-result-subtitle'>{index + 1}. {entry.name} - {ftoa(entry.score)}</div>
         ))
         let disableLink = content.length === 0
         if (content.length === 0) {
