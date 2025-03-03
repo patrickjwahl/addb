@@ -43,7 +43,7 @@ export default function StatePage() {
 
         if (resultsFound && name) {
             retval = (
-                <div style={{ marginTop: 30 }}>
+                <div className='state-page-container'>
                     <Helmet><title>{name.replace('_', ' ')} | AcDecDB</title></Helmet>
                     <div className='state-page-header'>
                         <img src={`/img/${name}.jpg`} height={50} />
@@ -56,7 +56,7 @@ export default function StatePage() {
         } else {
             if (!name) retval = (null); else {
                 retval = (
-                    <div style={{ marginTop: 30 }}>
+                    <div className='state-page-container'>
                         <Helmet><title>{name.replace('_', ' ')} | AcDecDB</title></Helmet>
                         <div className='state-page-header'>
                             <img src={`/img/${name}.jpg`} height={50} />

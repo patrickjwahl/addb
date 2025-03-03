@@ -773,6 +773,7 @@ th {
     background-color: white;
     margin-bottom: 10px;
     display: flex;
+    align-items: flex-start;
     margin-left: 80px;
     margin-right: 80px;
     padding: 20px;
@@ -788,7 +789,6 @@ th {
 .state-page-year-bar-year {
     display: flex;
     flex-direction: column;
-    justify-content: top;
     margin-top: 30px;
     padding-right: 20px;
     padding-left: 20px;
@@ -812,8 +812,8 @@ th {
     padding: 10px;
     border: 1px solid black;
     border-radius: 10px;
-    flex-grow: 1;
-    white-space: nowrap;
+    min-width: 300px;
+    flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -841,22 +841,22 @@ th {
 .state-page-stack {
     display: flex;
     flex-direction: column;
-    justify-content: top;
-    flex: 1 1 0px;
+    gap: 10px;
+    flex: 1;
     margin-left: 10px;
+    min-width: 200px;
     margin-right: 10px;
-}
-
-.state-page-year-bar-open .state-page-link {
-    flex-grow: 0;
-}
-
-.state-page-stack-link {
-    margin-bottom: 10px;
 }
 
 .state-page-stack .state-page-link:last-of-type {
     margin-bottom: 0;
+}
+
+.state-page-container {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .state-page-header {
@@ -986,5 +986,22 @@ th {
     .table-wrapper {
         max-width: 100%;
         overflow-x: auto;
+    }
+
+    .state-page-year-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        width: 90vw;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .state-page-year-bar-year span {
+        border-radius: 100px;
+    }
+
+    .state-page-year-bar-open .state-page-year-bar-year span {
+        transform: none;
     }
 }
