@@ -93,7 +93,8 @@ export default function StatePageYearDisplay({ year, data }: {
     } else {
         let allScores: { name: string, score: number }[] = []
         matchesByRound.regionals && matchesByRound.regionals.forEach(match => {
-            allScores.push({ name: match.first, score: match.firstScore }, { name: match.second, score: match.secondScore }, { name: match.third, score: match.thirdScore })
+            allScores.push({ name: match.first, score: match.firstScore }, { name: match.second, score: match.secondScore })
+            if (match.third) allScores.push({ name: match.third, score: match.thirdScore || 0 })
         })
         allScores = allScores.sort((a, b) => b.score - a.score).slice(0, 3)
 
@@ -161,7 +162,8 @@ export default function StatePageYearDisplay({ year, data }: {
     } else {
         let allScores: { name: string, score: number }[] = []
         matchesByRound.roundone && matchesByRound.roundone.forEach(match => {
-            allScores.push({ name: match.first, score: match.firstScore }, { name: match.second, score: match.secondScore }, { name: match.third, score: match.thirdScore })
+            allScores.push({ name: match.first, score: match.firstScore }, { name: match.second, score: match.secondScore })
+            if (match.third) allScores.push({ name: match.third, score: match.thirdScore || 0 })
         })
         allScores = allScores.sort((a, b) => b.score - a.score).slice(0, 3)
 

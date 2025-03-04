@@ -1788,8 +1788,8 @@ router.route('/state/:name')
             firstScore: r.teamPerformances[0].overall,
             second: r.teamPerformances[1].team.name,
             secondScore: r.teamPerformances[1].overall,
-            third: r.teamPerformances[2].team.name,
-            thirdScore: r.teamPerformances[2].overall
+            third: r.teamPerformances.length > 2 ? r.teamPerformances[2].team.name : null,
+            thirdScore: r.teamPerformances.length > 2 ? r.teamPerformances[2].overall : null
         }))
         res.json({
             success: true,

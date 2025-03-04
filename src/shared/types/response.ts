@@ -45,8 +45,8 @@ export type StateMatches = {
     firstScore: number,
     second: string,
     secondScore: number,
-    third: string,
-    thirdScore: number
+    third?: string | null,
+    thirdScore?: number | null
 }[] | undefined
 
 export type SchoolSeasonRound = {
