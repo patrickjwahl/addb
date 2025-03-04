@@ -31,7 +31,7 @@
   },
   "scripts": {
     "dev": "unset HOST && nf start -p 3000",
-    "build": "prisma migrate deploy && tsc -b && vite build && tsc --project tsconfig.server.json",
+    "build": "prisma migrate deploy && prisma generate && tsc -b && vite build && tsc --project tsconfig.server.json",
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "node dist/server/server/server.js"

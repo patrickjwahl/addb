@@ -169,7 +169,6 @@ enum Round {
   regionals
   state
   nationals
-  worlds
 }
 
 enum Category {
