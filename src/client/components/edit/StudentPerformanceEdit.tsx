@@ -6,10 +6,10 @@ import { hasObjs, hasSubs } from "@/shared/util/functions"
 import { Category } from "@prisma/client"
 import { useState } from "react"
 
-export default function StudentPerformanceEdit({ performance, events, teams, teamNumber, matchId, rank, callback }:
+export default function StudentPerformanceEdit({ performance, events, teams, teamNumber, matchId, rank, year, callback }:
     {
         performance?: FullStudentPerformance, teamNumber: number, events: Category[], matchId: number, teams: Array<{ id: number, name: string }>, rank?: number,
-        callback: () => void
+        year: number, callback: () => void
     }) {
     const [teamId, setTeamId] = useState(performance?.teamId || (teams.length > 0 && teams[0].id) || 'null')
     const [gpa, setGpa] = useState(performance?.gpa || 'H')
@@ -192,7 +192,7 @@ export default function StudentPerformanceEdit({ performance, events, teams, tea
                 {eventSet.has('interview') && <td>
                     <input type="text" size={6} value={interview} onChange={e => setInterview(e.target.value)} />
                 </td>}
-                {hasObjs(events) && <td className="table-cell-large">
+                {hasObjs(events, year) && <td className="table-cell-large">
                     <input type="text" size={8} value={objs} onChange={e => setObs(e.target.value)} />
                 </td>}
                 {hasSubs(events) && <td className="table-cell-large">

@@ -43,7 +43,7 @@ const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps>
     }
 
     const hasObjs = useMemo((): boolean => {
-        return !redacted && _hasObjs(events)
+        return !redacted && _hasObjs(events, performance.match.year)
     }, [events, redacted])
 
     const hasSubs = useMemo((): boolean => {
@@ -80,7 +80,7 @@ const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps>
             </tr>
         )
     } else {
-        return <StudentPerformanceEdit matchId={performance.matchId} performance={performance as FullStudentPerformance} teams={teams} events={events} rank={rank} teamNumber={teamNumber} callback={fetchData} />
+        return <StudentPerformanceEdit matchId={performance.matchId} performance={performance as FullStudentPerformance} year={performance.match.year} teams={teams} events={events} rank={rank} teamNumber={teamNumber} callback={fetchData} />
     }
 }
 

@@ -6,15 +6,16 @@ import { TableRowProps } from "./Table"
 
 interface StudentAggregateRowProps extends TableRowProps {
     data: StudentAggregate,
-    events: Category[]
+    events: Category[],
+    year: number
 }
 
-const StudentAggregateRow: React.FunctionComponent<StudentAggregateRowProps> = ({ data: aggregate, events }) => {
+const StudentAggregateRow: React.FunctionComponent<StudentAggregateRowProps> = ({ data: aggregate, events, year }) => {
 
     const redacted = events.length == 0
 
     const hasObjs = useMemo((): boolean => {
-        return !redacted && _hasObjs(events)
+        return !redacted && _hasObjs(events, year)
     }, [events, redacted])
 
     const hasSubs = useMemo((): boolean => {

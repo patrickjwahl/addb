@@ -125,7 +125,7 @@ export default function SeasonResult() {
                 })
             })
 
-            _hasObjs(match.events) && studentColumnDefs.push({
+            _hasObjs(match.events, match.year) && studentColumnDefs.push({
                 name: 'Obj',
                 sortKey: a => (a as FullStudentPerformance).objs || 0
             })
@@ -170,7 +170,7 @@ export default function SeasonResult() {
                             rows.push(<StudentPerformanceRow data={performance} teams={teams} teamNumber={teamIdToNumber[performance.team.id]} editingEnabled={false} events={match.events} key={performance.id} rankByCol={{}} showMedals={false} />)
                         })
                         const teamId = (studentPerformancesByTeam[key] && studentPerformancesByTeam[key][0].teamId) || 0
-                        rows.push(<StudentAggregateRow key={teamId} data={aggregates[teamId]} events={match.events} />)
+                        rows.push(<StudentAggregateRow key={teamId} data={aggregates[teamId]} events={match.events} year={match.year} />)
                     }
                     return rows
                 } else {

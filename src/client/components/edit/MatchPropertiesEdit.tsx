@@ -7,7 +7,8 @@ import { useEffect, useMemo, useState } from "react"
 
 export default function MatchPropertiesEdit({ match, callback }: { match: Match, callback: (matchId: number) => void }) {
 
-    const [year, _setYear] = useState(match?.year.toString() || new Date().getFullYear().toString())
+    const [year, setYear] = useState(match?.year.toString() || new Date().getFullYear().toString())
+    const [yearNum, setYearNum] = useState(parseInt(match?.year.toString() || new Date().getFullYear().toString()) || new Date().getFullYear())
     const [round, setRound] = useState(match?.round || 'null')
     const [stateId, setStateId] = useState(match?.stateId || -1)
     const [regionId, setRegionId] = useState<'_new' | number>(match?.regionId || -1)
@@ -35,13 +36,6 @@ export default function MatchPropertiesEdit({ match, callback }: { match: Match,
         }
     }
 
-    const setYear = (newYear: string) => {
-        if (parseInt(year) > 1998 && parseInt(newYear) < 1999 || parseInt(year) < 1999 && parseInt(newYear) > 1998) {
-            setEvents(new Set(eventOrdering(parseInt(newYear))))
-        }
-        _setYear(newYear)
-    }
-
     useEffect(() => {
         getStates()
     }, [])
@@ -52,6 +46,11 @@ export default function MatchPropertiesEdit({ match, callback }: { match: Match,
         } else {
             setRegionId(parseInt(e.target.value))
         }
+    }
+
+    const updateEvents = () => {
+        setYearNum(parseInt(year))
+        setEvents(new Set(eventOrdering(parseInt(year) || 2025)))
     }
 
     const validateInput = (): string | null => {
@@ -85,7 +84,7 @@ export default function MatchPropertiesEdit({ match, callback }: { match: Match,
             setValidationError(err)
             return
         }
-        let filteredEvents = objs.filter(o => events.has(o))
+        let filteredEvents = objs(yearNum).filter(o => events.has(o))
         filteredEvents = filteredEvents.concat(subs.filter(s => events.has(s)))
         const matchMetadata: MatchMetadata = {
             year: parseInt(year),
@@ -132,7 +131,7 @@ export default function MatchPropertiesEdit({ match, callback }: { match: Match,
     return (
         <form className="edit-form" onSubmit={submitForm}>
             <div className="edit-form-row">
-                <input style={{ width: '3em' }} placeholder="Year" type="number" value={year} onChange={e => setYear(e.target.value)} />
+                <input style={{ width: '3em' }} placeholder="Year" type="number" value={year} onChange={e => setYear(e.target.value)} onBlur={updateEvents} />
                 <select value={round} onChange={e => setRound(e.target.value as Round)}>
                     <option value="null" disabled hidden>Round</option>
                     {
@@ -178,7 +177,7 @@ export default function MatchPropertiesEdit({ match, callback }: { match: Match,
             </div>
             <div className="edit-form-row">
                 {
-                    objs.map(category => (
+                    objs(yearNum).map(category => (
                         <label key={category}>
                             {friendlyColumn[category]}
                             <input type="checkbox" checked={events.has(category)} onChange={e => handleEventChecked(category, e.target.checked)} />

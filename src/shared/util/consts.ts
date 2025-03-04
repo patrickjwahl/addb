@@ -46,7 +46,13 @@ export const gpaOptions: { [gpa: string]: string } = {
     'V': 'V'
 }
 
-export const objs: Category[] = ['math', 'music', 'econ', 'science', 'lit', 'art', 'socialScience']
+export const objs = (year: number): Category[] => {
+    if (year < 1999) {
+        return ['math', 'art', 'econ', 'science', 'lit', 'socialScience', 'sq']
+    } else {
+        return ['math', 'music', 'econ', 'science', 'lit', 'art', 'socialScience']
+    }
+}
 export const subs: Category[] = ['essay', 'speech', 'interview']
 
 export const friendlyRound: { [name: string]: string } = {

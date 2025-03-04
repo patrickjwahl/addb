@@ -79,8 +79,8 @@ export const roundSort = (a: string, b: string) => {
     return roundOrder.indexOf(a) - roundOrder.indexOf(b)
 }
 
-export const hasObjs = (events: Category[] | undefined): boolean => {
-    return events != undefined && events.some(x => objs.indexOf(x) >= 0)
+export const hasObjs = (events: Category[] | undefined, year: number | undefined): boolean => {
+    return events != undefined && year != undefined && events.some(x => objs(year).indexOf(x) >= 0)
 }
 
 export const hasSubs = (events: Category[] | undefined): boolean => {

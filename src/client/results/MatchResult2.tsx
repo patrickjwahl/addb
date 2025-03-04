@@ -139,7 +139,7 @@ export default function MatchResult2() {
     const canEdit = useMemo(() => api.canEdit(), [])
 
     const hasObjs = useMemo((): boolean => {
-        return _hasObjs(match?.events)
+        return _hasObjs(match?.events, match?.year)
     }, [match?.events])
 
     const hasSubs = useMemo((): boolean => {
@@ -307,7 +307,7 @@ export default function MatchResult2() {
                     (schoolFilter == -1 || performance.team.schoolId == schoolFilter) && rows.push(<StudentPerformanceRow data={performance} teams={teams} rankByCol={ranksByPerfId[performance.id]} teamNumber={teamIdToNumber[performance.team.id]} editCallback={fetchMatch} editingEnabled={editing} events={match.events} key={performance.id} showMedals={showMedals} />) && (addAggregate = true)
                 })
                 const teamId = (studentPerformancesByTeam[key] && studentPerformancesByTeam[key][0].teamId) || 0
-                addAggregate && rows.push(<StudentAggregateRow key={teamId} data={match.aggregates[teamId]} events={match.events} />)
+                addAggregate && rows.push(<StudentAggregateRow key={teamId} data={match.aggregates[teamId]} events={match.events} year={match.year} />)
             }
             return rows
         } else {

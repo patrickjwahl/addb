@@ -752,7 +752,8 @@ router.route('/match/:id')
                             teamId: true,
                             gpa: true,
                             overall: true,
-                            matchId: true
+                            matchId: true,
+                            match: true
                         }
                     },
                     region: true,
@@ -781,7 +782,8 @@ router.route('/match/:id')
                     studentPerformances: {
                         include: {
                             student: true,
-                            team: true
+                            team: true,
+                            match: true
                         }
                     },
                     region: true,
@@ -948,7 +950,8 @@ router.route('/studentperformance/:id')
             },
             include: {
                 team: true,
-                student: true
+                student: true,
+                match: true
             }
         })
 

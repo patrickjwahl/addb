@@ -81,7 +81,8 @@ export type StudentPerformance = FullStudentPerformance | RedactedStudentPerform
 export type FullStudentPerformance = Prisma.StudentPerformanceGetPayload<{
     include: {
         team: true,
-        student: true
+        student: true,
+        match: true
     }
 }>
 
@@ -94,7 +95,8 @@ export type RedactedStudentPerformance = Prisma.StudentPerformanceGetPayload<{
         team: true,
         gpa: true,
         overall: true,
-        matchId: true
+        matchId: true,
+        match: true
     }
 }>
 
@@ -119,7 +121,8 @@ export type RedactedMatch = Prisma.MatchGetPayload<{
                 team: true,
                 gpa: true,
                 overall: true,
-                matchId: true
+                matchId: true,
+                match: true
             }
         },
         region: true,
@@ -141,7 +144,8 @@ export type FullMatch = Prisma.MatchGetPayload<{
         studentPerformances: {
             include: {
                 student: true,
-                team: true
+                team: true,
+                match: true
             }
         },
         region: true,
