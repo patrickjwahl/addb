@@ -7,14 +7,14 @@ import { useEffect, useMemo, useState } from "react"
 
 export default function MatchPropertiesEdit({ match, callback }: { match: Match, callback: (matchId: number) => void }) {
 
-    const [year, setYear] = useState(match?.year.toString() || new Date().getFullYear().toString())
+    const [year, _setYear] = useState(match?.year.toString() || new Date().getFullYear().toString())
     const [round, setRound] = useState(match?.round || 'null')
     const [stateId, setStateId] = useState(match?.stateId || -1)
     const [regionId, setRegionId] = useState<'_new' | number>(match?.regionId || -1)
     const [states, setStates] = useState<{ [id: number]: FullState }>({})
     const [date, setDate] = useState(match && new Date(match?.date).toLocaleDateString('en-US', { month: '2-digit', year: 'numeric', day: 'numeric' }) || '')
     const [site, setSite] = useState(match?.site)
-    const [events, setEvents] = useState(!match ? new Set(eventOrdering) : new Set(match?.events))
+    const [events, setEvents] = useState(!match ? new Set(eventOrdering(parseInt(year) || 2025)) : new Set(match?.events))
     const [access, setAccess] = useState(match?.access || 1)
     const [hasDivisions, setHasDivisions] = useState(match?.hasDivisions || false)
     const [hasSq, setHasSq] = useState(match?.hasSq || false)
@@ -33,6 +33,13 @@ export default function MatchPropertiesEdit({ match, callback }: { match: Match,
 
             mappedStates && setStates(mappedStates)
         }
+    }
+
+    const setYear = (newYear: string) => {
+        if (parseInt(year) > 1998 && parseInt(newYear) < 1999 || parseInt(year) < 1999 && parseInt(newYear) > 1998) {
+            setEvents(new Set(eventOrdering(parseInt(newYear))))
+        }
+        _setYear(newYear)
     }
 
     useEffect(() => {

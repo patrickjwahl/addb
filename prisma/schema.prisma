@@ -13,13 +13,13 @@ model School {
   name     String
   fullName String? @map("full_name")
   city     String?
-  region   Region? @relation(fields: [regionId], references: [id])
-  state    State?  @relation(fields: [stateId], references: [id])
   district String?
   info     String?
-  teams    Team[]
   regionId Int?    @map("region_id")
   stateId  Int?    @map("state_id")
+  region   Region? @relation(fields: [regionId], references: [id])
+  state    State?  @relation(fields: [stateId], references: [id])
+  teams    Team[]
 
   @@map("schools")
 }
@@ -27,10 +27,10 @@ model School {
 model Team {
   id                  Int                  @id @default(autoincrement())
   name                String
-  school              School?              @relation(fields: [schoolId], references: [id])
   schoolId            Int?                 @map("school_id")
   studentPerformances StudentPerformance[]
   performances        TeamPerformance[]
+  school              School?              @relation(fields: [schoolId], references: [id])
 
   @@map("teams")
 }
@@ -42,9 +42,7 @@ model Match {
   search3             String
   year                Int
   round               Round
-  region              Region?              @relation(fields: [regionId], references: [id])
   regionId            Int?                 @map("region_id")
-  state               State?               @relation(fields: [stateId], references: [id])
   stateId             Int?                 @map("state_id")
   date                DateTime
   site                String?
@@ -53,6 +51,8 @@ model Match {
   hasDivisions        Boolean              @default(false) @map("has_divisions")
   access              Int
   events              Category[]
+  region              Region?              @relation(fields: [regionId], references: [id])
+  state               State?               @relation(fields: [stateId], references: [id])
   studentPerformances StudentPerformance[]
   teamPerformances    TeamPerformance[]
 
@@ -69,11 +69,8 @@ model Student {
 
 model StudentPerformance {
   id            Int      @id @default(autoincrement())
-  student       Student? @relation(fields: [studentId], references: [id])
   studentId     Int?     @map("student_id")
-  match         Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
   matchId       Int      @map("match_id")
-  team          Team     @relation(fields: [teamId], references: [id])
   teamId        Int      @map("team_id")
   gpa           String
   math          Float?
@@ -83,29 +80,33 @@ model StudentPerformance {
   lit           Float?
   art           Float?
   socialScience Float?   @map("social_science")
+  sq            Float?
   essay         Float?
   speech        Float?
   interview     Float?
   overall       Float?
   objs          Float?
   subs          Float?
+  match         Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  student       Student? @relation(fields: [studentId], references: [id])
+  team          Team     @relation(fields: [teamId], references: [id])
 
   @@map("student_performances")
 }
 
 model TeamPerformance {
   id       Int     @id @default(autoincrement())
-  match    Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
   matchId  Int     @map("match_id")
-  team     Team    @relation(fields: [teamId], references: [id])
   teamId   Int     @map("team_id")
+  division String?
   number   Int?
   rank     Int
   overall  Float
   objs     Float?
-  division String?
   subs     Float?
   sq       Float?
+  match    Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  team     Team    @relation(fields: [teamId], references: [id])
 
   @@map("team_performances")
 }
@@ -113,9 +114,9 @@ model TeamPerformance {
 model Region {
   id      Int      @id @default(autoincrement())
   name    String
-  state   State    @relation(fields: [stateId], references: [id])
   stateId Int      @map("state_id")
   matches Match[]
+  state   State    @relation(fields: [stateId], references: [id])
   schools School[]
 
   @@map("regions")
@@ -124,8 +125,8 @@ model Region {
 model State {
   id      Int      @id @default(autoincrement())
   name    String
-  regions Region[]
   matches Match[]
+  regions Region[]
   School  School[]
 
   @@map("states")
@@ -144,13 +145,23 @@ model User {
 
 model Edit {
   id       Int      @id @default(autoincrement())
-  user     User     @relation(fields: [userId], references: [id])
   userId   Int      @map("user_id")
   datetime DateTime @default(now())
   summary  String?
   diff     String?
+  user     User     @relation(fields: [userId], references: [id])
 
   @@map("edits")
+}
+
+model Session {
+  sid    String   @id @db.VarChar
+  sess   Json     @db.Json
+  expire DateTime @db.Timestamp(6)
+
+  @@index([expire], map: "IDX_session_expire")
+  @@map("session")
+  @@ignore
 }
 
 enum Round {
@@ -158,6 +169,7 @@ enum Round {
   regionals
   state
   nationals
+  worlds
 }
 
 enum Category {
@@ -168,6 +180,7 @@ enum Category {
   lit
   art
   socialScience
+  sq
   essay
   speech
   interview

@@ -7,7 +7,13 @@ export const taglines: { [state: string]: string } = {
     Rhode_Island: "It's famous for you"
 }
 
-export const eventOrdering: Category[] = ['math', 'music', 'econ', 'science', 'lit', 'art', 'socialScience', 'essay', 'speech', 'interview']
+export const eventOrdering = (year: number): Category[] => {
+    if (year < 1999) {
+        return ['math', 'art', 'econ', 'science', 'lit', 'socialScience', 'sq', 'essay', 'speech', 'interview']
+    } else {
+        return ['math', 'music', 'econ', 'science', 'lit', 'art', 'socialScience', 'essay', 'speech', 'interview']
+    }
+}
 export const friendlyColumn: { [category: string]: string } = {
     math: 'Mth',
     music: 'Mus',
@@ -15,6 +21,7 @@ export const friendlyColumn: { [category: string]: string } = {
     science: 'Sci',
     lit: 'Lit',
     art: 'Art',
+    sq: 'SuQ',
     socialScience: 'Soc',
     essay: 'Ess',
     speech: 'Spe',

@@ -267,10 +267,10 @@ export default function MatchResult2() {
     const partitionKey = (perf: StudentPerformance) => {
         let partition = ''
         if (partitionBy == 'division' || partitionBy == 'gpa_division') {
-            partition += `_${teamIdToDivision[perf.teamId]}`
+            partition += `_d${teamIdToDivision[perf.teamId]}`
         }
         if (partitionBy == 'gpa' || partitionBy == 'gpa_division') {
-            partition += `_${perf.gpa}`
+            partition += `_g${perf.gpa}`
         }
         return partition
     }
@@ -278,12 +278,12 @@ export default function MatchResult2() {
     const friendlyPartition = (key: string): string => {
         const strippedKey = key.slice(1)
         if (partitionBy == 'division') {
-            return divisions[strippedKey]
+            return divisions[strippedKey.slice(1)]
         } else if (partitionBy == 'gpa') {
-            return friendlyGPA[strippedKey]
+            return friendlyGPA[strippedKey.slice(1)]
         } else if (partitionBy == 'gpa_division') {
             const splitKey = strippedKey.split('_')
-            return `${divisions[splitKey[0]]} - ${friendlyGPA[splitKey[1]]}`
+            return `${divisions[splitKey[0].slice(1)]} - ${friendlyGPA[splitKey[1].slice(1)]}`
         }
 
         return ''

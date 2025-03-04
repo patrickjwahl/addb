@@ -410,6 +410,7 @@ router.route('/match/:id/studentcsv')
             lit?: number,
             art?: number,
             socialScience?: number,
+            sq?: number,
             essay?: number,
             speech?: number,
             interview?: number,
@@ -1163,7 +1164,7 @@ router.route('/match')
         }
 
         const { id } = req.body
-        req.body.events.sort((a: Category, b: Category) => eventOrdering.indexOf(a) - eventOrdering.indexOf(b))
+        req.body.events.sort((a: Category, b: Category) => eventOrdering(req.body.year).indexOf(a) - eventOrdering(req.body.year).indexOf(b))
 
         if (req.body.newRegion) {
             if (!req.body.stateId) {
