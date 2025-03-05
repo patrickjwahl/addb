@@ -408,6 +408,7 @@ router.route('/match/:id/studentcsv')
             econ?: number,
             science?: number,
             lit?: number,
+            fine?: number,
             art?: number,
             socialScience?: number,
             sq?: number,

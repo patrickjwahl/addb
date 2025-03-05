@@ -40,6 +40,8 @@ export type StudentPerformance = Prisma.StudentPerformanceGetPayload<{
     music?: number | null,
     econ?: number | null,
     science?: number | null,
+    sq?: number | null,
+    fine?: number | null,
     lit?: number | null,
     art?: number | null,
     socialScience?: number | null,

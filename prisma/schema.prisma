@@ -79,6 +79,7 @@ model StudentPerformance {
   science       Float?
   lit           Float?
   art           Float?
+  fine          Float?
   socialScience Float?   @map("social_science")
   sq            Float?
   essay         Float?
@@ -174,6 +175,7 @@ enum Round {
 enum Category {
   math
   music
+  fine
   econ
   science
   lit

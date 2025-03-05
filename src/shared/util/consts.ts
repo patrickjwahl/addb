@@ -9,7 +9,7 @@ export const taglines: { [state: string]: string } = {
 
 export const eventOrdering = (year: number): Category[] => {
     if (year < 1999) {
-        return ['math', 'art', 'econ', 'science', 'lit', 'socialScience', 'sq', 'essay', 'speech', 'interview']
+        return ['math', 'fine', 'econ', 'science', 'lit', 'socialScience', 'sq', 'essay', 'speech', 'interview']
     } else {
         return ['math', 'music', 'econ', 'science', 'lit', 'art', 'socialScience', 'essay', 'speech', 'interview']
     }
@@ -17,11 +17,12 @@ export const eventOrdering = (year: number): Category[] => {
 export const friendlyColumn: { [category: string]: string } = {
     math: 'Mth',
     music: 'Mus',
+    fine: 'Fin',
     econ: 'Ecn',
     science: 'Sci',
     lit: 'Lit',
     art: 'Art',
-    sq: 'SuQ',
+    sq: 'SQ',
     socialScience: 'Soc',
     essay: 'Ess',
     speech: 'Spe',
@@ -48,7 +49,7 @@ export const gpaOptions: { [gpa: string]: string } = {
 
 export const objs = (year: number): Category[] => {
     if (year < 1999) {
-        return ['math', 'art', 'econ', 'science', 'lit', 'socialScience', 'sq']
+        return ['math', 'fine', 'econ', 'science', 'lit', 'socialScience', 'sq']
     } else {
         return ['math', 'music', 'econ', 'science', 'lit', 'art', 'socialScience']
     }
