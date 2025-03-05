@@ -301,7 +301,8 @@ router.route('/search')
                 year: true,
                 round: true,
                 state: true,
-                region: true
+                region: true,
+                site: true
             },
             where: {
                 OR: [

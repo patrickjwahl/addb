@@ -164,7 +164,7 @@ export default function SearchForm() {
                                 <li className={liClass}>
                                     <div className='quick-result-type'>Match</div>
                                     <div className='quick-result-title'>{possiblyShorten(match.year + ' ' + friendlyRound[match.round])}</div>
-                                    <div className='quick-result-subtitle'>{match.state?.name || ''} {match.region?.name || ''}</div>
+                                    <div className='quick-result-subtitle'>{match.state?.name || match.site || ''} {match.region?.name || ''}</div>
                                 </li>
                             </Link>
                         )

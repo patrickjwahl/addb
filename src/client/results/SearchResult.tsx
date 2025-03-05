@@ -93,7 +93,7 @@ export default function SearchResult() {
                                 <Link to={`/match/${match.id}`} key={match.id}>
                                     <li className='search-result'>
                                         <div className='search-result-title'>{match.year + ' ' + friendlyRound[match.round]}</div>
-                                        <div className='search-result-subtitle'>{match.state?.name || ''} {match.region?.name || ''}</div>
+                                        <div className='search-result-subtitle'>{match.state?.name || match.site || ''} {match.region?.name || ''}</div>
                                     </li>
                                 </Link>
                             ))
