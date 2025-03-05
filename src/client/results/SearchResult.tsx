@@ -64,7 +64,7 @@ export default function SearchResult() {
         if (result.students.length > 0) {
             peopleResults = (
                 <div className='search-result-category'>
-                    <div className='search-result-category-title'>People</div>
+                    <div className='search-result-category-title'>Decathletes</div>
                     <ul className='search-result-sublist'>
                         {
                             result.students.map((person) => {

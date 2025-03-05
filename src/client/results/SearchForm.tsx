@@ -181,7 +181,7 @@ export default function SearchForm() {
         <div>
             <form className="search-form" onSubmit={handleSubmit}>
                 <div className='search-input-container' tabIndex={0} onBlur={handleOnBlur}>
-                    <input className={formClass} placeholder="Look for schools, people, and matches" type="text" onChange={handleQueryChanged} value={query} onKeyDown={handleInputOnKeyDown} />
+                    <input className={formClass} placeholder="Look for schools, decathletes, and matches" type="text" onChange={handleQueryChanged} value={query} onKeyDown={handleInputOnKeyDown} />
                     {quickResult}
                 </div>
                 <input className="search-submit" type="submit" value="Search" />
