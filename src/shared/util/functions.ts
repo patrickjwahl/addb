@@ -28,7 +28,7 @@ export const possiblyShorten = (str: string): string => {
     return str
 }
 
-export const rankToClass = (rank: number): string => {
+export const rankToClass = (rank: number | undefined): string => {
     switch (rank) {
         case 0: return 'gold'
         case 1: return 'silver'

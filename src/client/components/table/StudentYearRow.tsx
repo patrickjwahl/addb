@@ -1,5 +1,5 @@
 
-import { hasObjs as _hasObjs, hasSubs as _hasSubs, ftoa } from "@/shared/util/functions"
+import { hasObjs as _hasObjs, hasSubs as _hasSubs, ftoa, rankToClass } from "@/shared/util/functions"
 import { Prisma } from "@prisma/client"
 import { Link } from "react-router-dom"
 import { TableRowProps } from "./Table"
@@ -7,10 +7,10 @@ import { TableRowProps } from "./Table"
 interface StudentYearRowProps extends TableRowProps {
     year: number,
     data: {
-        roundone?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }>,
-        regionals?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }>,
-        state?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }>,
-        nationals?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }>,
+        roundone?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }> & { rank?: number },
+        regionals?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }> & { rank?: number },
+        state?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }> & { rank?: number },
+        nationals?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }> & { rank?: number },
     }
 }
 
@@ -31,28 +31,28 @@ const StudentYearRow: React.FunctionComponent<StudentYearRowProps> = ({ year, da
             )}
             {
                 data.roundone ? (
-                    <td className={`is-link`}><Link to={`/match/${data.roundone.matchId}?school=${data.roundone.team.schoolId}`}>{ftoa(data.roundone.overall)} ({data.roundone.gpa})</Link></td>
+                    <td className={`is-link ${rankToClass(data.roundone.rank) || ''}`}><Link to={`/match/${data.roundone.matchId}?school=${data.roundone.team.schoolId}`}>{ftoa(data.roundone.overall)} ({data.roundone.gpa})</Link></td>
                 ) : (
                     <td>-</td>
                 )
             }
             {
                 data.regionals ? (
-                    <td className={`is-link`}><Link to={`/match/${data.regionals.matchId}?school=${data.regionals.team.schoolId}`}>{ftoa(data.regionals.overall)} ({data.regionals.gpa})</Link></td>
+                    <td className={`is-link ${rankToClass(data.regionals.rank) || ''}`}><Link to={`/match/${data.regionals.matchId}?school=${data.regionals.team.schoolId}`}>{ftoa(data.regionals.overall)} ({data.regionals.gpa})</Link></td>
                 ) : (
                     <td>-</td>
                 )
             }
             {
                 data.state ? (
-                    <td className={`is-link`}><Link to={`/match/${data.state.matchId}?school=${data.state.team.schoolId}`}>{ftoa(data.state.overall)} ({data.state.gpa})</Link></td>
+                    <td className={`is-link ${rankToClass(data.state.rank) || ''}`}><Link to={`/match/${data.state.matchId}?school=${data.state.team.schoolId}`}>{ftoa(data.state.overall)} ({data.state.gpa})</Link></td>
                 ) : (
                     <td>-</td>
                 )
             }
             {
                 data.nationals ? (
-                    <td className={`is-link`}><Link to={`/match/${data.nationals.matchId}?school=${data.nationals.team.schoolId}`}>{ftoa(data.nationals.overall)} ({data.nationals.gpa})</Link></td>
+                    <td className={`is-link ${rankToClass(data.nationals.rank) || ''}`}><Link to={`/match/${data.nationals.matchId}?school=${data.nationals.team.schoolId}`}>{ftoa(data.nationals.overall)} ({data.nationals.gpa})</Link></td>
                 ) : (
                     <td>-</td>
                 )

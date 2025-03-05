@@ -1672,10 +1672,14 @@ router.route('/student/:id')
             }
         })
         for (const perf of performances) {
+            const [{ rank: rank }] = await prisma.$queryRaw<{ rank: BigInt }[]>`SELECT rank FROM (SELECT id, ROW_NUMBER() OVER (ORDER BY overall DESC NULLS LAST) AS rank FROM student_performances WHERE match_id=${perf.matchId} AND gpa=${perf.gpa}) AS sub WHERE sub.id = ${perf.id}`
+            let rankedPerf = perf as Prisma.StudentPerformanceGetPayload<{ include: { team: true } }> & { rank?: number }
+            rankedPerf.rank = Number(rank) - 1
+            console.log(rank)
             if (perf.match.year in seasons) {
-                seasons[perf.match.year][perf.match.round] = perf
+                seasons[perf.match.year][perf.match.round] = rankedPerf
             } else {
-                seasons[perf.match.year] = { [perf.match.round]: perf }
+                seasons[perf.match.year] = { [perf.match.round]: rankedPerf }
             }
         }
 

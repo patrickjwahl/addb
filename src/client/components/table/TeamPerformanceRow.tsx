@@ -47,7 +47,7 @@ const TeamPerformanceRow: React.FunctionComponent<TeamPerformanceRowProps> = ({ 
             <tr key={performance.id} className={(canEdit && !performance.team.schoolId ? 'row-warning' : '')}>
                 <td>{rank}</td>
                 {performance.team.schoolId ? (
-                    <td>
+                    <td className="is-link">
                         <Link to={`/school/${performance.team.schoolId}`}>
                             {performance.team.name}
                             {editingEnabled && ` (${performance.team.school?.fullName || performance.team.school?.name || ''})`}
@@ -56,7 +56,7 @@ const TeamPerformanceRow: React.FunctionComponent<TeamPerformanceRowProps> = ({ 
                 ) : (<td className={rankClass}>
                     {performance.team.name} {canEdit && <b>(Unlinked!)</b>}
                 </td>)}
-                <td className={`is-link ${rankClass}`}>{ftoa(performance.overall)}</td>
+                <td className={`${rankClass}`}>{ftoa(performance.overall)}</td>
                 {<td>{ftoa(performance.objs)}</td>}
                 {<td>{ftoa(performance.subs)}</td>}
                 {hasSq && <td>{ftoa(performance.sq)}</td>}

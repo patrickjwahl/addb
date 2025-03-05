@@ -222,10 +222,10 @@ export type SchoolPage = {
 
 export type StudentSeasons = {
     [year: number]: {
-        roundone?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }>,
-        regionals?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }>,
-        state?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }>,
-        nationals?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }>
+        roundone?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }> & { rank?: number },
+        regionals?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }> & { rank?: number },
+        state?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }> & { rank?: number },
+        nationals?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }> & { rank?: number }
     }
 }
 export type StudentPage = {
