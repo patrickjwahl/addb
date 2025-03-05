@@ -126,6 +126,26 @@ app.use(function (_, res, next) {
     next()
 })
 
+const deleteOrphans = async () => {
+    await prisma.team.deleteMany({
+        where: {
+            studentPerformances: {
+                none: {}
+            },
+            performances: {
+                none: {}
+            }
+        }
+    })
+    await prisma.student.deleteMany({
+        where: {
+            performances: {
+                none: {}
+            }
+        }
+    })
+}
+
 router.get('/', async function (_: AddbRequest<null>, res: AddbResponse<string>) {
     res.json({ success: true, data: "api initi" })
 })
@@ -488,7 +508,12 @@ router.route('/match/:id/studentcsv')
                             some: {
                                 OR: [
                                     {
-                                        teamId: teamId
+                                        teamId: teamId,
+                                    },
+                                    {
+                                        team: {
+                                            schoolId: teamNumberToObj[row.teamNumber as number].schoolId
+                                        }
                                     },
                                     {
                                         team: {
@@ -496,8 +521,19 @@ router.route('/match/:id/studentcsv')
                                                 name: row.teamName as string
                                             }
                                         }
+                                    },
+                                    {
+                                        team: {
+                                            name: row.teamName as string
+                                        }
                                     }
-                                ]
+                                ],
+                                match: {
+                                    year: {
+                                        gte: match.year - 4,
+                                        lte: match.year + 4
+                                    }
+                                }
                             }
                         }
                     }
@@ -845,6 +881,7 @@ router.route('/match/:id')
                 id: parseInt(req.params.id)
             }
         })
+        await deleteOrphans()
         await prisma.edit.create({
             data: {
                 userId: req.userId || 0,
@@ -1035,15 +1072,68 @@ router.route('/teamperformance')
                 data: data
             })
 
-            await prisma.studentPerformance.updateMany({
+            const studentPerformances = await prisma.studentPerformance.updateManyAndReturn({
                 where: {
                     matchId: perfToEdit.matchId,
                     teamId: currTeamId
                 },
                 data: {
                     teamId: data.teamId
+                },
+                include: {
+                    student: true
                 }
             })
+
+            for (const studentPerf of studentPerformances) {
+                const otherPerf = await prisma.studentPerformance.findFirst({
+                    where: {
+                        OR: [
+                            {
+                                teamId: data.teamId
+                            },
+                            {
+                                team: {
+                                    schoolId: req.body.schoolId
+                                }
+                            }
+                        ],
+                        id: {
+                            not: studentPerf.id
+                        },
+                        studentId: {
+                            not: null
+                        },
+                        student: {
+                            name: studentPerf.student?.name
+                        },
+                        match: {
+                            year: {
+                                gte: perfToEdit.match.year - 4,
+                                lte: perfToEdit.match.year + 4
+                            }
+                        }
+                    }
+                })
+                if (otherPerf) {
+                    await prisma.studentPerformance.update({
+                        where: {
+                            id: studentPerf.id
+                        },
+                        data: {
+                            studentId: otherPerf.studentId
+                        }
+                    })
+                    if (studentPerf.studentId) {
+                        await prisma.student.delete({
+                            where: {
+                                id: studentPerf.studentId
+                            }
+                        })
+                        await deleteOrphans()
+                    }
+                }
+            }
 
             const { team, match, ...oldPerf } = perfToEdit
             await prisma.edit.create({
@@ -1398,6 +1488,7 @@ router.route('/mergepeople/:godId/:peonId')
             return
         }
 
+        // first, delete any overlapping matches on the peon side
         for (const perf of god.performances) {
             await prisma.studentPerformance.deleteMany({
                 where: {
@@ -1410,6 +1501,9 @@ router.route('/mergepeople/:godId/:peonId')
             })
         }
 
+        deleteOrphans()
+
+        // now flip the peon's performances over to the god
         await prisma.studentPerformance.updateMany({
             where: {
                 studentId: peon.id
@@ -1419,6 +1513,7 @@ router.route('/mergepeople/:godId/:peonId')
             }
         })
 
+        // finally, delete the peon
         await prisma.student.delete({
             where: {
                 id: peon.id
