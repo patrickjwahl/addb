@@ -1972,7 +1972,8 @@ router.route('/school/:id/season/:year')
                         teamId: true,
                         gpa: true,
                         overall: true,
-                        matchId: true
+                        matchId: true,
+                        match: true
                     }
                 })
                 matchByRound[round].events = []
@@ -1988,7 +1989,8 @@ router.route('/school/:id/season/:year')
                     },
                     include: {
                         student: true,
-                        team: true
+                        team: true,
+                        match: true
                     }
                 })
             }
