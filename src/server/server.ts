@@ -172,6 +172,7 @@ router.route('/user')
             })
             return
         }
+
         let username = req.body.username
         let password = req.body.password
         let access = req.body.access
