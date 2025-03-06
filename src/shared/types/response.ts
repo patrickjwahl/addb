@@ -237,3 +237,9 @@ export type StudentPage = {
         }
     }> | null
 }
+
+export type MatchPreviews = Prisma.MatchGetPayload<{
+    include: {
+        teamPerformances: true
+    }
+}>[]

@@ -44,7 +44,8 @@ export default function UserPropertiesEdit({ user, callback }: { user?: Prisma.U
             id: user?.id,
             username: username,
             access: guiAccess > 3 ? guiAccess - 1 : guiAccess,
-            canEdit: guiAccess > 3
+            canEdit: guiAccess > 3,
+            password: password
         }
 
         const result = await api.upsertUser(userMetadata)

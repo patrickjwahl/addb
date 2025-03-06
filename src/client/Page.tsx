@@ -71,8 +71,6 @@ export default function Page() {
         )
         : (
             <div style={{ display: 'inline' }} >
-                <span>&copy;2023 <a onClick={() => playTunes()} className='page-link' style={{ display: 'inline' }}>Patrick J. Wahl</a></span>
-                {' ○ '}
                 <Link style={{ display: 'inline' }} state={{ from: location }} to='/login'>
                     <div className='page-link'>Log In</div>
                 </Link>

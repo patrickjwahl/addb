@@ -13,7 +13,7 @@ import { CSVColumnDef, diff, parseCsv } from '../shared/util/functions.js'
 
 import { Category, Prisma, PrismaClient } from '@prisma/client'
 
-import { RecentMatches, ApiResponse, StateMatches, Match, StudentAggregates, FullState, SearchResult, SearchResultMatch, SearchResultStudent, FullStudentPerformance, SearchResultSchool, TeamPerformance, SchoolPage, TeamSeasons, SchoolTeam, StudentPage, StudentSeasons, SchoolSeasonPage, LoginResult, EditResult, MergeSuggestion } from '../shared/types/response.js'
+import { RecentMatches, ApiResponse, StateMatches, Match, StudentAggregates, FullState, SearchResult, SearchResultMatch, SearchResultStudent, FullStudentPerformance, SearchResultSchool, TeamPerformance, SchoolPage, TeamSeasons, SchoolTeam, StudentPage, StudentSeasons, SchoolSeasonPage, LoginResult, EditResult, MergeSuggestion, MatchPreviews } from '../shared/types/response.js'
 import { CreateUserCredentials, LoginCredentials, MatchMetadata, SchoolMetadata, StudentMetadata, StudentPerformance, TeamPerformance as TeamPerformanceRequest } from '../shared/types/request.js'
 import ConnectPgSimple from 'connect-pg-simple'
 import pg from 'pg'
@@ -1718,6 +1718,11 @@ router.route('/student/:id')
             success: true
         })
     })
+
+// router.route('/nationals')
+//     .post(async function (req: AddbRequest<null>, res: AddbResponse<MatchPreviews>) {
+
+//     })
 
 router.route('/school')
     .post(async function (req: AddbRequest<SchoolMetadata>, res: AddbResponse<SearchResultSchool>) {
