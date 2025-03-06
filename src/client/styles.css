@@ -220,14 +220,17 @@ input[type="submit"] {
 
 .gold {
     background-color: #FFCC33 !important;
+    font-weight: bold;
 }
 
 .silver {
     background-color: #8995A9 !important;
+    color: white;
 }
 
 .bronze {
     background-color: #BB8F60 !important;
+    color: white;
 }
 
 :is(.gold, .silver, .bronze):hover {
@@ -958,6 +961,83 @@ th {
     text-decoration: underline;
 }
 
+.home-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 100vw;
+    padding: 10px;
+}
+
+.home-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    gap: 20px;
+}
+
+.home-column {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+.home-column-title {
+    margin-top: 0px;
+    margin-bottom: 10px;
+}
+
+.home-column-subtitle {
+    margin: 5px 0;
+}
+
+.home-column-content {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.match-preview {
+    background-color: white;
+    color: black;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    border: 1px solid #ff3b3f;
+    border-radius: 5px;
+    padding: 10px;
+    align-items: stretch;
+    gap: 20px;
+}
+
+.match-preview:hover {
+    box-shadow: 0 0 5px 0 #ff3b3f;
+}
+
+.match-preview-title-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.match-preview-title {
+    font-weight: bold;
+}
+
+.match-preview-subtitle {
+    font-style: italic;
+}
+
+.match-preview-team-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+}
+
+.match-preview-team {
+    padding: 5px;
+    border-radius: 5px;
+}
 
 @media screen and (max-width: 1200px) {
     .search-submit {

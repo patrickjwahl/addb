@@ -240,6 +240,30 @@ export type StudentPage = {
 
 export type MatchPreviews = Prisma.MatchGetPayload<{
     include: {
-        teamPerformances: true
+        region: true,
+        state: true,
+        teamPerformances: {
+            include: {
+                team: {
+                    include: {
+                        school: {
+                            include: {
+                                state: true
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }>[]
+
+export type StudentLeaders = {
+    H: Prisma.StudentPerformanceGetPayload<{ include: { student: true, team: { include: { school: { include: { state: true } } } }, match: { include: { region: true, state: true } } } }>[],
+    S: Prisma.StudentPerformanceGetPayload<{ include: { student: true, team: { include: { school: { include: { state: true } } } }, match: { include: { region: true, state: true } } } }>[],
+    V: Prisma.StudentPerformanceGetPayload<{ include: { student: true, team: { include: { school: { include: { state: true } } } }, match: { include: { region: true, state: true } } } }>[]
+}
+export type StudentLeaderboard = {
+    year: number,
+    leaders: StudentLeaders
+}

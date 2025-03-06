@@ -11,9 +11,9 @@ import levenshtein from 'js-levenshtein'
 import bodyParser from 'body-parser'
 import { CSVColumnDef, diff, parseCsv } from '../shared/util/functions.js'
 
-import { Category, Prisma, PrismaClient } from '@prisma/client'
+import { Category, ConfigurationKey, Prisma, PrismaClient } from '@prisma/client'
 
-import { RecentMatches, ApiResponse, StateMatches, Match, StudentAggregates, FullState, SearchResult, SearchResultMatch, SearchResultStudent, FullStudentPerformance, SearchResultSchool, TeamPerformance, SchoolPage, TeamSeasons, SchoolTeam, StudentPage, StudentSeasons, SchoolSeasonPage, LoginResult, EditResult, MergeSuggestion, MatchPreviews } from '../shared/types/response.js'
+import { RecentMatches, ApiResponse, StateMatches, Match, StudentAggregates, FullState, SearchResult, SearchResultMatch, SearchResultStudent, FullStudentPerformance, SearchResultSchool, TeamPerformance, SchoolPage, TeamSeasons, SchoolTeam, StudentPage, StudentSeasons, SchoolSeasonPage, LoginResult, EditResult, MergeSuggestion, MatchPreviews, StudentLeaderboard, StudentLeaders } from '../shared/types/response.js'
 import { CreateUserCredentials, LoginCredentials, MatchMetadata, SchoolMetadata, StudentMetadata, StudentPerformance, TeamPerformance as TeamPerformanceRequest } from '../shared/types/request.js'
 import ConnectPgSimple from 'connect-pg-simple'
 import pg from 'pg'
@@ -82,6 +82,22 @@ var roundMap: RoundMap = {
     regionals: 'Regionals',
     state: 'State',
     nationals: 'Nationals'
+}
+
+const getConfigStr = async (key: ConfigurationKey): Promise<string | null> => {
+    return (await prisma.configuration.findFirst({
+        where: {
+            key: key
+        }
+    }))?.strValue || null
+}
+
+const getConfigInt = async (key: ConfigurationKey): Promise<number | null> => {
+    return (await prisma.configuration.findFirst({
+        where: {
+            key: key
+        }
+    }))?.numValue || null
 }
 
 var port = process.env.API_PORT || 3001
@@ -153,6 +169,14 @@ router.get('/', async function (_: AddbRequest<null>, res: AddbResponse<string>)
 router.route('/authenticate')
     .get(async function (req: AddbRequest<null>, res: AddbResponse<null>) {
         if (req.auth) {
+            await prisma.user.update({
+                where: {
+                    id: req.userId
+                },
+                data: {
+                    lastLogin: new Date()
+                }
+            })
             res.json({
                 success: true
             })
@@ -1720,10 +1744,96 @@ router.route('/student/:id')
         })
     })
 
-// router.route('/nationals')
-//     .post(async function (req: AddbRequest<null>, res: AddbResponse<MatchPreviews>) {
+router.route('/nationals')
+    .get(async function (req: AddbRequest<null>, res: AddbResponse<MatchPreviews>) {
 
-//     })
+        const limit = req.query.limit ? parseInt(req.query.limit.toString()) : 100
+
+        const matches = await prisma.match.findMany({
+            where: {
+                round: 'nationals'
+            },
+            orderBy: {
+                year: 'desc'
+            },
+            take: limit,
+            include: {
+                region: true,
+                state: true,
+                teamPerformances: {
+                    include: {
+                        team: {
+                            include: {
+                                school: {
+                                    include: {
+                                        state: true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    orderBy: {
+                        overall: 'desc'
+                    },
+                    take: 3
+                }
+            }
+        })
+
+        res.json({ success: true, data: matches })
+    })
+
+router.route('/season_top_students')
+    .get(async function (req: AddbRequest<null>, res: AddbResponse<StudentLeaderboard>) {
+
+        const year = await getConfigInt('year')
+        if (!year) {
+            res.json({ success: false, message: 'What year is it???' })
+            return
+        }
+
+        let output: { [key: string]: Prisma.StudentPerformanceGetPayload<{ include: { student: true, team: { include: { school: { include: { state: true } } } }, match: { include: { region: true, state: true } } } }>[] } = { H: [], S: [], V: [] }
+        for (const gpa of ['H', 'S', 'V']) {
+            const perfs = await prisma.studentPerformance.findMany({
+                where: {
+                    match: {
+                        year: year
+                    },
+                    gpa: gpa
+                },
+                orderBy: {
+                    overall: 'desc'
+                },
+                include: {
+                    student: true,
+                    match: {
+                        include: {
+                            region: true,
+                            state: true
+                        }
+                    },
+                    team: {
+                        include: {
+                            school: {
+                                include: {
+                                    state: true
+                                }
+                            }
+                        }
+                    }
+                },
+                take: 10
+            })
+            output[gpa] = perfs
+        }
+
+        res.json({
+            success: true, data: {
+                year: year,
+                leaders: output as StudentLeaders
+            }
+        })
+    })
 
 router.route('/school')
     .post(async function (req: AddbRequest<SchoolMetadata>, res: AddbResponse<SearchResultSchool>) {
@@ -1849,11 +1959,25 @@ router.route('/edits')
     })
 
 router.route('/recent')
-    .get(async function (_: AddbRequest<null>, res: AddbResponse<RecentMatches>) {
+    .get(async function (_: AddbRequest<null>, res: AddbResponse<MatchPreviews>) {
         const results = await prisma.match.findMany({
             include: {
                 region: true,
-                state: true
+                state: true,
+                teamPerformances: {
+                    include: {
+                        team: {
+                            include: {
+                                school: {
+                                    include: {
+                                        state: true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    take: 3
+                }
             },
             orderBy: {
                 date: 'desc'

@@ -134,12 +134,13 @@ model State {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  username String
-  passhash String
-  access   Int
-  canEdit  Boolean @default(false) @map("can_edit")
-  edits    Edit[]
+  id        Int       @id @default(autoincrement())
+  username  String
+  passhash  String
+  access    Int
+  canEdit   Boolean   @default(false) @map("can_edit")
+  edits     Edit[]
+  lastLogin DateTime?
 
   @@map("users")
 }
@@ -163,6 +164,19 @@ model Session {
   @@index([expire], map: "IDX_session_expire")
   @@map("session")
   @@ignore
+}
+
+model Configuration {
+  id       Int              @id @default(autoincrement())
+  key      ConfigurationKey
+  strValue String?          @map("str_value")
+  numValue Int?             @map("num_value")
+
+  @@map("configuration")
+}
+
+enum ConfigurationKey {
+  year
 }
 
 enum Round {

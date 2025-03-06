@@ -1,5 +1,5 @@
-import { Category } from "@prisma/client"
-import { divisionsOrder, friendlyGPA, objs, roundOrder, subs } from "./consts.js"
+import { Category, Prisma } from "@prisma/client"
+import { divisionsOrder, friendlyGPA, friendlyRound, objs, roundOrder, subs } from "./consts.js"
 import shimGroupBy from 'object.groupby'
 
 export type CSVColumnDef = {
@@ -35,6 +35,14 @@ export const rankToClass = (rank: number | undefined): string => {
         case 2: return 'bronze'
         default: return ''
     }
+}
+
+export const matchTitle = (match: Prisma.MatchGetPayload<{}>): string => {
+    return `${match.year} ${friendlyRound[match.round]}`
+}
+
+export const matchSubtitle = (match: Prisma.MatchGetPayload<{ include: { state: true, region: true } }>): string => {
+    return (match.round == 'nationals' && match.site) || ((match.round !== 'nationals') ? match.state?.name : '') + (match.round !== 'nationals' && match.round !== 'state' ? ', ' + match.region?.name : '')
 }
 
 export const diff = (oldObj: any, newObj: any): any => {

@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
-import { ApiResponse, EditResult, FullState, FullStudentPerformance, LoginResult, Match, MergeSuggestion, RecentMatches, SchoolPage, SchoolSeasonPage, SearchResult, SearchResultSchool, SearchResultStudent, StudentPage, TeamPerformance } from '@/shared/types/response'
+import { ApiResponse, EditResult, FullState, FullStudentPerformance, LoginResult, Match, MatchPreviews, MergeSuggestion, SchoolPage, SchoolSeasonPage, SearchResult, SearchResultSchool, SearchResultStudent, StudentLeaderboard, StudentPage, TeamPerformance } from '@/shared/types/response'
 import { CreateUserCredentials, MatchMetadata, SchoolMetadata, StudentMetadata, StudentPerformance, TeamPerformance as TeamPerformanceRequest } from '../shared/types/request'
 import { StateMatches } from '../shared/types/response'
 
@@ -102,6 +102,16 @@ class API {
         })).data
     }
 
+    getNationalsResults = async (maxYears: number | undefined): Promise<ApiResponse<null | MatchPreviews>> => {
+        let endpoint = '/nationals'
+        if (maxYears) endpoint += `?limit=${maxYears}`
+        return (await this.axios.get(endpoint)).data
+    }
+
+    getStudentLeaderboard = async (): Promise<ApiResponse<null | StudentLeaderboard>> => {
+        return (await this.axios.get('/season_top_students')).data
+    }
+
     getTeamPerformance = async (id: number): Promise<ApiResponse<null | undefined | TeamPerformance>> => {
         return (await this.axios.get(`/teamperformance/${id}`)).data
     }
@@ -162,7 +172,7 @@ class API {
     //     return this.axios.get(`/match/${round}/${state ? state + '/' : ''}${region ? region + '/' : ''}${year}`)
     // }
 
-    getRecentMatches = async (): Promise<ApiResponse<RecentMatches | null | undefined>> => {
+    getRecentMatches = async (): Promise<ApiResponse<MatchPreviews | null>> => {
         return (await this.axios.get('/recent')).data
     }
 
