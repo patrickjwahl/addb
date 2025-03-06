@@ -88,55 +88,55 @@ export default function Home() {
     } else {
         topStudentsCol = (
             <div className='home-column'>
-                <h3 className='home-column-title'>{topStudents.year} Top Individual Scorers</h3>
-                <div className='home-row'>
+                <h3 className='home-column-title'>States</h3>
+                <div className='state-list-container'>
                     {
-                        Object.keys(topStudents.leaders).sort().map(gpa => (
-                            <div key={gpa} className='home-column-content'>
-                                <h4 className='home-column-subtitle'>{friendlyGPA[gpa]}</h4>
-                                {
-                                    topStudents.leaders[gpa as keyof StudentLeaders].map((perf, index) => (
-                                        <Link to={`/student/${perf.studentId}`}>
-                                            <div className='match-preview'>
-                                                <div className='match-preview-title-container' style={{ fontSize: '18px' }}>{index + 1}.</div>
-                                                <div className='match-preview-title-container'>
-                                                    <div className='match-preview-title'>{perf.student?.name || '???'}</div>
-                                                    <div className='match-preview-subtitle'>{perf.team.name}{perf.team.school?.state?.name ? ', ' + perf.team.school.state.name : ''}</div>
-                                                </div>
-                                                <div className='match-preview-title-container'>
-                                                    <div className={`match-preview-title ${rankToClass(index)}`} style={{ border: '1px solid black', borderRadius: '5px', padding: '5px' }}>
-                                                        {ftoa(perf.overall)}
-                                                    </div>
-                                                    <div>
-                                                        {friendlyRound[perf.match.round]}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </Link>
-                                    ))
-                                }
-                            </div>
+                        statesList.map(state => (
+                            <Link key={state} to={`/state/${state}`}>
+                                <div className='state-list-object'>
+                                    <img src={`/img/${state}.jpg`} height={50} style={{ borderRadius: 5, border: '1px solid black' }} />
+                                    <div className='search-result-title state-button-title'>{state.replace('_', ' ')}</div>
+                                </div>
+                            </Link>
                         ))
                     }
+                </div>
+                <div className='home-column'>
+                    <h3 className='home-column-title'>{topStudents.year} Top Individual Scorers</h3>
+                    <div className='home-row'>
+                        {
+                            Object.keys(topStudents.leaders).sort().map(gpa => (
+                                <div key={gpa} className='home-column-content'>
+                                    <h4 className='home-column-subtitle'>{friendlyGPA[gpa]}</h4>
+                                    {
+                                        topStudents.leaders[gpa as keyof StudentLeaders].map((perf, index) => (
+                                            <Link to={`/student/${perf.studentId}`}>
+                                                <div className='match-preview'>
+                                                    <div className='match-preview-title-container' style={{ fontSize: '18px' }}>{index + 1}.</div>
+                                                    <div className='match-preview-title-container'>
+                                                        <div className='match-preview-title'>{perf.student?.name || '???'}</div>
+                                                        <div className='match-preview-subtitle'>{perf.team.name}{perf.team.school?.state?.name ? ', ' + perf.team.school.state.name : ''}</div>
+                                                    </div>
+                                                    <div className='match-preview-title-container'>
+                                                        <div className={`match-preview-title ${rankToClass(index)}`} style={{ border: '1px solid black', borderRadius: '5px', padding: '5px' }}>
+                                                            {ftoa(perf.overall)}
+                                                        </div>
+                                                        <div>
+                                                            {friendlyRound[perf.match.round]}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        ))
+                                    }
+                                </div>
+                            ))
+                        }
+                    </div>
                 </div>
             </div>
         )
     }
-
-    let stateCol = (
-        <div className='home-column'>
-            <h3 className='home-column-title'>States</h3>
-            <div className='home-column-content'>
-                {statesList.map(state => (
-                    <Link to={`/state/${state}`}>
-                        <div className='match-preview'>
-                            {state.replaceAll('_', ' ')}
-                        </div>
-                    </Link>
-                ))}
-            </div>
-        </div>
-    )
 
     return (
         <div className='home-container'>
@@ -144,7 +144,6 @@ export default function Home() {
             <div className='home-row'>
                 {recentsCol}
                 {topStudentsCol}
-                {stateCol}
             </div>
         </div>
     )
