@@ -22,7 +22,7 @@ export default function StatePage() {
 
     useEffect(() => {
         performSearch()
-    }, [])
+    }, [params.name])
 
     let retval
 
