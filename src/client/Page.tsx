@@ -123,7 +123,7 @@ export default function Page() {
                         statesOpen &&
                         <div className='menu-bar-states-dropdown' ref={dropdownRef} tabIndex={-1} onBlur={() => setStatesOpen(false)}>
                             {Object.values(states).map(state => state.name).sort().map(state => (
-                                <Link key={state} className='menu-bar-item' to={`/state/${state}`}>
+                                <Link key={state} className='menu-bar-item' to={`/state/${state.replaceAll(' ', '_')}`}>
                                     {state}
                                 </Link>
                             ))}
