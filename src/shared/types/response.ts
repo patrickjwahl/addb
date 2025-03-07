@@ -70,7 +70,11 @@ export type TeamPerformance = Prisma.TeamPerformanceGetPayload<{
     include: {
         team: {
             include: {
-                school: true
+                school: {
+                    include: {
+                        state: true
+                    }
+                }
             }
         }
     }
@@ -108,7 +112,11 @@ export type RedactedMatch = Prisma.MatchGetPayload<{
             include: {
                 team: {
                     include: {
-                        school: true
+                        school: {
+                            include: {
+                                state: true
+                            }
+                        }
                     }
                 }
             }
@@ -136,7 +144,11 @@ export type FullMatch = Prisma.MatchGetPayload<{
             include: {
                 team: {
                     include: {
-                        school: true
+                        school: {
+                            include: {
+                                state: true
+                            }
+                        }
                     }
                 }
             }

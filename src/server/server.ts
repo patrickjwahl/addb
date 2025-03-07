@@ -798,7 +798,11 @@ router.route('/match/:id')
                         include: {
                             team: {
                                 include: {
-                                    school: true
+                                    school: {
+                                        include: {
+                                            state: true
+                                        }
+                                    }
                                 }
                             }
                         },
@@ -834,7 +838,11 @@ router.route('/match/:id')
                         include: {
                             team: {
                                 include: {
-                                    school: true
+                                    school: {
+                                        include: {
+                                            state: true
+                                        }
+                                    }
                                 }
                             }
                         },
@@ -987,7 +995,11 @@ router.route('/teamperformance/:id')
             include: {
                 team: {
                     include: {
-                        school: true
+                        school: {
+                            include: {
+                                state: true
+                            }
+                        }
                     }
                 }
             }

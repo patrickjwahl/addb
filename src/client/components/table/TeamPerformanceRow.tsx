@@ -51,18 +51,20 @@ const TeamPerformanceRow: React.FunctionComponent<TeamPerformanceRowProps> = ({ 
                         <Link to={`/school/${performance.team.schoolId}`}>
                             {performance.team.name}
                             {editingEnabled && ` (${performance.team.school?.fullName || performance.team.school?.name || ''})`}
+                            {match?.round == 'nationals' && performance.team.school?.state && ` (${performance.team.school?.state?.name})`}
                         </Link>
                     </td>
                 ) : (<td className={rankClass}>
                     {performance.team.name} {canEdit && <b>(Unlinked!)</b>}
-                </td>)}
+                </td>)
+                }
                 <td className={`${rankClass}`}>{ftoa(performance.overall)}</td>
                 {<td>{ftoa(performance.objs)}</td>}
                 {<td>{ftoa(performance.subs)}</td>}
                 {hasSq && <td>{ftoa(performance.sq)}</td>}
                 {editingEnabled && <td>{performance.division == 'null' ? '' : performance.division}</td>}
                 {editingEnabled && <td><button onClick={() => setEditing(true)}>Edit</button></td>}
-            </tr>
+            </tr >
         )
     } else {
         return (
