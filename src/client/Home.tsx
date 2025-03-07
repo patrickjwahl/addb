@@ -119,11 +119,11 @@ export default function Home() {
                                             <Link key={index} to={`/student/${perf.studentId}`}>
                                                 <div className='match-preview'>
                                                     <div className='match-preview-title-container' style={{ fontSize: '18px' }}>{index + 1}.</div>
-                                                    <div className='match-preview-title-container'>
+                                                    <div className='match-preview-title-container center'>
                                                         <div className='match-preview-title'>{perf.student?.name || '???'}</div>
                                                         <div className='match-preview-subtitle'>{perf.team.name}{perf.team.school?.state?.name ? ', ' + perf.team.school.state.name : ''}</div>
                                                     </div>
-                                                    <div className='match-preview-title-container'>
+                                                    <div className='match-preview-title-container center'>
                                                         <div className={`match-preview-title ${rankToClass(index)}`} style={{ border: '1px solid black', borderRadius: '5px', padding: '5px' }}>
                                                             {ftoa(perf.overall)}
                                                         </div>
@@ -161,11 +161,11 @@ export default function Home() {
                             <Link key={team.id} to={`/school/${team.team.schoolId}`}>
                                 <div className='match-preview'>
                                     <div className='match-preview-title-container' style={{ fontSize: '18px' }}>{index + 1}.</div>
-                                    <div className='match-preview-title-container'>
+                                    <div className='match-preview-title-container center'>
                                         <div className='match-preview-title'>{team.team.name || '???'}</div>
                                         <div className='match-preview-subtitle'>{team.team.school?.city || ''}{team.team.school?.city && team.team.school.state && ', '}{team.team.school?.state?.name || ''}</div>
                                     </div>
-                                    <div className='match-preview-title-container'>
+                                    <div className='match-preview-title-container center'>
                                         <div className={`match-preview-title ${rankToClass(index)}`} style={{ border: '1px solid black', borderRadius: '5px', padding: '5px' }}>
                                             {ftoa(team.overall)}
                                         </div>

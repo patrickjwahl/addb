@@ -1073,7 +1073,7 @@ th {
     color: black;
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: space-between;
     border: 1px solid #ff3b3f;
     border-radius: 5px;
     padding: 10px;
@@ -1090,6 +1090,7 @@ th {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    text-align: left;
 }
 
 .match-preview-title {
@@ -1105,6 +1106,10 @@ th {
     flex-direction: column;
     justify-content: center;
     gap: 5px;
+}
+
+.center {
+    text-align: center;
 }
 
 .match-preview-team {
