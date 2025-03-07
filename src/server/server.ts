@@ -13,7 +13,7 @@ import { CSVColumnDef, diff, parseCsv } from '../shared/util/functions.js'
 
 import { Category, ConfigurationKey, Prisma, PrismaClient } from '@prisma/client'
 
-import { RecentMatches, ApiResponse, StateMatches, Match, StudentAggregates, FullState, SearchResult, SearchResultMatch, SearchResultStudent, FullStudentPerformance, SearchResultSchool, TeamPerformance, SchoolPage, TeamSeasons, SchoolTeam, StudentPage, StudentSeasons, SchoolSeasonPage, LoginResult, EditResult, MergeSuggestion, MatchPreviews, StudentLeaderboard, StudentLeaders } from '../shared/types/response.js'
+import { RecentMatches, ApiResponse, StateMatches, Match, StudentAggregates, FullState, SearchResult, SearchResultMatch, SearchResultStudent, FullStudentPerformance, SearchResultSchool, TeamPerformance, SchoolPage, TeamSeasons, SchoolTeam, StudentPage, StudentSeasons, SchoolSeasonPage, LoginResult, EditResult, MergeSuggestion, MatchPreviews, StudentLeaderboard, StudentLeaders, TeamLeaderboard } from '../shared/types/response.js'
 import { CreateUserCredentials, LoginCredentials, MatchMetadata, SchoolMetadata, StudentMetadata, StudentPerformance, TeamPerformance as TeamPerformanceRequest } from '../shared/types/request.js'
 import ConnectPgSimple from 'connect-pg-simple'
 import pg from 'pg'
@@ -1781,6 +1781,41 @@ router.route('/nationals')
         })
 
         res.json({ success: true, data: matches })
+    })
+
+router.route('/season_top_teams')
+    .get(async function (req: AddbRequest<null>, res: AddbResponse<TeamLeaderboard>) {
+        const year = await getConfigInt('year')
+        if (!year) {
+            res.json({ success: false, message: 'What year is it???' })
+            return
+        }
+
+        const result = await prisma.teamPerformance.findMany({
+            where: {
+                match: {
+                    year: year
+                }
+            },
+            orderBy: {
+                overall: 'desc'
+            },
+            include: {
+                team: {
+                    include: {
+                        school: {
+                            include: {
+                                state: true
+                            }
+                        }
+                    }
+                },
+                match: true
+            },
+            take: 10
+        })
+
+        res.json({ success: true, data: { year: year, leaders: result } })
     })
 
 router.route('/season_top_students')

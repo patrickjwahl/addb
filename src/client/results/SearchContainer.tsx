@@ -7,6 +7,7 @@ import EditsPage from '@/client/admin/EditsPage'
 import StatePage from '@/client/results/StatePage'
 import SeasonResult from '@/client/results/SeasonResult'
 import MatchResult2 from './MatchResult2'
+import { NationalsResult } from './NationalsResult'
 
 export default function SearchContainer() {
 
@@ -23,6 +24,7 @@ export default function SearchContainer() {
                 <Route path='season/:schoolId/:year' element={<SeasonResult />} />
                 <Route path='state/:name' element={<StatePage />} />
                 <Route path='match/:id' element={<MatchResult2 />} />
+                <Route path='nationals' element={<NationalsResult />} />
                 <Route element={<h1>Uh-oh! There's no page here!</h1>} />
             </Routes>
         </div>

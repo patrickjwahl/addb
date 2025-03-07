@@ -68,6 +68,40 @@ input[type="submit"] {
     color: white;
     margin-bottom: 10px;
     text-align: left;
+    display: flex;
+    justify-content: space-between;
+}
+
+.menu-bar {
+    display: flex;
+    color: black;
+    align-items: center;
+    padding-right: 20px;
+    gap: 20px;
+    position: relative;
+}
+
+.menu-bar-item {
+    color: black;
+    transition: color 150ms;
+    cursor: pointer;
+}
+
+.menu-bar-item:hover {
+    color: #ff3b3f;
+}
+
+.menu-bar-states-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    width: 400px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 20px;
 }
 
 .top-bar a {
@@ -733,15 +767,16 @@ th {
 }
 
 .state-list-container {
-    margin-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+
 }
 
 .state-list-object {
     color: black;
     text-align: center;
-    width: 200px;
-    float: left;
     margin: 0 5px;
+    border-radius: 5px;
     background-color: white;
     padding: 5px;
     margin-bottom: 5px;
@@ -860,24 +895,40 @@ th {
 
 .state-page-header {
     background-color: #ff3b3f;
-    padding-top: 10px;
-    padding-bottom: 10px;
     margin: 0 auto;
     border: 1px solid black;
     margin-bottom: 15px;
     width: 350px;
     color: white;
-    border-radius: 10000px 10000px 0 0
+    border-radius: 10000px 10000px 0 0;
+    padding: 25px 0;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    backdrop-filter: blur(0px);
+}
+
+.state-page-header-text {
+    display: inline-flex;
+    flex-direction: column;
+    background-color: rgba(150, 150, 150, 0.3);
+    backdrop-filter: blur(10px);
+    padding: 10px;
+    border-radius: 20px;
 }
 
 .state-page-header h2 {
     margin-bottom: 0;
     margin-top: 0px;
+    filter: drop-shadow(0 0 2px black);
+    display: inline-block;
 }
 
 .state-tagline {
     font-family: 'Dancing Script', cursive;
     margin-bottom: -5px;
+    filter: drop-shadow(0 0 2px black);
+    display: inline-block;
 }
 
 .roster-container {
@@ -973,6 +1024,7 @@ th {
     flex-direction: row;
     justify-content: space-evenly;
     gap: 20px;
+    flex-wrap: wrap;
 }
 
 .home-column {
@@ -996,6 +1048,24 @@ th {
     gap: 5px;
 }
 
+.home-column-content-grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+}
+
+.nationals-grid {
+    padding: 0 200px;
+}
+
+.home-link {
+    align-self: center;
+}
+
+.home-link:hover {
+    text-decoration: underline;
+}
+
 .match-preview {
     background-color: white;
     color: black;
@@ -1007,6 +1077,7 @@ th {
     padding: 10px;
     align-items: stretch;
     gap: 20px;
+    max-width: 500px;
 }
 
 .match-preview:hover {
@@ -1079,5 +1150,9 @@ th {
 
     .state-page-year-bar-open .state-page-year-bar-year span {
         transform: none;
+    }
+
+    .nationals-grid {
+        padding: 10px;
     }
 }

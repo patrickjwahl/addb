@@ -267,3 +267,9 @@ export type StudentLeaderboard = {
     year: number,
     leaders: StudentLeaders
 }
+
+export type TeamLeaders = Prisma.TeamPerformanceGetPayload<{ include: { team: { include: { school: { include: { state: true } } } }, match: true } }>[]
+export type TeamLeaderboard = {
+    year: number,
+    leaders: TeamLeaders
+}

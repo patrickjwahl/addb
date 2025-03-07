@@ -10,13 +10,17 @@ import API from '@/client/API'
 import Register from '@/client/Register'
 import EditingGuide from '@/client/admin/EditingGuide'
 import { Helmet } from 'react-helmet'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import StudentCreatePage from './admin/StudentCreatePage'
 import UserCreatePage from '@/client/admin/UserCreatePage'
+import { FullState } from '@/shared/types/response'
+import api from '@/client/API'
 
 export default function Page() {
 
     const [logoutFlip, setlogoutFlip] = useState(false)
+    const [statesOpen, setStatesOpen] = useState(false)
+    const [states, setStates] = useState<{ [id: number]: FullState }>({})
 
     const checkAuth = async () => {
         const result = await API.authenticate()
@@ -26,8 +30,30 @@ export default function Page() {
         }
     }
 
+    const getStates = async () => {
+        const states = await api.getStates()
+        if (!states.success) {
+            alert('Error! ' + states.message)
+        } else {
+            const mappedStates = states?.data?.reduce((prev, state) => {
+                return { ...prev, [state.id]: state }
+            }, {})
+
+            mappedStates && setStates(mappedStates)
+        }
+    }
+
+    const dropdownRef = useRef<HTMLDivElement>(null)
+
     useEffect(() => {
         checkAuth()
+        getStates()
+    }, [])
+
+    useEffect(() => {
+        document.addEventListener('click', () => {
+            setStatesOpen(false)
+        })
     }, [])
 
     const location = useLocation()
@@ -70,14 +96,16 @@ export default function Page() {
             </div >
         )
 
-    const Default = () => {
-        return (
-            <div>
-                <h2 className='welcome'>The AcDec Database</h2>
-                <SearchContainer />
-            </div>
-        )
-    }
+    const Default = useMemo(() => {
+        return () => {
+            return (
+                <div>
+                    <h2 className='welcome'>The AcDec Database</h2>
+                    <SearchContainer />
+                </div>
+            )
+        }
+    }, [])
 
     return (
         <div className='global' >
@@ -86,6 +114,22 @@ export default function Page() {
                 <Link to='/'>
                     <h1 className='header-main'>AD-DB</h1>
                 </Link>
+                <div className='menu-bar'>
+                    <Link className='menu-bar-item' to="/nationals">Nationals</Link>
+                    <div className='menu-bar-item menu-bar-states' onClick={e => { e.stopPropagation(); setStatesOpen(!statesOpen) }}>
+                        States
+                    </div>
+                    {
+                        statesOpen &&
+                        <div className='menu-bar-states-dropdown' ref={dropdownRef} tabIndex={-1} onBlur={() => setStatesOpen(false)}>
+                            {Object.values(states).map(state => state.name).sort().map(state => (
+                                <Link className='menu-bar-item' to={`/state/${state}`}>
+                                    {state}
+                                </Link>
+                            ))}
+                        </div>
+                    }
+                </div>
             </div>
             <div className='main-part'>
                 <Routes>

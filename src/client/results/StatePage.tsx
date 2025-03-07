@@ -46,10 +46,12 @@ export default function StatePage() {
             retval = (
                 <div className='state-page-container'>
                     <Helmet><title>{name.replace('_', ' ')} | AcDecDB</title></Helmet>
-                    <div className='state-page-header'>
-                        <img src={`/img/${name}.jpg`} height={50} />
-                        <div className='state-tagline' hidden={!(name in taglines)}>"{taglines[name]}"</div>
-                        <h2>{name.replace('_', ' ').toUpperCase()}</h2>
+                    <div className={'state-page-header'} style={{ backgroundImage: `url(/img/${name}.jpg)` }}>
+                        <div className='state-page-header-text'>
+                            {/* <img src={`/img/${name}.jpg`} height={50} /> */}
+                            <div className='state-tagline' style={{ display: (name in taglines) ? 'initial' : 'none' }}>"{taglines[name]}"</div>
+                            <h2>{name.replace('_', ' ').toUpperCase()}</h2>
+                        </div>
                     </div>
                     {yearViews}
                 </div>
@@ -59,10 +61,12 @@ export default function StatePage() {
                 retval = (
                     <div className='state-page-container'>
                         <Helmet><title>{name.replace('_', ' ')} | AcDecDB</title></Helmet>
-                        <div className='state-page-header'>
-                            <img src={`/img/${name}.jpg`} height={50} />
-                            <div className='state-tagline' hidden={!(name in taglines)}>"{taglines[name]}"</div>
-                            <h2>{name.replace('_', ' ').toUpperCase()}</h2>
+                        <div className={'state-page-header'} style={{ backgroundImage: `url(/img/${name}.jpg)` }}>
+                            <div className='state-page-header-text'>
+                                {/* <img src={`/img/${name}.jpg`} height={50} /> */}
+                                <div className='state-tagline' style={{ display: (name in taglines) ? 'initial' : 'none' }}>"{taglines[name]}"</div>
+                                <h2>{name.replace('_', ' ').toUpperCase()}</h2>
+                            </div>
                         </div>
                         <div className='search-result-none'>No results found</div>
                     </div>
