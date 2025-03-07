@@ -105,7 +105,7 @@ export default function Page() {
                 </div>
             )
         }
-    }, [])
+    }, [logoutFlip])
 
     return (
         <div className='global' >
