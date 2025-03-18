@@ -10,7 +10,7 @@ import API from '@/client/API'
 import Register from '@/client/Register'
 import EditingGuide from '@/client/admin/EditingGuide'
 import { Helmet } from 'react-helmet'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import StudentCreatePage from './admin/StudentCreatePage'
 import UserCreatePage from '@/client/admin/UserCreatePage'
 import { FullState } from '@/shared/types/response'
@@ -18,7 +18,7 @@ import api from '@/client/API'
 
 export default function Page() {
 
-    const [logoutFlip, setlogoutFlip] = useState(false)
+    const [logoutFlip, setLogoutFlip] = useState(false)
     const [statesOpen, setStatesOpen] = useState(false)
     const [states, setStates] = useState<{ [id: number]: FullState }>({})
 
@@ -26,7 +26,7 @@ export default function Page() {
         const result = await API.authenticate()
         if (!result.success) {
             API.logOut()
-            setlogoutFlip(!logoutFlip)
+            setLogoutFlip(!logoutFlip)
         }
     }
 
@@ -42,6 +42,10 @@ export default function Page() {
             mappedStates && setStates(mappedStates)
         }
     }
+
+    const loginCallback = useCallback(() => {
+        setLogoutFlip(!logoutFlip)
+    }, [logoutFlip])
 
     const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -73,16 +77,16 @@ export default function Page() {
                 {' ○ '}
                 <Link to='/potentialmerges' className='page-link'>Merge Suggestions</Link>
                 {' ○ '}
-                {API.accessLevel() == 4 && (<><Link to='/usercreate' className='page-link'>New User</Link> {' ○ '}</>)}
-                <Link to='/editingguide' className='page-link'>Editing Guide</Link>
-                {' ○ '}
+                {API.accessLevel() == 4 && (<><Link to='/usercreate' className='page-link'>User Access Management</Link> {' ○ '}</>)}
+                {/* <Link to='/editingguide' className='page-link'>Editing Guide</Link> */}
+                {/* {' ○ '} */}
             </div>) : (null)} {API.canEdit() ? (<div style={{ display: 'inline' }}>
                 <Link to='/edits' className='page-link'>Recent Edits</Link>
                 {' ○ '}
             </div>) : (null)}
                 <span className='page-link' onClick={() => {
                     API.logOut()
-                    setlogoutFlip(!logoutFlip)
+                    setLogoutFlip(!logoutFlip)
                 }}>Log Out</span>
             </div>
         )
@@ -141,7 +145,7 @@ export default function Page() {
                     <Route path='/editingguide' element={<EditingGuide />} />
                     <Route path='/potentialmerges' element={<PotentialMerges />} />
                     <Route path='login' element={<Login />} />
-                    <Route path='/register' element={<Register />} />
+                    <Route path='/register' element={<Register loginCallback={loginCallback} />} />
                     <Route path='*' element={<Default />} />
                 </Routes>
             </div>

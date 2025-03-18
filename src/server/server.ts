@@ -13,6 +13,7 @@ import { CSVColumnDef, diff, parseCsv } from '../shared/util/functions.js'
 
 import { Category, ConfigurationKey, Prisma, PrismaClient } from '@prisma/client'
 
+import { createTransport } from 'nodemailer'
 import { RecentMatches, ApiResponse, StateMatches, Match, StudentAggregates, FullState, SearchResult, SearchResultMatch, SearchResultStudent, FullStudentPerformance, SearchResultSchool, TeamPerformance, SchoolPage, TeamSeasons, SchoolTeam, StudentPage, StudentSeasons, SchoolSeasonPage, LoginResult, EditResult, MergeSuggestion, MatchPreviews, StudentLeaderboard, StudentLeaders, TeamLeaderboard } from '../shared/types/response.js'
 import { CreateUserCredentials, LoginCredentials, MatchMetadata, SchoolMetadata, StudentMetadata, StudentPerformance, TeamPerformance as TeamPerformanceRequest } from '../shared/types/request.js'
 import ConnectPgSimple from 'connect-pg-simple'
@@ -162,6 +163,25 @@ const deleteOrphans = async () => {
     })
 }
 
+const sendEmail = async (to: string, subject: string, body: string) => {
+    const transporter = createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PW
+        }
+    })
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: to,
+        subject: subject,
+        text: body
+    }
+
+    await transporter.sendMail(mailOptions)
+}
+
 router.get('/', async function (_: AddbRequest<null>, res: AddbResponse<string>) {
     res.json({ success: true, data: "api initi" })
 })
@@ -188,19 +208,19 @@ router.route('/authenticate')
     })
 
 router.route('/user')
-    .post(async function (req: AddbRequest<CreateUserCredentials>, res: AddbResponse<null>) {
-        if (!req.auth || !req.access || req.access < 4) {
-            res.json({
-                success: false,
-                message: 'Not authorized'
-            })
-            return
-        }
+    .post(async function (req: AddbRequest<CreateUserCredentials>, res: AddbResponse<LoginResult>) {
+        // if (!req.auth || !req.access || req.access < 4) {
+        //     res.json({
+        //         success: false,
+        //         message: 'Not authorized'
+        //     })
+        //     return
+        // }
 
         let username = req.body.username
         let password = req.body.password
-        let access = req.body.access
-        let canEdit = req.body.canEdit
+        let access = 1
+        let canEdit = false
 
         const saltRounds = 10
         const salt = await bcrypt.genSalt(saltRounds)
@@ -213,11 +233,11 @@ router.route('/user')
         })
 
         if (result) {
-            res.json({ success: false, message: 'Already a user with that username!' })
+            res.json({ success: false, message: 'That username is taken!' })
             return
         }
 
-        await prisma.user.create({
+        const user = await prisma.user.create({
             data: {
                 username: username,
                 passhash: hash,
@@ -226,7 +246,16 @@ router.route('/user')
             }
         })
 
-        res.json({ success: true, message: 'User successfully added!' })
+        req.session.access = user.access
+        req.session.canEdit = user.canEdit
+        req.session.username = user.username
+        req.session.userId = user.id
+        res.json({ success: true, data: { expiresIn: 30 * 24 * 60 * 60 * 1000, canEdit: user.canEdit, access: user.access, username: user.username } })
+
+        if (process.env.EMAIL_NOTIFY) {
+            sendEmail(process.env.EMAIL_NOTIFY, "[AD-DB] A new user has been created!",
+                `*THIS IS AN AUTOMATED MESSAGE*\n\n${user.username} just signed up for AD-DB. Would you like to grant them special privileges?`)
+        }
     })
 
 router.route('/login')
@@ -620,6 +649,8 @@ router.route('/match/:id/studentcsv')
         res.json({ success: true })
 
     })
+
+
 
 var teamUpload = upload.fields([{ name: 'teamData', maxCount: 1 }])
 router.route('/match/:id/teamcsv')

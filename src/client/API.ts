@@ -32,9 +32,20 @@ class API {
     }
 
 
-    upsertUser = async (data: CreateUserCredentials): Promise<ApiResponse<null>> => {
-        return (await this.axios
+    upsertUser = async (data: CreateUserCredentials): Promise<ApiResponse<LoginResult>> => {
+        const result: ApiResponse<LoginResult> = (await this.axios
             .post('/user', data)).data
+
+        if (!result.success || !result.data) {
+            this.logOut()
+            return result
+        }
+
+        localStorage.setItem('expiresAt', (result.data.expiresIn + new Date().getTime()).toString())
+        localStorage.setItem('canEdit', result.data.canEdit.toString())
+        localStorage.setItem('access', result.data.access.toString())
+        localStorage.setItem('username', result.data.username)
+        return result
     }
 
     logOut = () => {
