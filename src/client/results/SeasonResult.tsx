@@ -43,9 +43,6 @@ export default function SeasonResult() {
 
     const setSort = useCallback((index: number) => {
         let i = index
-        if (sortIndex > 3) {
-            i -= 1
-        }
         if (i == sortIndex) {
             setSortDesc(!sortDesc)
         } else {
@@ -135,7 +132,7 @@ export default function SeasonResult() {
             })
 
             const studentColumns: Column[] = studentColumnDefs.map(def => ({ name: def.name, sortingAllowed: true }))
-            if (sortIndex > 3) studentColumns.unshift({ name: 'Rank', sortingAllowed: false })
+            // if (sortIndex > 3) studentColumns.unshift({ name: 'Rank', sortingAllowed: false })
 
             roundToMatchConfig[round].studentColumns = studentColumns
 
@@ -222,7 +219,7 @@ export default function SeasonResult() {
                         <div className="info-page-section" key={round}>
                             <div className="info-page-section-header"><Link to={`/match/${roundToMatchConfig[round].match.id}`}>{friendlyRound[round]}</Link></div>
                             <h3 className="info-page-subhead">Individual Scores</h3>
-                            <Table columns={roundToMatchConfig[round].studentColumns} sortIndex={sortIndex > 3 ? sortIndex + 1 : sortIndex} sortDesc={sortDesc} setSort={setSort}>
+                            <Table columns={roundToMatchConfig[round].studentColumns} sortIndex={sortIndex} sortDesc={sortDesc} setSort={setSort}>
                                 {roundToMatchConfig[round].studentRows}
                             </Table>
                             <h3 className="info-page-subhead">Team Scores</h3>
