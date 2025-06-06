@@ -59,6 +59,9 @@ const TeamPerformanceRow: React.FunctionComponent<TeamPerformanceRowProps> = ({ 
                 </td>)
                 }
                 <td className={`${rankClass}`}>{ftoa(performance.overall)}</td>
+                {match && match.events.length < 10 &&
+                    <td className={`${rankClass}`}>{ftoa(performance.overall * (10.0 / match.events.length))}</td>
+                }
                 {<td>{ftoa(performance.objs)}</td>}
                 {<td>{ftoa(performance.subs)}</td>}
                 {hasSq && <td>{ftoa(performance.sq)}</td>}

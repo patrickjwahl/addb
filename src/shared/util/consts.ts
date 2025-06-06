@@ -32,6 +32,21 @@ export const friendlyColumn: { [category: string]: string } = {
     overall: 'Overall'
 }
 
+export const fullColumn: { [category: string]: string } = {
+    math: 'Math',
+    music: 'Music',
+    fine: 'Fine Arts',
+    econ: 'Economics',
+    science: 'Science',
+    lit: 'Literature',
+    art: 'Art',
+    sq: 'Super Quiz!',
+    socialScience: 'Social Science',
+    essay: 'Essay',
+    speech: 'Speech',
+    interview: 'Interview'
+}
+
 export const friendlyGPA: { [gpa: string]: string } = {
     'H': 'Honors',
     'S': 'Scholastic',

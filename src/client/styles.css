@@ -97,7 +97,7 @@ input[type="submit"] {
     right: 0;
     background-color: white;
     padding: 20px;
-    z-index: 1230;
+    z-index: 10000;
     box-shadow: 0 0 5px 0 #ff3b3f;
     columns: 4;
 }

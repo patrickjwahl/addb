@@ -4,7 +4,7 @@ import { FullStudentPerformance, Match, StudentPerformance, TeamPerformance } fr
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
 import { hasObjs as _hasObjs, hasSubs as _hasSubs, divisionSort, groupBy, partitionSort } from "@/shared/util/functions"
-import { divisions, friendlyColumn, friendlyGPA, friendlyRound } from "@/shared/util/consts"
+import { divisions, friendlyColumn, friendlyGPA, friendlyRound, fullColumn } from "@/shared/util/consts"
 import StudentPerformanceRow from "@/client/components/table/StudentPerformanceRow"
 import { ColorRing } from "react-loader-spinner"
 import { Helmet } from "react-helmet"
@@ -14,6 +14,7 @@ import MatchPropertiesEdit from "@/client/components/edit/MatchPropertiesEdit"
 
 type StudentPerformanceColumn = {
     name: string,
+    tip?: string,
     sortKey: (val: StudentPerformance) => number | string
 }
 
@@ -198,19 +199,30 @@ export default function MatchResult2() {
         }
     ]
 
+    if (match && match.events.length < 10) {
+        studentColumnDefs.push({
+            name: 'Overall/10',
+            sortKey: a => a.overall || 0,
+            tip: "Extrapolated 10-event score, since this match had fewer"
+        })
+    }
+
     match?.events.forEach(event => {
         studentColumnDefs.push({
             name: friendlyColumn[event],
-            sortKey: (a: StudentPerformance) => (a as FullStudentPerformance)[event] || 0
+            sortKey: (a: StudentPerformance) => (a as FullStudentPerformance)[event] || 0,
+            tip: fullColumn[event]
         })
     })
 
     hasObjs && studentColumnDefs.push({
         name: 'Obj',
+        tip: 'Objectives (total of all non-judged events)',
         sortKey: a => (a as FullStudentPerformance).objs || 0
     })
     hasSubs && studentColumnDefs.push({
         name: 'Sub',
+        tip: 'Subjectives (total of all judged events)',
         sortKey: a => (a as FullStudentPerformance).subs || 0
     })
 
@@ -259,7 +271,7 @@ export default function MatchResult2() {
         return cmp
     })
 
-    const studentColumns: Column[] = studentColumnDefs.map(def => ({ name: def.name, sortingAllowed: true }))
+    const studentColumns: Column[] = studentColumnDefs.map(def => ({ name: def.name, tip: def.tip, sortingAllowed: true }))
     if (sortIndex > 3) studentColumns.unshift({ name: 'Rank', sortingAllowed: false })
 
     editing && studentColumns.push({ name: "Edit", sortingAllowed: false })
@@ -322,7 +334,9 @@ export default function MatchResult2() {
         return { ...prev, [partition]: getStudentPerformanceRows(studentsByPartition[partition]) }
     }, {})
 
-    const teamColumnNames = ['Rank', 'Team', 'Overall', 'Obj', 'Sub']
+    let teamColumnNames = ['Rank', 'Team', 'Overall']
+    match.events.length < 10 && teamColumnNames.push('Overall/10')
+    teamColumnNames.push('Obj', 'Sub')
     match.hasSq && teamColumnNames.push('Overall + SQ')
     editing && teamColumnNames.push('Division', 'Edit')
 

@@ -5,6 +5,7 @@ export interface TableRowProps {
 export type Column = {
     name: string,
     sortingAllowed: boolean,
+    tip?: string,
     leftBorder?: boolean,
     rightBorder?: boolean
 }
@@ -33,7 +34,7 @@ export default function Table({ children, columns, setSort, sortIndex, sortDesc 
                     <tr className="info-page-table-first-row">
                         {columns.map((col, index) => {
                             return (
-                                <th key={index} className={col.sortingAllowed ? 'with-cursor' : ''} onClick={() => col.sortingAllowed && setSort && setSort(index)}>
+                                <th title={col.tip} key={index} className={col.sortingAllowed ? 'with-cursor' : ''} onClick={() => col.sortingAllowed && setSort && setSort(index)}>
                                     {col.name}{(sortIndex != undefined && index == sortIndex) && (!sortDesc ? ' ▲' : ' ▼')}
                                 </th>
                             )
