@@ -1549,6 +1549,11 @@ router.route('/mergepeople/:godId/:peonId')
             return
         }
 
+        if (godId == peonId) {
+            res.json({ success: false, message: "They are the same person" })
+            return
+        }
+
         const god = await prisma.student.findFirst({ where: { id: godId }, include: { performances: { include: { match: true } } } })
         const peon = await prisma.student.findFirst({ where: { id: peonId } })
         if (!god || !peon) {

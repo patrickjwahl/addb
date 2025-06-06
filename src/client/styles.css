@@ -96,14 +96,14 @@ input[type="submit"] {
     top: 100%;
     right: 0;
     background-color: white;
-    width: 400px;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
     padding: 20px;
     z-index: 1230;
     box-shadow: 0 0 5px 0 #ff3b3f;
+    columns: 3;
+}
+
+.menu-bar-states-dropdown .menu-bar-item {
+    display: block;
 }
 
 .top-bar a {

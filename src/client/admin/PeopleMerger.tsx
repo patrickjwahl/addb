@@ -36,6 +36,8 @@ export default function PeopleMerger() {
         const result = await API.mergePeople(god.id, peon.id)
         if (result.success) {
             navigate(`/student/${god.id}`)
+        } else if (result.message) {
+            alert(result.message)
         }
     }
 
