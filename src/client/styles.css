@@ -99,11 +99,12 @@ input[type="submit"] {
     padding: 20px;
     z-index: 1230;
     box-shadow: 0 0 5px 0 #ff3b3f;
-    columns: 3;
+    columns: 4;
 }
 
 .menu-bar-states-dropdown .menu-bar-item {
     display: block;
+    padding: 2px;
 }
 
 .top-bar a {
