@@ -147,11 +147,12 @@ export default function MatchResult2() {
         return _hasSubs(match?.events)
     }, [match?.events])
 
-    const teamIdToNumber: { [id: number]: number } = useMemo(() => {
+    const teamIdToRank: { [id: number]: number } = useMemo(() => {
         return match ? match.teamPerformances.reduce((prev, curr) => {
-            return { ...prev, [curr.teamId || -1]: curr.number || -1 }
+            return { ...prev, [curr.teamId || -1]: curr.rank || -1 }
         }, {}) : {}
     }, [match?.teamPerformances])
+
 
     const teamIdToDivision: { [id: number]: string } = useMemo(() => {
         return match ? match.teamPerformances.reduce((prev, curr) => {
@@ -182,8 +183,9 @@ export default function MatchResult2() {
             sortKey: a => a.team.name
         },
         {
-            name: '#',
-            sortKey: a => teamIdToNumber[a.teamId]
+            name: 'TmRk',
+            sortKey: a => teamIdToRank[a.teamId],
+            tip: "Team Rank"
         },
         {
             name: 'Decathlete',
@@ -316,7 +318,7 @@ export default function MatchResult2() {
             for (const key of sortedKeys) {
                 let addAggregate = false
                 studentPerformancesByTeam[key]?.forEach((performance) => {
-                    (schoolFilter == -1 || performance.team.schoolId == schoolFilter) && rows.push(<StudentPerformanceRow data={performance} teams={teams} rankByCol={ranksByPerfId[performance.id]} teamNumber={teamIdToNumber[performance.team.id]} editCallback={fetchMatch} editingEnabled={editing} events={match.events} key={performance.id} showMedals={showMedals} />) && (addAggregate = true)
+                    (schoolFilter == -1 || performance.team.schoolId == schoolFilter) && rows.push(<StudentPerformanceRow data={performance} teams={teams} rankByCol={ranksByPerfId[performance.id]} teamRank={teamIdToRank[performance.team.id]} editCallback={fetchMatch} editingEnabled={editing} events={match.events} key={performance.id} showMedals={showMedals} />) && (addAggregate = true)
                 })
                 const teamId = (studentPerformancesByTeam[key] && studentPerformancesByTeam[key][0].teamId) || 0
                 addAggregate && rows.push(<StudentAggregateRow key={teamId} data={match.aggregates[teamId]} events={match.events} year={match.year} />)
@@ -324,7 +326,7 @@ export default function MatchResult2() {
             return rows
         } else {
             return performances.reduce((prev: JSX.Element[], performance) => {
-                return (schoolFilter == -1 || performance.team.schoolId == schoolFilter) ? [...prev, <StudentPerformanceRow key={performance.id} teams={teams} rankByCol={ranksByPerfId[performance.id]} data={performance} teamNumber={teamIdToNumber[performance.team.id]} editCallback={fetchMatch} editingEnabled={editing} events={match.events} rank={sortIndex > 3 ? ranksByPerfId[performance.id][sortIndex] : undefined} showMedals={showMedals} />] : prev
+                return (schoolFilter == -1 || performance.team.schoolId == schoolFilter) ? [...prev, <StudentPerformanceRow key={performance.id} teams={teams} rankByCol={ranksByPerfId[performance.id]} data={performance} teamRank={teamIdToRank[performance.team.id]} editCallback={fetchMatch} editingEnabled={editing} events={match.events} rank={sortIndex > 3 ? ranksByPerfId[performance.id][sortIndex] : undefined} showMedals={showMedals} />] : prev
             }, [])
         }
     }
@@ -477,7 +479,7 @@ export default function MatchResult2() {
                                 <b style={{ marginRight: 10 }}>Import Data</b>
                                 <input id='student-data-upload' type='file' accept='.csv' onChange={uploadStudentCSV} onClick={e => { (e.target as HTMLInputElement).value = '' }} />
                             </label>
-                            <div style={{ marginTop: 5 }}><b>Required CSV Format:</b> Team Name | Team Number | GPA | Student Name | {match.events.map(s => friendlyColumn[s]).join(' | ')}</div>
+                            <div style={{ marginTop: 5 }}><b>Required CSV Format:</b> Team Name | GPA | Student Name | {match.events.map(s => friendlyColumn[s]).join(' | ')}</div>
                         </div>
                     )}
                     {userHasAccess && canEdit && Object.keys(teamPerformanceRowsByDivision).length == 0 && (

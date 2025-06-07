@@ -18,7 +18,7 @@ type StudentPerformanceColumn = {
 }
 
 type MatchConfig = {
-    teamIdToNumber: { [id: number]: number },
+    teamIdToRank: { [id: number]: number },
     studentColumns: Column[],
     studentRows: JSX.Element[]
     teamColumns: Column[],
@@ -70,7 +70,7 @@ export default function SeasonResult() {
             const roundResult = result[round as keyof SchoolSeasonPage] as SchoolSeasonRound
             const match = roundResult.match
             roundToMatchConfig[round] = {
-                teamIdToNumber: {},
+                teamIdToRank: {},
                 studentColumns: [],
                 studentRows: [],
                 teamColumns: [],
@@ -80,12 +80,12 @@ export default function SeasonResult() {
             const studentPerformances = roundResult.studentPerformances
             const teamPerformances = roundResult.teamPerformances
             const aggregates = roundResult.aggregates
-            const teamIdToNumber: { [id: number]: number } =
+            const teamIdToRank: { [id: number]: number } =
                 roundResult.teamPerformances.reduce((prev, curr) => {
-                    return { ...prev, [curr.teamId || -1]: curr.number || -1 }
+                    return { ...prev, [curr.teamId || -1]: curr.rank || -1 }
                 }, {})
 
-            roundToMatchConfig[round].teamIdToNumber = teamIdToNumber
+            roundToMatchConfig[round].teamIdToRank = teamIdToRank
 
             const teams = teamPerformances.map(perf => ({
                 name: perf.team?.name || '',
@@ -100,7 +100,7 @@ export default function SeasonResult() {
                 },
                 {
                     name: '#',
-                    sortKey: a => roundToMatchConfig[round].teamIdToNumber[a.teamId]
+                    sortKey: a => roundToMatchConfig[round].teamIdToRank[a.teamId]
                 },
                 {
                     name: 'Decathlete',
@@ -164,7 +164,7 @@ export default function SeasonResult() {
                     })
                     for (const key of sortedKeys) {
                         studentPerformancesByTeam[key]?.forEach((performance) => {
-                            rows.push(<StudentPerformanceRow data={performance} teams={teams} teamNumber={teamIdToNumber[performance.team.id]} editingEnabled={false} events={match.events} key={performance.id} rankByCol={{}} showMedals={false} />)
+                            rows.push(<StudentPerformanceRow data={performance} teams={teams} teamRank={teamIdToRank[performance.team.id]} editingEnabled={false} events={match.events} key={performance.id} rankByCol={{}} showMedals={false} />)
                         })
                         const teamId = (studentPerformancesByTeam[key] && studentPerformancesByTeam[key][0].teamId) || 0
                         rows.push(<StudentAggregateRow key={teamId} data={aggregates[teamId]} events={match.events} year={match.year} />)
@@ -172,7 +172,7 @@ export default function SeasonResult() {
                     return rows
                 } else {
                     return performances.map((performance) => {
-                        return <StudentPerformanceRow key={performance.id} teams={teams} data={performance} teamNumber={teamIdToNumber[performance.team.id]} editingEnabled={false} events={match.events} rankByCol={{}} showMedals={false} />
+                        return <StudentPerformanceRow key={performance.id} teams={teams} data={performance} teamRank={teamIdToRank[performance.team.id]} editingEnabled={false} events={match.events} rankByCol={{}} showMedals={false} />
                     })
                 }
             }

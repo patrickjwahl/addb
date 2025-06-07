@@ -100,7 +100,6 @@ model TeamPerformance {
   matchId  Int     @map("match_id")
   teamId   Int     @map("team_id")
   division String?
-  number   Int?
   rank     Int
   overall  Float
   objs     Float?

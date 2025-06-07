@@ -9,7 +9,7 @@ import api from "@/client/API"
 
 interface StudentPerformanceRowProps extends TableRowProps {
     data: StudentPerformance,
-    teamNumber: number,
+    teamRank: number,
     editingEnabled: boolean,
     events: Category[],
     teams: Array<{
@@ -22,7 +22,7 @@ interface StudentPerformanceRowProps extends TableRowProps {
     editCallback?: () => void
 }
 
-const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps> = ({ data: performance, teamNumber, editCallback, editingEnabled, events, teams, rank, rankByCol, showMedals }) => {
+const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps> = ({ data: performance, teamRank, editCallback, editingEnabled, events, teams, rank, rankByCol, showMedals }) => {
 
     const [editing, setEditing] = useState(false)
 
@@ -67,7 +67,7 @@ const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps>
                         <td className="table-cell-large">{possiblyShorten(performance.team.name)}</td>
                     )
                 }
-                <td className="right-border">{teamNumber}</td>
+                <td className="right-border">{teamRank}</td>
                 <td className="is-link table-cell-large"><Link to={`/student/${performance.studentId}`}>{possiblyShorten(performance.student?.name || '')}</Link></td>
                 <td>{performance.gpa}</td>
                 <td className={'bold ' + (!redacted ? 'right-border ' : '') + (showMedals ? rankToClass(rankByCol[4]) : '')}>{ftoa(performance.overall)}</td>
@@ -83,7 +83,7 @@ const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps>
             </tr>
         )
     } else {
-        return <StudentPerformanceEdit matchId={performance.matchId} performance={performance as FullStudentPerformance} year={performance.match.year} teams={teams} events={events} rank={rank} teamNumber={teamNumber} callback={fetchData} />
+        return <StudentPerformanceEdit matchId={performance.matchId} performance={performance as FullStudentPerformance} year={performance.match.year} teams={teams} events={events} rank={rank} teamRank={teamRank} callback={fetchData} />
     }
 }
 

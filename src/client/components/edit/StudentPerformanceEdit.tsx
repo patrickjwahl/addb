@@ -6,9 +6,9 @@ import { hasObjs, hasSubs } from "@/shared/util/functions"
 import { Category } from "@prisma/client"
 import { useState } from "react"
 
-export default function StudentPerformanceEdit({ performance, events, teams, teamNumber, matchId, rank, year, callback }:
+export default function StudentPerformanceEdit({ performance, events, teams, teamRank, matchId, rank, year, callback }:
     {
-        performance?: FullStudentPerformance, teamNumber: number, events: Category[], matchId: number, teams: Array<{ id: number, name: string }>, rank?: number,
+        performance?: FullStudentPerformance, teamRank: number, events: Category[], matchId: number, teams: Array<{ id: number, name: string }>, rank?: number,
         year: number, callback: () => void
     }) {
     const [teamId, setTeamId] = useState(performance?.teamId || (teams.length > 0 && teams[0].id) || 'null')
@@ -148,7 +148,7 @@ export default function StudentPerformanceEdit({ performance, events, teams, tea
                         }
                     </select>
                 </td>
-                <td className="right-border">{teamNumber}</td>
+                <td className="right-border">{teamRank}</td>
                 <td className="is-link table-cell-large">
                     <PersonSelect currentName={performance?.student?.name || ''} selectedPerson={newStudent} selectPerson={selectStudent} unselectPerson={unselectStudent} />
                 </td>

@@ -451,10 +451,6 @@ router.route('/match/:id/studentcsv')
                 type: 'string'
             },
             {
-                name: 'teamNumber',
-                type: 'int'
-            },
-            {
                 name: 'gpa',
                 type: 'string'
             },
@@ -519,40 +515,27 @@ router.route('/match/:id/studentcsv')
 
             row.gpa = gpaOptions[row.gpa.toString().toUpperCase()]
 
-            if (!(row.teamNumber in teamNumberToObj)) {
-                const team = (await prisma.teamPerformance.findFirst({
-                    where: {
-                        matchId: match.id,
-                        team: {
-                            name: row.teamName as string
-                        }
-                    },
-                    include: {
-                        team: true
+            const team = (await prisma.teamPerformance.findFirst({
+                where: {
+                    matchId: match.id,
+                    team: {
+                        name: row.teamName as string
                     }
-                }))?.team
-
-                if (!team) {
-                    res.json({
-                        success: false,
-                        message: `Student ${row.studentName} listed under ${row.teamName}, but this team was not found in the match.`
-                    })
-                    return
+                },
+                include: {
+                    team: true
                 }
+            }))?.team
 
-                teamNumberToObj[row.teamNumber as number] = team
-                teamNumberToName[row.teamNumber as number] = row.teamName as string
-                teamId = team.id
-            } else {
-                if (teamNumberToName[row.teamNumber as number] != row.teamName) {
-                    res.json({
-                        success: false,
-                        message: `Found conflicting team names for team ${row.teamNumber}: ${row.teamName} and ${teamNumberToName[row.teamNumber as number]}`
-                    })
-                    return
-                }
-                teamId = teamNumberToObj[row.teamNumber as number].id
+            if (!team) {
+                res.json({
+                    success: false,
+                    message: `Student ${row.studentName} listed under ${row.teamName}, but this team was not found in the match.`
+                })
+                return
             }
+
+            teamId = team.id
 
             if (row.studentName) {
                 const student = await prisma.student.findFirst({
@@ -566,7 +549,7 @@ router.route('/match/:id/studentcsv')
                                     },
                                     {
                                         team: {
-                                            schoolId: teamNumberToObj[row.teamNumber as number].schoolId
+                                            schoolId: team.schoolId
                                         }
                                     },
                                     {
@@ -618,25 +601,12 @@ router.route('/match/:id/studentcsv')
             perfsToCreate.push(perfToCreate)
         }
 
-        const teamPromises = Object.keys(teamNumberToObj).map(number => {
-            return prisma.teamPerformance.updateMany({
-                where: {
-                    teamId: teamNumberToObj[parseInt(number)].id as number,
-                    matchId: match.id
-                },
-                data: {
-                    number: parseInt(number)
-                }
-            })
-        })
-
         const studentPromises = perfsToCreate.map(perf => {
             return prisma.studentPerformance.create({
                 data: perf
             })
         })
 
-        await Promise.all(teamPromises)
         await Promise.all(studentPromises)
 
         await prisma.edit.create({
