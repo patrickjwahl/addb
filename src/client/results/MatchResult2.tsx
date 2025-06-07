@@ -203,7 +203,7 @@ export default function MatchResult2() {
         studentColumnDefs.push({
             name: 'Overall/10',
             sortKey: a => a.overall || 0,
-            tip: "Extrapolated 10-event score, since this match had fewer"
+            tip: "Extrapolated 10-event score, since this match had fewer events"
         })
     }
 

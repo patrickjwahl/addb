@@ -213,10 +213,10 @@ export type SchoolTeam = {
 }
 export type TeamSeasons = {
     [year: number]: {
-        roundone?: Prisma.TeamPerformanceGetPayload<{}>,
-        regionals?: Prisma.TeamPerformanceGetPayload<{}>,
-        state?: Prisma.TeamPerformanceGetPayload<{}>,
-        nationals?: Prisma.TeamPerformanceGetPayload<{}>,
+        roundone?: Prisma.TeamPerformanceGetPayload<{ include: { match: true } }>,
+        regionals?: Prisma.TeamPerformanceGetPayload<{ include: { match: true } }>,
+        state?: Prisma.TeamPerformanceGetPayload<{ include: { match: true } }>,
+        nationals?: Prisma.TeamPerformanceGetPayload<{ include: { match: true } }>,
     }
 }
 export type SchoolPage = {
@@ -234,10 +234,10 @@ export type SchoolPage = {
 
 export type StudentSeasons = {
     [year: number]: {
-        roundone?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }> & { rank?: number },
-        regionals?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }> & { rank?: number },
-        state?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }> & { rank?: number },
-        nationals?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }> & { rank?: number }
+        roundone?: Prisma.StudentPerformanceGetPayload<{ include: { team: true, match: true } }> & { rank?: number },
+        regionals?: Prisma.StudentPerformanceGetPayload<{ include: { team: true, match: true } }> & { rank?: number },
+        state?: Prisma.StudentPerformanceGetPayload<{ include: { team: true, match: true } }> & { rank?: number },
+        nationals?: Prisma.StudentPerformanceGetPayload<{ include: { team: true, match: true } }> & { rank?: number }
     }
 }
 export type StudentPage = {

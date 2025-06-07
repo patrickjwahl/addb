@@ -4,14 +4,16 @@ import { Prisma } from "@prisma/client"
 import { Link } from "react-router-dom"
 import { TableRowProps } from "./Table"
 
+interface TeamYearData {
+    roundone?: Prisma.TeamPerformanceGetPayload<{ include: { match: true } }>,
+    regionals?: Prisma.TeamPerformanceGetPayload<{ include: { match: true } }>,
+    state?: Prisma.TeamPerformanceGetPayload<{ include: { match: true } }>,
+    nationals?: Prisma.TeamPerformanceGetPayload<{ include: { match: true } }>
+}
+
 interface TeamYearRowProps extends TableRowProps {
     year: number,
-    data: {
-        roundone?: Prisma.TeamPerformanceGetPayload<{}>,
-        regionals?: Prisma.TeamPerformanceGetPayload<{}>,
-        state?: Prisma.TeamPerformanceGetPayload<{}>,
-        nationals?: Prisma.TeamPerformanceGetPayload<{}>,
-    },
+    data: TeamYearData,
     schoolId: number
 }
 
@@ -21,37 +23,30 @@ const TeamYearRow: React.FunctionComponent<TeamYearRowProps> = ({ year, data, sc
         return (null)
     }
 
+    let cells = []
+    for (const round of ['roundone', 'regionals', 'state', 'nationals'] as (keyof TeamYearData)[]) {
+        let cell = data[round] && data[round].overall ? (
+            <td className={`is-link ${rankToClass(data[round].rank - 1) || ''}`}>
+                <Link to={`/match/${data[round].matchId}?school=${schoolId}`}>
+                    {ftoa(data[round].overall)} ({data[round].rank})
+                    {data[round].match.events.length < 10 &&
+                        <>
+                            <br />
+                            <span className="small-font">{ftoa(data[round].overall * (10.0 / data[round].match.events.length))} ({data[round].match.events.length} → 10)</span>
+                        </>
+                    }
+                </Link>
+            </td>
+        ) : (
+            <td>-</td>
+        )
+        cells.push(cell)
+    }
+
     return (
         <tr key={year}>
             <td className='is-link'><Link to={`/school/${schoolId}/season/${year}`}>{year}</Link></td>
-            {
-                data.roundone ? (
-                    <td className={`is-link ${rankToClass(data.roundone.rank - 1)}`}><Link to={`/match/${data.roundone.matchId}?school=${schoolId}`}>{ftoa(data.roundone.overall)} ({data.roundone.rank})</Link></td>
-                ) : (
-                    <td>-</td>
-                )
-            }
-            {
-                data.regionals ? (
-                    <td className={`is-link ${rankToClass(data.regionals.rank - 1)}`}><Link to={`/match/${data.regionals.matchId}?school=${schoolId}`}>{ftoa(data.regionals.overall)} ({data.regionals.rank})</Link></td>
-                ) : (
-                    <td>-</td>
-                )
-            }
-            {
-                data.state ? (
-                    <td className={`is-link ${rankToClass(data.state.rank - 1)}`}><Link to={`/match/${data.state.matchId}?school=${schoolId}`}>{ftoa(data.state.overall)} ({data.state.rank})</Link></td>
-                ) : (
-                    <td>-</td>
-                )
-            }
-            {
-                data.nationals ? (
-                    <td className={`is-link ${rankToClass(data.nationals.rank - 1)}`}><Link to={`/match/${data.nationals.matchId}?school=${schoolId}`}>{ftoa(data.nationals.overall)} ({data.nationals.rank})</Link></td>
-                ) : (
-                    <td>-</td>
-                )
-            }
+            {cells}
         </tr>
     )
 

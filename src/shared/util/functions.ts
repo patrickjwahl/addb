@@ -95,7 +95,7 @@ export const hasSubs = (events: Category[] | undefined): boolean => {
     return events != undefined && events.some(x => subs.indexOf(x) >= 0)
 }
 
-export const ftoa = (i: number | null | undefined) => i?.toLocaleString(undefined, { maximumFractionDigits: 2 })
+export const ftoa = (i: number | null | undefined, minimumFractionDigits: number = 1) => i?.toLocaleString(undefined, { maximumFractionDigits: 1, minimumFractionDigits })
 
 export const parseCsv = (csvStr: string, cols: CSVColumnDef[]): CSVParseResult => {
 

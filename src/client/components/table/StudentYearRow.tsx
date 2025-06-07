@@ -4,14 +4,16 @@ import { Prisma } from "@prisma/client"
 import { Link } from "react-router-dom"
 import { TableRowProps } from "./Table"
 
+interface StudentYearData {
+    roundone?: Prisma.StudentPerformanceGetPayload<{ include: { team: true, match: true } }> & { rank?: number },
+    regionals?: Prisma.StudentPerformanceGetPayload<{ include: { team: true, match: true } }> & { rank?: number },
+    state?: Prisma.StudentPerformanceGetPayload<{ include: { team: true, match: true } }> & { rank?: number },
+    nationals?: Prisma.StudentPerformanceGetPayload<{ include: { team: true, match: true } }> & { rank?: number },
+}
+
 interface StudentYearRowProps extends TableRowProps {
     year: number,
-    data: {
-        roundone?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }> & { rank?: number },
-        regionals?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }> & { rank?: number },
-        state?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }> & { rank?: number },
-        nationals?: Prisma.StudentPerformanceGetPayload<{ include: { team: true } }> & { rank?: number },
-    }
+    data: StudentYearData
 }
 
 const StudentYearRow: React.FunctionComponent<StudentYearRowProps> = ({ year, data }) => {
@@ -22,6 +24,26 @@ const StudentYearRow: React.FunctionComponent<StudentYearRowProps> = ({ year, da
 
     const mostRecentSchool = data.nationals?.team.schoolId || data.state?.team.schoolId || data.regionals?.team.schoolId || data.roundone?.team.schoolId
 
+    let cells = []
+    for (const round of ['roundone', 'regionals', 'state', 'nationals'] as (keyof StudentYearData)[]) {
+        let cell = data[round] && data[round].overall ? (
+            <td className={`is-link ${rankToClass(data[round].rank) || ''}`}>
+                <Link to={`/match/${data[round].matchId}?school=${data[round].team.schoolId}`}>
+                    {ftoa(data[round].overall)} ({data[round].gpa})
+                    {data[round].match.events.length < 10 &&
+                        <>
+                            <br />
+                            <span className="small-font">{ftoa(data[round].overall * (10.0 / data[round].match.events.length))} ({data[round].match.events.length} → 10)</span>
+                        </>
+                    }
+                </Link>
+            </td>
+        ) : (
+            <td>-</td>
+        )
+        cells.push(cell)
+    }
+
     return (
         <tr key={year}>
             {mostRecentSchool || mostRecentSchool == 0 ? (
@@ -29,34 +51,7 @@ const StudentYearRow: React.FunctionComponent<StudentYearRowProps> = ({ year, da
             ) : (
                 <td>{year}</td>
             )}
-            {
-                data.roundone ? (
-                    <td className={`is-link ${rankToClass(data.roundone.rank) || ''}`}><Link to={`/match/${data.roundone.matchId}?school=${data.roundone.team.schoolId}`}>{ftoa(data.roundone.overall)} ({data.roundone.gpa})</Link></td>
-                ) : (
-                    <td>-</td>
-                )
-            }
-            {
-                data.regionals ? (
-                    <td className={`is-link ${rankToClass(data.regionals.rank) || ''}`}><Link to={`/match/${data.regionals.matchId}?school=${data.regionals.team.schoolId}`}>{ftoa(data.regionals.overall)} ({data.regionals.gpa})</Link></td>
-                ) : (
-                    <td>-</td>
-                )
-            }
-            {
-                data.state ? (
-                    <td className={`is-link ${rankToClass(data.state.rank) || ''}`}><Link to={`/match/${data.state.matchId}?school=${data.state.team.schoolId}`}>{ftoa(data.state.overall)} ({data.state.gpa})</Link></td>
-                ) : (
-                    <td>-</td>
-                )
-            }
-            {
-                data.nationals ? (
-                    <td className={`is-link ${rankToClass(data.nationals.rank) || ''}`}><Link to={`/match/${data.nationals.matchId}?school=${data.nationals.team.schoolId}`}>{ftoa(data.nationals.overall)} ({data.nationals.gpa})</Link></td>
-                ) : (
-                    <td>-</td>
-                )
-            }
+            {cells}
         </tr>
     )
 

@@ -800,6 +800,11 @@ th {
     font-size: 16px;
 }
 
+.small-font {
+    font-weight: normal !important;
+    font-size: small;
+}
+
 .admonishment {
     background-color: #ffaabb;
     color: black;

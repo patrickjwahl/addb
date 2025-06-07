@@ -26,6 +26,8 @@ const StudentAggregateRow: React.FunctionComponent<StudentAggregateRowProps> = (
         return (null)
     }
 
+    const overall10 = aggregate['overall'] * (10.0 / events.length)
+
     return (
         <tr className='aggregate-row'>
             <td className='table-cell-large'></td>
@@ -33,8 +35,9 @@ const StudentAggregateRow: React.FunctionComponent<StudentAggregateRowProps> = (
             <td className="table-cell-large"></td>
             <td className="bold"><i>Team Total</i></td>
             <td className={'bold'}><i>{ftoa(aggregate['overall'])}</i></td>
+            {events.length < 10 && <td className="bold"><i>{ftoa(overall10)}</i></td>}
             {!redacted && events.map(event => (
-                <td key={event} className="table-cell-small bold"><i>{ftoa(aggregate[event])}</i></td>
+                <td key={event} className="table-cell-small bold"><i>{ftoa(aggregate[event], 0)}</i></td>
             ))}
             {hasObjs && <td className="left-border bold table-cell-large"><i>{ftoa(aggregate['objs'])}</i></td>}
             {hasSubs && <td className="table-cell-large bold"><i>{ftoa(aggregate['subs'])}</i></td>}

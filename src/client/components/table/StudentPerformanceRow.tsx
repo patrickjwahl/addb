@@ -75,7 +75,7 @@ const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps>
                     <td className={'bold ' + (showMedals ? rankToClass(rankByCol[4]) : '')}>{performance.overall != null ? ftoa(performance.overall * (10.0 / (events.length))) : null}</td>
                 }
                 {!redacted && events.map((event, index) => (
-                    <td key={event} className={`table-cell-small ${showMedals ? rankToClass(rankByCol[5 + index]) : ''}`} title={performance.id == 104359 && event == 'speech' ? 'Commendable job, Raffi.' : ''}>{ftoa((performance as FullStudentPerformance)[event])}</td>
+                    <td key={event} className={`table-cell-small ${showMedals ? rankToClass(rankByCol[5 + index]) : ''}`} title={performance.id == 104359 && event == 'speech' ? 'Commendable job, Raffi.' : ''}>{ftoa((performance as FullStudentPerformance)[event], 0)}</td>
                 ))}
                 {hasObjs && <td className={`${showMedals ? rankToClass(rankByCol[5 + events.length]) : ''} left-border bold table-cell-large`}>{ftoa((performance as FullStudentPerformance).objs)}</td>}
                 {hasSubs && <td className={`${showMedals ? rankToClass(rankByCol[6 + events.length]) : ''} table-cell-large`}>{ftoa((performance as FullStudentPerformance).subs)}</td>}
