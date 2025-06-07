@@ -71,7 +71,7 @@ const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps>
                 <td className="is-link table-cell-large"><Link to={`/student/${performance.studentId}`}>{possiblyShorten(performance.student?.name || '')}</Link></td>
                 <td>{performance.gpa}</td>
                 <td className={'bold ' + (!redacted ? 'right-border ' : '') + (showMedals ? rankToClass(rankByCol[4]) : '')}>{ftoa(performance.overall)}</td>
-                {events.length < 10 &&
+                {!redacted && events.length < 10 &&
                     <td className={'bold ' + (showMedals ? rankToClass(rankByCol[4]) : '')}>{performance.overall != null ? ftoa(performance.overall * (10.0 / (events.length))) : null}</td>
                 }
                 {!redacted && events.map((event, index) => (
