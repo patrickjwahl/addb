@@ -394,6 +394,7 @@ export default function MatchResult2() {
                         <div className='info-title'>{match.year} {friendlyRound[match.round]}</div>
                         <div className='info-subtitle'>{subtitle}</div>
                         <div className='info-third-title'>{thirdTitle}</div>
+                        {match.note && <div className="info-note">{match.note}</div>}
                     </>
                 )}
                 {userHasAccess && canEdit &&

@@ -397,9 +397,17 @@ pre {
     text-wrap: wrap;
 }
 
+.edit-form textarea {
+    resize: none;
+    font: inherit;
+    width: 300px;
+    height: 100px;
+}
+
 .edit-form input[type=text],
 .edit-form input[type=password],
 .edit-form input[type=number],
+.edit-form textarea,
 .edit-form select {
     padding: 5px;
     font-size: 16px;
@@ -1010,6 +1018,12 @@ th {
 
 .info-title a:hover {
     text-decoration: underline;
+}
+
+.info-note {
+    margin-top: 5px;
+    font-style: italic;
+    font-size: 13px;
 }
 
 .info-page-section-header a {

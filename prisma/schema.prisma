@@ -55,6 +55,7 @@ model Match {
   state               State?               @relation(fields: [stateId], references: [id])
   studentPerformances StudentPerformance[]
   teamPerformances    TeamPerformance[]
+  note                String?
 
   @@map("matches")
 }

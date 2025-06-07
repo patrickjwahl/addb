@@ -19,6 +19,7 @@ export default function MatchPropertiesEdit({ match, callback }: { match: Match,
     const [access, setAccess] = useState(match?.access || 1)
     const [hasDivisions, setHasDivisions] = useState(match?.hasDivisions || false)
     const [hasSq, setHasSq] = useState(match?.hasSq || false)
+    const [note, setNote] = useState(match?.note || '')
     const [validationError, setValidationError] = useState<string | null>(null)
     const [newRegion, setNewRegion] = useState('')
     const [message, setMessage] = useState<string | null>(null)
@@ -95,7 +96,8 @@ export default function MatchPropertiesEdit({ match, callback }: { match: Match,
             access,
             hasDivisions,
             hasSq,
-            id: match?.id
+            id: match?.id,
+            note: note || null
         }
         stateId >= 0 && (matchMetadata.stateId = stateId)
         regionId != '_new' && regionId >= 0 && (matchMetadata.regionId = regionId)
@@ -131,7 +133,7 @@ export default function MatchPropertiesEdit({ match, callback }: { match: Match,
     return (
         <form className="edit-form" onSubmit={submitForm}>
             <div className="edit-form-row">
-                <input style={{ width: '3em' }} placeholder="Year" type="number" value={year} onChange={e => setYear(e.target.value)} onBlur={updateEvents} />
+                <input style={{ width: '4em' }} placeholder="Year" type="number" value={year} onChange={e => setYear(e.target.value)} onBlur={updateEvents} />
                 <select value={round} onChange={e => setRound(e.target.value as Round)}>
                     <option value="null" disabled hidden>Round</option>
                     {
@@ -209,6 +211,9 @@ export default function MatchPropertiesEdit({ match, callback }: { match: Match,
                     SQ?
                     <input type="checkbox" checked={hasSq} onChange={e => setHasSq(e.target.checked)} />
                 </label>
+            </div>
+            <div className="edit-form-row">
+                <textarea placeholder="Notes..." value={note} onChange={e => setNote(e.target.value)}></textarea>
             </div>
             <div style={{ marginTop: '10px' }} className="edit-form-row">
                 <input type="submit" value={!match ? "Create" : "Save Match Info"} />

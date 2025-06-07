@@ -22,7 +22,8 @@ export type MatchMetadata = Prisma.MatchGetPayload<{
         hasSq: true,
         hasDivisions: true,
         access: true,
-        events: true
+        events: true,
+        note: true
     }
 }> & { id?: number, stateId?: number, regionId?: number, newRegion?: string }
 
