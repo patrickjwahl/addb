@@ -199,7 +199,7 @@ export default function MatchResult2() {
         }
     ]
 
-    if (match && match.events.length < 10) {
+    if (match && match.events.length > 0 && match.events.length < 10) {
         studentColumnDefs.push({
             name: 'Overall/10',
             sortKey: a => a.overall || 0,
@@ -335,7 +335,7 @@ export default function MatchResult2() {
     }, {})
 
     let teamColumnNames = ['Rank', 'Team', 'Overall']
-    match.events.length < 10 && teamColumnNames.push('Overall/10')
+    match.events.length > 0 && match.events.length < 10 && teamColumnNames.push('Overall/10')
     teamColumnNames.push('Obj', 'Sub')
     match.hasSq && teamColumnNames.push('Overall + SQ')
     editing && teamColumnNames.push('Division', 'Edit')
