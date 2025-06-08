@@ -22,8 +22,8 @@ export const groupBy = <K extends PropertyKey, T>(arr: Iterable<T>, keySelector:
 }
 
 export const possiblyShorten = (str: string): string => {
-    if (str.length > 20) {
-        return str.slice(0, 16) + '...'
+    if (str.length > 18) {
+        return str.slice(0, 15) + '...'
     }
     return str
 }

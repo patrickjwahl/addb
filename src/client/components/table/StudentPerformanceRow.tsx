@@ -6,6 +6,7 @@ import { Link } from "react-router-dom"
 import { TableRowProps } from "./Table"
 import StudentPerformanceEdit from "../edit/StudentPerformanceEdit"
 import api from "@/client/API"
+import { Tooltip } from "react-tooltip"
 
 interface StudentPerformanceRowProps extends TableRowProps {
     data: StudentPerformance,
@@ -42,6 +43,8 @@ const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps>
         setEditing(false)
     }
 
+    const rowUUID = crypto.randomUUID()
+
     const hasObjs = useMemo((): boolean => {
         return !redacted && _hasObjs(events, performance.match.year)
     }, [events, redacted])
@@ -55,6 +58,8 @@ const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps>
     }
 
     if (!editing) {
+        const shortenedTeamName = possiblyShorten(performance.team.name)
+        const shortenedStudentName = possiblyShorten(performance.student?.name || '')
         return (
             <tr key={performance.id} className={(canEdit && !performance.studentId ? 'row-warning' : '')}>
                 {
@@ -62,13 +67,22 @@ const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps>
                 }
                 {
                     performance.team.schoolId ? (
-                        <td className='is-link table-cell-large'><Link to={`/school/${performance.team.schoolId}`}>{possiblyShorten(performance.team.name)}</Link></td>
+                        <td className='is-link table-cell-large' data-tooltip-id={`${rowUUID}-team`} data-tooltip-class-name="tooltip">
+                            <Link to={`/school/${performance.team.schoolId}`}>{shortenedTeamName}</Link>
+                            {shortenedTeamName.endsWith('...') && <Tooltip id={`${rowUUID}-team`}>{performance.team.name}</Tooltip>}
+                        </td>
                     ) : (
-                        <td className="table-cell-large">{possiblyShorten(performance.team.name)}</td>
+                        <td className="table-cell-large" data-tooltip-id={`${rowUUID}-team`} data-tooltip-class-name="tooltip">
+                            {shortenedTeamName}
+                            {shortenedTeamName.endsWith('...') && <Tooltip id={`${rowUUID}-team`}>{performance.team.name}</Tooltip>}
+                        </td>
                     )
                 }
                 <td className="right-border">{teamRank}</td>
-                <td className="is-link table-cell-large"><Link to={`/student/${performance.studentId}`}>{possiblyShorten(performance.student?.name || '')}</Link></td>
+                <td className="is-link table-cell-large" data-tooltip-id={`${rowUUID}-student`} data-tooltip-class-name="tooltip">
+                    <Link to={`/student/${performance.studentId}`}>{shortenedStudentName}</Link>
+                    {shortenedStudentName.endsWith('...') && <Tooltip id={`${rowUUID}-student`}>{performance.student?.name}</Tooltip>}
+                </td>
                 <td>{performance.gpa}</td>
                 <td className={'bold ' + (!redacted ? 'right-border ' : '') + (showMedals ? rankToClass(rankByCol[4]) : '')}>{ftoa(performance.overall)}</td>
                 {!redacted && events.length < 10 &&

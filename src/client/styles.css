@@ -338,6 +338,8 @@ th {
     padding-bottom: 5px;
     padding-right: 10px;
     padding-left: 10px;
+    white-space: nowrap;
+    overflow-x: hidden;
 }
 
 .info-page-table td.is-link {
@@ -449,6 +451,10 @@ input::-webkit-inner-spin-button {
     border-right: 1px solid black;
 } */
 
+.tooltip {
+    z-index: 1001;
+}
+
 .table-cell-small {
     width: 50px;
 }
@@ -475,21 +481,22 @@ input::-webkit-inner-spin-button {
 .table-fix-head thead th {
     position: sticky;
     top: 0;
-    z-index: 5000;
+    z-index: 100;
     background-color: white;
 }
 
-.info-page-table tr:not(.info-page-table-first-row) td:not(.gold, .silver, .bronze):hover {
+.info-page-table tbody td:not(.gold, .silver, .bronze):hover,
+.highlight-col {
     background-color: black !important;
     color: white !important;
 }
 
-.info-page-table tr:not(.info-page-table-first-row):hover td:not(.gold, .silver, .bronze) {
+.info-page-table tbody tr:hover td:not(.gold, .silver, .bronze) {
     background-color: #828282;
     color: white;
 }
 
-.info-page-table tr:not(.info-page-table-first-row):hover td:is(.gold, .silver, .bronze) {
+.info-page-table tbody tr:hover td:is(.gold, .silver, .bronze) {
     filter: brightness(110%);
 }
 
