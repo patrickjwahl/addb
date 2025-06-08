@@ -2,7 +2,7 @@ import api from "@/client/API"
 import Table, { Column } from "@/client/components/table/Table"
 import { FullStudentPerformance, Match, StudentPerformance, TeamPerformance } from "@/shared/types/response"
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { useParams, useSearchParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import { hasObjs as _hasObjs, hasSubs as _hasSubs, divisionSort, groupBy, partitionSort } from "@/shared/util/functions"
 import { divisions, friendlyColumn, friendlyGPA, friendlyRound, fullColumn } from "@/shared/util/consts"
 import StudentPerformanceRow from "@/client/components/table/StudentPerformanceRow"
@@ -11,6 +11,17 @@ import { Helmet } from "react-helmet"
 import TeamPerformanceRow from "@/client/components/table/TeamPerformanceRow"
 import StudentAggregateRow from "@/client/components/table/StudentAggregateRow"
 import MatchPropertiesEdit from "@/client/components/edit/MatchPropertiesEdit"
+
+type SearchParams = {
+    partition?: keyof ShowMedalsOptions,
+    gpa?: string,
+    school?: string,
+    rank?: keyof ShowMedalsOptions,
+    medals?: string,
+    division?: string,
+    sortIndex?: string,
+    sortDesc?: string
+}
 
 type StudentPerformanceColumn = {
     name: string,
@@ -51,20 +62,90 @@ const calculateRanks = (performances: FullStudentPerformance[], sortKey: (perf: 
 
 export default function MatchResult2() {
 
-    const [searchParams] = useSearchParams()
-    const schoolInitFilter = searchParams.get('school')
+    let searchParams = Object.fromEntries(new URLSearchParams(window.location.search)) as SearchParams
+
+    const defaultSortIndex = 1
+    const defaultSortDesc = false
+    const defaultGpaFilter = 'all'
+    const defaultSchoolFilter = -1
+    const defaultDivisionFilter = 'all'
+    const defaultPartitionBy = 'overall'
+    const defaultShowMedals = true
+    const defaultRankBy = 'overall'
 
     const [match, setMatch] = useState<Match>()
     const [editing, setEditing] = useState(false)
-    const [sortIndex, setSortIndex] = useState(1)
-    const [sortDesc, setSortDesc] = useState(false)
+    const [sortIndex, _setSortIndex] = useState(searchParams.sortIndex ? parseInt(searchParams.sortIndex) : defaultSortIndex)
+    const [sortDesc, _setSortDesc] = useState(searchParams.sortDesc === 'true' || defaultSortDesc)
     const [isDeleted, setIsDeleted] = useState(false)
-    const [gpaFilter, setGpaFilter] = useState('all')
-    const [schoolFilter, setSchoolFilter] = useState(parseInt(schoolInitFilter || '') || -1)
-    const [divisionFilter, setDivisionFilter] = useState('all')
-    const [partitionBy, setParitionBy] = useState<keyof ShowMedalsOptions>('overall')
-    const [showMedals, setShowMedals] = useState(true)
-    const [rankBy, setRankBy] = useState<keyof ShowMedalsOptions>('overall')
+    const [gpaFilter, _setGpaFilter] = useState(searchParams.gpa || defaultGpaFilter)
+    const [schoolFilter, _setSchoolFilter] = useState(searchParams.school ? parseInt(searchParams.school) : defaultSchoolFilter)
+    const [divisionFilter, _setDivisionFilter] = useState(searchParams.division || defaultDivisionFilter)
+    const [partitionBy, _setPartitionBy] = useState<keyof ShowMedalsOptions>(searchParams.partition || defaultPartitionBy)
+    const [showMedals, _setShowMedals] = useState((searchParams.medals !== undefined) ? searchParams.medals === 'true' : defaultShowMedals)
+    const [rankBy, _setRankBy] = useState<keyof ShowMedalsOptions>(searchParams.rank || defaultRankBy)
+
+    const updateBrowserParams = () => {
+        const newParams = new URLSearchParams(searchParams)
+        window.history.replaceState({}, "", "?" + newParams.toString())
+    }
+
+    const setSortIndex = (index: number) => {
+        searchParams.sortIndex = index.toString()
+        updateBrowserParams()
+        _setSortIndex(index)
+    }
+
+    const setSortDesc = (desc: boolean) => {
+        searchParams.sortDesc = desc.toString()
+        updateBrowserParams()
+        _setSortDesc(desc)
+    }
+
+    const setGpaFilter = (gpa: string) => {
+        searchParams.gpa = gpa
+        updateBrowserParams()
+        _setGpaFilter(gpa)
+    }
+
+    const setSchoolFilter = (school: number) => {
+        searchParams.school = school.toString()
+        updateBrowserParams()
+        _setSchoolFilter(school)
+    }
+
+    const setDivisionFilter = (division: string) => {
+        searchParams.division = division
+        updateBrowserParams()
+        _setDivisionFilter(division)
+    }
+
+    const setPartitionBy = (partition: keyof ShowMedalsOptions) => {
+        searchParams.partition = partition
+        updateBrowserParams()
+        _setPartitionBy(partition)
+    }
+
+    const setShowMedals = (show: boolean) => {
+        searchParams.medals = show.toString()
+        updateBrowserParams()
+        _setShowMedals(show)
+    }
+
+    const setRankBy = (rank: keyof ShowMedalsOptions) => {
+        searchParams.rank = rank
+        updateBrowserParams()
+        _setRankBy(rank)
+    }
+
+    const restoreDefaults = () => {
+        setGpaFilter(defaultGpaFilter)
+        setSchoolFilter(defaultSchoolFilter)
+        setDivisionFilter(defaultDivisionFilter)
+        setPartitionBy(defaultPartitionBy)
+        setShowMedals(defaultShowMedals)
+        setRankBy(defaultRankBy)
+    }
 
     const params = useParams()
 
@@ -152,7 +233,6 @@ export default function MatchResult2() {
             return { ...prev, [curr.teamId || -1]: curr.rank || -1 }
         }, {}) : {}
     }, [match?.teamPerformances])
-
 
     const teamIdToDivision: { [id: number]: string } = useMemo(() => {
         return match ? match.teamPerformances.reduce((prev, curr) => {
@@ -406,7 +486,7 @@ export default function MatchResult2() {
                 <div className="divisions-and-filters">
                     <div className="left-align-column">
                         <div className="title">Partition By</div>
-                        <select style={{ fontWeight: partitionBy == 'overall' ? 'normal' : 'bold' }} value={partitionBy} onChange={e => setParitionBy(e.target.value as keyof ShowMedalsOptions)}>
+                        <select style={{ fontWeight: partitionBy == 'overall' ? 'normal' : 'bold' }} value={partitionBy} onChange={e => setPartitionBy(e.target.value as keyof ShowMedalsOptions)}>
                             <option value={'overall'}>Overall</option>
                             {match.hasDivisions && <option value={'division'}>Division</option>}
                             <option value={'gpa'}>GPA</option>
@@ -457,6 +537,9 @@ export default function MatchResult2() {
                     <div className="left-align-column">
                         <div className="title" onClick={() => setShowMedals(!showMedals)}>Show Medals</div>
                         <input type="checkbox" checked={showMedals} onChange={() => setShowMedals(!showMedals)} />
+                    </div>
+                    <div className="left-align-column">
+                        <button className="divisions-button" onClick={restoreDefaults}>Restore Defaults</button>
                     </div>
                 </div>
             </div>

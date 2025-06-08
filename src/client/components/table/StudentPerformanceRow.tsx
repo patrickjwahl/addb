@@ -20,10 +20,11 @@ interface StudentPerformanceRowProps extends TableRowProps {
     rank?: number,
     rankByCol: { [index: number]: number },
     showMedals: boolean,
-    editCallback?: () => void
+    editCallback?: () => void,
+    clickCallback?: () => void
 }
 
-const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps> = ({ data: performance, teamRank, editCallback, editingEnabled, events, teams, rank, rankByCol, showMedals }) => {
+const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps> = ({ data: performance, teamRank, editCallback, editingEnabled, events, teams, rank, rankByCol, showMedals, clickCallback }) => {
 
     const [editing, setEditing] = useState(false)
 
@@ -61,7 +62,7 @@ const StudentPerformanceRow: React.FunctionComponent<StudentPerformanceRowProps>
         const shortenedTeamName = possiblyShorten(performance.team.name)
         const shortenedStudentName = possiblyShorten(performance.student?.name || '')
         return (
-            <tr key={performance.id} className={(canEdit && !performance.studentId ? 'row-warning' : '')}>
+            <tr key={performance.id} className={(canEdit && !performance.studentId ? 'row-warning' : '')} onClick={clickCallback}>
                 {
                     (rank != undefined) && <td className="table-cell-small">{rank + 1}</td>
                 }
