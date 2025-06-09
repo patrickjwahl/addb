@@ -48,7 +48,7 @@ export default function Table({ children, columns, setSort, sortIndex, sortDesc 
         }
     }
 
-    const handleMouseOut: ReactEventHandler<HTMLTableElement> = e => {
+    const handleMouseOut: ReactEventHandler<HTMLTableElement> = () => {
         if (tableRef.current) {
             (tableRef.current as HTMLTableElement).querySelectorAll('th.highlight-col').forEach(cell => {
                 cell.classList.remove('highlight-col')
