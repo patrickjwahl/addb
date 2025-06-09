@@ -134,13 +134,14 @@ model State {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  username  String
-  passhash  String
-  access    Int
-  canEdit   Boolean   @default(false) @map("can_edit")
-  edits     Edit[]
-  lastLogin DateTime?
+  id          Int           @id @default(autoincrement())
+  username    String
+  passhash    String
+  access      Int
+  canEdit     Boolean       @default(false) @map("can_edit")
+  edits       Edit[]
+  lastLogin   DateTime?
+  Preferences Preferences[]
 
   @@map("users")
 }
@@ -154,6 +155,18 @@ model Edit {
   user     User     @relation(fields: [userId], references: [id])
 
   @@map("edits")
+}
+
+model Preferences {
+  id        Int     @id @default(autoincrement())
+  userId    Int     @unique @map("user_id")
+  user      User    @relation(fields: [userId], references: [id])
+  partition String  @default("overall")
+  rank      String  @default("overall")
+  gpa       String  @default("all")
+  medals    Boolean @default(true)
+
+  @@map("preferences")
 }
 
 model Session {

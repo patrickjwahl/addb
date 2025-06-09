@@ -15,6 +15,7 @@ import StudentCreatePage from './admin/StudentCreatePage'
 import UserCreatePage from '@/client/admin/UserCreatePage'
 import { FullState } from '@/shared/types/response'
 import api from '@/client/API'
+import Preferences from './Preferences'
 
 export default function Page() {
 
@@ -144,7 +145,8 @@ export default function Page() {
                     <Route path='/peoplemerger' element={<PeopleMerger />} />
                     <Route path='/editingguide' element={<EditingGuide />} />
                     <Route path='/potentialmerges' element={<PotentialMerges />} />
-                    <Route path='login' element={<Login />} />
+                    <Route path='/login' element={<Login />} />
+                    <Route path='/preferences' element={<Preferences />} />
                     <Route path='/register' element={<Register loginCallback={loginCallback} />} />
                     <Route path='*' element={<Default />} />
                 </Routes>

@@ -14,8 +14,8 @@ import { CSVColumnDef, diff, parseCsv } from '../shared/util/functions.js'
 import { Category, ConfigurationKey, Prisma, PrismaClient } from '@prisma/client'
 
 import { createTransport } from 'nodemailer'
-import { RecentMatches, ApiResponse, StateMatches, Match, StudentAggregates, FullState, SearchResult, SearchResultMatch, SearchResultStudent, FullStudentPerformance, SearchResultSchool, TeamPerformance, SchoolPage, TeamSeasons, SchoolTeam, StudentPage, StudentSeasons, SchoolSeasonPage, LoginResult, EditResult, MergeSuggestion, MatchPreviews, StudentLeaderboard, StudentLeaders, TeamLeaderboard } from '../shared/types/response.js'
-import { CreateUserCredentials, LoginCredentials, MatchMetadata, SchoolMetadata, StudentMetadata, StudentPerformance, TeamPerformance as TeamPerformanceRequest } from '../shared/types/request.js'
+import { RecentMatches, ApiResponse, StateMatches, Match, StudentAggregates, FullState, SearchResult, SearchResultMatch, SearchResultStudent, FullStudentPerformance, SearchResultSchool, TeamPerformance, SchoolPage, TeamSeasons, SchoolTeam, StudentPage, StudentSeasons, SchoolSeasonPage, LoginResult, EditResult, MergeSuggestion, MatchPreviews, StudentLeaderboard, StudentLeaders, TeamLeaderboard, UserPreferences } from '../shared/types/response.js'
+import { CreateUserCredentials, LoginCredentials, MatchMetadata, SchoolMetadata, StudentMetadata, StudentPerformance, TeamPerformance as TeamPerformanceRequest, UserPreferencesInput } from '../shared/types/request.js'
 import ConnectPgSimple from 'connect-pg-simple'
 import pg from 'pg'
 const { Pool } = pg
@@ -763,6 +763,43 @@ router.route('/states')
         })
 
         res.json({ success: true, data: results })
+    })
+
+router.route('/preferences')
+    .get(async function (req: AddbRequest<null>, res: AddbResponse<UserPreferences>) {
+
+        if (!req.userId) {
+            res.json({ success: false, message: 'User must be logged in!' })
+            return
+        }
+
+        const prefs = await prisma.preferences.findFirst({
+            where: {
+                userId: req.userId
+            }
+        }) || await prisma.preferences.create({
+            data: {
+                userId: req.userId
+            }
+        })
+
+        res.json({ success: true, data: prefs })
+    })
+    .post(async function (req: AddbRequest<UserPreferencesInput>, res: AddbResponse<null>) {
+
+        if (!req.userId) {
+            res.json({ success: false, message: 'User must be logged in!' })
+            return
+        }
+
+        await prisma.preferences.update({
+            where: {
+                userId: req.userId
+            },
+            data: req.body
+        })
+
+        res.json({ success: true })
     })
 
 router.route('/match/:id')

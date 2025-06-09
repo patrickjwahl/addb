@@ -2,6 +2,7 @@ import API from '@/client/API'
 import { Helmet } from 'react-helmet'
 import { ReactNode, useState } from 'react'
 import { ApiResponse, LoginResult } from '../shared/types/response'
+import { Link } from 'react-router-dom'
 
 const Layout = ({ children }: { children: ReactNode }): JSX.Element => {
     return (
@@ -96,6 +97,7 @@ export default function Register({ loginCallback }: { loginCallback: () => void 
                     <input className='form-text-input' type="password" name="password" value={password} onChange={handlePasswordChange} />
                 </div>
                 <input className='form-submit' type="submit" value="Sign Up" />
+                <div style={{ display: 'inline-block' }}><Link to='/login'><button style={{ marginTop: 20 }} className='form-button'>I already have an account!</button></Link></div>
             </form>
             {loginResult}
         </Layout >

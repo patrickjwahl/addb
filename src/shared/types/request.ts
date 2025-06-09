@@ -82,3 +82,10 @@ export type StudentMetadata = {
     id?: number,
     name: string
 }
+
+export type UserPreferencesInput = {
+    partition: string,
+    rank: string,
+    gpa: string,
+    medals: boolean
+}

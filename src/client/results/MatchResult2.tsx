@@ -1,8 +1,8 @@
 import api from "@/client/API"
 import Table, { Column } from "@/client/components/table/Table"
-import { FullStudentPerformance, Match, StudentPerformance, TeamPerformance } from "@/shared/types/response"
+import { FullStudentPerformance, Match, StudentPerformance, TeamPerformance, UserPreferences } from "@/shared/types/response"
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { hasObjs as _hasObjs, hasSubs as _hasSubs, divisionSort, groupBy, partitionSort } from "@/shared/util/functions"
 import { divisions, friendlyColumn, friendlyGPA, friendlyRound, fullColumn } from "@/shared/util/consts"
 import StudentPerformanceRow from "@/client/components/table/StudentPerformanceRow"
@@ -29,7 +29,7 @@ type StudentPerformanceColumn = {
     sortKey: (val: StudentPerformance) => number | string
 }
 
-type ShowMedalsOptions = {
+export type ShowMedalsOptions = {
     overall: string,
     none: string,
     division: string,
@@ -84,6 +84,7 @@ export default function MatchResult2() {
     const [partitionBy, _setPartitionBy] = useState<keyof ShowMedalsOptions>(searchParams.partition || defaultPartitionBy)
     const [showMedals, _setShowMedals] = useState((searchParams.medals !== undefined) ? searchParams.medals === 'true' : defaultShowMedals)
     const [rankBy, _setRankBy] = useState<keyof ShowMedalsOptions>(searchParams.rank || defaultRankBy)
+    const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null)
 
     const updateBrowserParams = () => {
         const newParams = new URLSearchParams(searchParams)
@@ -139,18 +140,44 @@ export default function MatchResult2() {
     }
 
     const restoreDefaults = () => {
-        setGpaFilter(defaultGpaFilter)
+        setGpaFilter(userPreferences?.gpa || defaultGpaFilter)
         setSchoolFilter(defaultSchoolFilter)
         setDivisionFilter(defaultDivisionFilter)
-        setPartitionBy(defaultPartitionBy)
-        setShowMedals(defaultShowMedals)
-        setRankBy(defaultRankBy)
+        setPartitionBy(userPreferences?.partition as keyof ShowMedalsOptions || defaultPartitionBy)
+        setShowMedals(userPreferences?.medals != undefined ? userPreferences.medals : defaultShowMedals)
+        setRankBy(userPreferences?.rank as keyof ShowMedalsOptions || defaultRankBy)
     }
 
     const params = useParams()
 
     const fetchMatch = useCallback(async () => {
         const result = (await api.getMatch(params.id || '')).data
+        if (api.isLoggedIn()) {
+            let preferences = (await api.getPreferences()).data
+            if (preferences) {
+                setGpaFilter(searchParams.gpa || preferences.gpa)
+                setShowMedals(searchParams.medals !== undefined ? searchParams.medals == 'true' : preferences.medals)
+                let partition = preferences.partition as keyof ShowMedalsOptions
+                let rank = preferences.rank as keyof ShowMedalsOptions
+                if (result && !result.hasDivisions) {
+                    if (partition === 'gpa_division') {
+                        preferences.partition = 'gpa'
+                    } else if (partition === 'division') {
+                        preferences.partition = 'overall'
+                    }
+
+                    if (rank === 'gpa_division') {
+                        preferences.rank = 'gpa'
+                    } else if (rank === 'division') {
+                        preferences.rank = 'overall'
+                    }
+                }
+                setPartitionBy(searchParams.partition || preferences.partition as keyof ShowMedalsOptions)
+                setRankBy(searchParams.rank || preferences.rank as keyof ShowMedalsOptions)
+                setUserPreferences(preferences)
+            }
+        }
+
         setMatch(result)
     }, [])
 
@@ -486,7 +513,7 @@ export default function MatchResult2() {
                 <div className="divisions-and-filters">
                     <div className="left-align-column">
                         <div className="title">Partition By</div>
-                        <select style={{ fontWeight: partitionBy == 'overall' ? 'normal' : 'bold' }} value={partitionBy} onChange={e => setPartitionBy(e.target.value as keyof ShowMedalsOptions)}>
+                        <select style={{ fontWeight: partitionBy == (userPreferences?.partition || defaultPartitionBy) ? 'normal' : 'bold' }} value={partitionBy} onChange={e => setPartitionBy(e.target.value as keyof ShowMedalsOptions)}>
                             <option value={'overall'}>Overall</option>
                             {match.hasDivisions && <option value={'division'}>Division</option>}
                             <option value={'gpa'}>GPA</option>
@@ -509,7 +536,7 @@ export default function MatchResult2() {
                     }
                     <div className="left-align-column">
                         <div className="title">Filter by GPA</div>
-                        <select style={{ fontWeight: gpaFilter == 'all' ? 'normal' : 'bold' }} value={gpaFilter} onChange={e => setGpaFilter(e.target.value)}>
+                        <select style={{ fontWeight: gpaFilter == (userPreferences?.gpa || defaultGpaFilter) ? 'normal' : 'bold' }} value={gpaFilter} onChange={e => setGpaFilter(e.target.value)}>
                             <option value='all'>All</option>
                             <option value='H'>H</option>
                             <option value='S'>S</option>
@@ -527,7 +554,7 @@ export default function MatchResult2() {
                     </div>
                     <div className="left-align-column">
                         <div className="title">Rank By</div>
-                        <select style={{ fontWeight: rankBy == 'overall' ? 'normal' : 'bold' }} value={rankBy} onChange={e => setRankBy(e.target.value as keyof ShowMedalsOptions)}>
+                        <select style={{ fontWeight: rankBy == (userPreferences?.rank || defaultRankBy) ? 'normal' : 'bold' }} value={rankBy} onChange={e => setRankBy(e.target.value as keyof ShowMedalsOptions)}>
                             <option value={'overall'}>Overall</option>
                             {match.hasDivisions && <option value={'division'}>Division</option>}
                             <option value={'gpa'}>GPA</option>
@@ -540,6 +567,9 @@ export default function MatchResult2() {
                     </div>
                     <div className="left-align-column">
                         <button className="divisions-button" onClick={restoreDefaults}>Restore Defaults</button>
+                    </div>
+                    <div className="left-align-column">
+                        <Link to='/preferences'><button className="divisions-button">Preferences...</button></Link>
                     </div>
                 </div>
             </div>

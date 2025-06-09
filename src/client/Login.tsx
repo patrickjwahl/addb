@@ -1,5 +1,5 @@
 import API from '@/client/API'
-import { Navigate, useLocation } from 'react-router-dom'
+import { Link, Navigate, useLocation } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useState } from 'react'
 import { ApiResponse, LoginResult } from '../shared/types/response'
@@ -56,6 +56,7 @@ export default function Login() {
                         <input className='form-text-input' type="password" name="password" value={password} onChange={handlePasswordChange} />
                     </div>
                     <input className='form-submit' type="submit" value="Let's Go!" />
+                    <div style={{ display: 'inline-block' }}><Link to='/register'><button style={{ marginTop: 20 }} className='form-button'>I don't have an account!</button></Link></div>
                 </form>
                 {loginResult}
             </div>

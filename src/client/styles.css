@@ -603,7 +603,6 @@ th {
     flex-direction: column;
     display: flex;
     align-items: stretch;
-    gap: 5;
 }
 
 .divisions-button:hover {
@@ -623,9 +622,18 @@ th {
     gap: 20px;
 }
 
+.preferences-form .title,
 .divisions-and-filters .title {
     font-size: 14px;
     font-weight: bold;
+}
+
+.preferences-form {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .form-container {
@@ -670,19 +678,36 @@ th {
     border-radius: 5px;
 }
 
+.form-button {
+    background-color: white;
+    color: black;
+    font-size: 13px;
+    width: auto !important;
+    border: 1px solid black;
+}
+
+.form-button:hover {
+    background-color: black;
+    color: white;
+}
+
+.form-button,
 .form-submit {
     width: 100%;
-    font-size: 16px;
     cursor: pointer;
     padding: 5px;
-    color: white;
-    background-color: #ff3b3f;
-    border: 1px solid #ff3b3f;
     font-weight: 500;
     border-radius: 5px;
     margin-bottom: 5px;
     -webkit-transition: background-color 150ms, color 150ms, border 150ms;
     transition: background-color 150ms, color 150ms, border 150ms;
+}
+
+.form-submit {
+    color: white;
+    background-color: #ff3b3f;
+    border: 1px solid #ff3b3f;
+    font-size: 16px;
 }
 
 .form-submit:hover {

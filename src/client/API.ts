@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
-import { ApiResponse, EditResult, FullState, FullStudentPerformance, LoginResult, Match, MatchPreviews, MergeSuggestion, SchoolPage, SchoolSeasonPage, SearchResult, SearchResultSchool, SearchResultStudent, StudentLeaderboard, StudentPage, TeamLeaderboard, TeamPerformance } from '@/shared/types/response'
-import { CreateUserCredentials, MatchMetadata, SchoolMetadata, StudentMetadata, StudentPerformance, TeamPerformance as TeamPerformanceRequest } from '../shared/types/request'
+import { ApiResponse, EditResult, FullState, FullStudentPerformance, LoginResult, Match, MatchPreviews, MergeSuggestion, SchoolPage, SchoolSeasonPage, SearchResult, SearchResultSchool, SearchResultStudent, StudentLeaderboard, StudentPage, TeamLeaderboard, TeamPerformance, UserPreferences } from '@/shared/types/response'
+import { CreateUserCredentials, MatchMetadata, SchoolMetadata, StudentMetadata, StudentPerformance, TeamPerformance as TeamPerformanceRequest, UserPreferencesInput } from '../shared/types/request'
 import { StateMatches } from '../shared/types/response'
 
 class API {
@@ -213,6 +213,14 @@ class API {
 
     getStates = async (): Promise<ApiResponse<FullState[]>> => {
         return (await this.axios.get('/states')).data
+    }
+
+    getPreferences = async (): Promise<ApiResponse<UserPreferences>> => {
+        return (await this.axios.get('/preferences')).data
+    }
+
+    setPreferences = async (data: UserPreferencesInput): Promise<ApiResponse<null>> => {
+        return (await this.axios.post('/preferences', data)).data
     }
 }
 
