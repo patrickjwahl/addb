@@ -59,7 +59,7 @@ export default function Table({ children, columns, setSort, sortIndex, sortDesc 
     return (
         <div className={'table-wrapper' + (scrollable ? ' table-fix-head' : '')}>
             {columns.map((col, index) => {
-                return col.tip ? <Tooltip id={`${tableUUID}-${index}`}>{col.tip}</Tooltip> : (null)
+                return col.tip ? <Tooltip key={index} id={`${tableUUID}-${index}`}>{col.tip}</Tooltip> : (null)
             })}
             <table ref={tableRef} className="info-page-table" onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
                 <thead>

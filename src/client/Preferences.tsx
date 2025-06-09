@@ -17,9 +17,11 @@ export default function Preferences() {
 
     const navigate = useNavigate()
 
-    if (!api.isLoggedIn()) {
-        navigate('/login')
-    }
+    useEffect(() => {
+        if (!api.isLoggedIn()) {
+            navigate('/login')
+        }
+    }, [])
 
     const fetchPreferences = async () => {
         const prefs = await api.getPreferences()
