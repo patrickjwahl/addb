@@ -838,7 +838,8 @@ router.route('/match/:id')
                                 include: {
                                     school: {
                                         include: {
-                                            state: true
+                                            state: true,
+                                            region: true
                                         }
                                     }
                                 }
@@ -878,7 +879,8 @@ router.route('/match/:id')
                                 include: {
                                     school: {
                                         include: {
-                                            state: true
+                                            state: true,
+                                            region: true
                                         }
                                     }
                                 }

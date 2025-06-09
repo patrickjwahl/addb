@@ -51,12 +51,17 @@ const TeamPerformanceRow: React.FunctionComponent<TeamPerformanceRowProps> = ({ 
                         <Link to={`/school/${performance.team.schoolId}`}>
                             {performance.team.name}
                             {editingEnabled && ` (${performance.team.school?.fullName || performance.team.school?.name || ''})`}
-                            {match?.round == 'nationals' && performance.team.school?.state && ` (${performance.team.school?.state?.name})`}
                         </Link>
                     </td>
                 ) : (<td className={rankClass}>
                     {performance.team.name} {canEdit && <b>(Unlinked!)</b>}
                 </td>)
+                }
+                {
+                    match?.round == 'nationals' && <td>{performance.team.school?.state?.name}</td>
+                }
+                {
+                    match?.round == 'state' && <td>{performance.team.school?.region?.name}</td>
                 }
                 <td className={`${rankClass}`}>{ftoa(performance.overall)}</td>
                 {match && match.events.length > 0 && match.events.length < 10 &&

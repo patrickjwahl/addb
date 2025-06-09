@@ -410,7 +410,10 @@ export default function MatchResult2() {
         return ''
     }
 
-    let teamColumnNames = ['Rank', 'Team', 'Overall']
+    let teamColumnNames = ['Rank', 'Team']
+    if (match.round == 'nationals') teamColumnNames.push('State')
+    if (match.round == 'state') teamColumnNames.push('Region')
+    teamColumnNames.push('Overall')
     match.events.length > 0 && match.events.length < 10 && teamColumnNames.push('Overall/10')
     teamColumnNames.push('Obj', 'Sub')
     match.hasSq && teamColumnNames.push('Overall + SQ')
