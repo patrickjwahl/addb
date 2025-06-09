@@ -1,6 +1,7 @@
 printf -v date '%(%Y%m%d)T'
-file_name="/tmp/${date}.gz" 
-pg_dump -U addb -d addb | gzip > "$file_name"
+file_name="${date}.gz"
+file_path="/tmp/${file_name}"
+pg_dump -U addb -d addb | gzip > "$file_path"
 
 BUCKET_NAME="addb"
 PREFIX="backups"
@@ -23,4 +24,6 @@ if [ "$object_count" -gt 5 ]; then
     aws s3api delete-object --bucket "$BUCKET_NAME" --key "$oldest_key"
 fi
 
-aws s3 mv "$file_name" "s3://addb/backups/${file_name}"
+aws s3 mv "$file_path" "s3://addb/backups/${file_name}"
+
+echo "backed up file ${file_name}"
