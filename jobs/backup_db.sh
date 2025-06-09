@@ -1,5 +1,5 @@
 printf -v date '%(%Y%m%d)T'
-file_name="${date}.gz" 
+file_name="/tmp/${date}.gz" 
 pg_dump -U addb -d addb | gzip > "$file_name"
 
 BUCKET_NAME="addb"
