@@ -15,10 +15,11 @@ interface TeamPerformanceRowProps extends TableRowProps {
     hasSq: boolean,
     match?: Match,
     showMedals: boolean,
-    editCallback?: () => void
+    editCallback?: () => void,
+    showRegion?: boolean
 }
 
-const TeamPerformanceRow: React.FunctionComponent<TeamPerformanceRowProps> = ({ data: performance, editingEnabled, rank, hasSq, match, showMedals, editCallback }) => {
+const TeamPerformanceRow: React.FunctionComponent<TeamPerformanceRowProps> = ({ data: performance, editingEnabled, rank, hasSq, match, showMedals, editCallback, showRegion }) => {
 
     const [editing, setEditing] = useState(false)
 
@@ -61,7 +62,7 @@ const TeamPerformanceRow: React.FunctionComponent<TeamPerformanceRowProps> = ({ 
                     match?.round == 'nationals' && <td>{performance.team.school?.state?.name}</td>
                 }
                 {
-                    match?.round == 'state' && <td>{performance.team.school?.region?.name}</td>
+                    match?.round == 'state' && showRegion && <td>{performance.team.school?.region?.name || '-'}</td>
                 }
                 <td className={`${rankClass}`}>{ftoa(performance.overall)}</td>
                 {match && match.events.length > 0 && match.events.length < 10 &&

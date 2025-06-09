@@ -410,9 +410,10 @@ export default function MatchResult2() {
         return ''
     }
 
+    const hasAnyRegion = match.teamPerformances.filter(perf => perf.team.school?.regionId).length > 0
     let teamColumnNames = ['Rank', 'Team']
     if (match.round == 'nationals') teamColumnNames.push('State')
-    if (match.round == 'state') teamColumnNames.push('Region')
+    if (match.round == 'state' && hasAnyRegion) teamColumnNames.push('Region')
     teamColumnNames.push('Overall')
     match.events.length > 0 && match.events.length < 10 && teamColumnNames.push('Overall/10')
     teamColumnNames.push('Obj', 'Sub')
@@ -430,7 +431,7 @@ export default function MatchResult2() {
         const teamPerformanceRows = sortedTeamPerformances.map((performance, index) => {
             const rank = schoolFilter == -1 ? index + 1 : performance.rank
             teamIdToPartitionRank[performance.teamId] = rank
-            return <TeamPerformanceRow data={performance} rank={rank} editCallback={fetchMatch} editingEnabled={editing} events={match.events} hasSq={match.hasSq} key={performance.id} match={match} showMedals={showMedals} />
+            return <TeamPerformanceRow data={performance} rank={rank} editCallback={fetchMatch} editingEnabled={editing} events={match.events} hasSq={match.hasSq} key={performance.id} match={match} showMedals={showMedals} showRegion={hasAnyRegion} />
         })
         return { ...prev, [division]: teamPerformanceRows }
     }, {})
