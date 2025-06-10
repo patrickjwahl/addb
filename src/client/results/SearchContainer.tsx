@@ -25,7 +25,7 @@ export default function SearchContainer() {
                 <Route path='state/:name' element={<StatePage />} />
                 <Route path='match/:id' element={<MatchResult2 />} />
                 <Route path='nationals' element={<NationalsResult />} />
-                <Route element={<h1>Uh-oh! There's no page here!</h1>} />
+                <Route path='*' element={<div className='error-message'>Not a page, amigo.</div>} />
             </Routes>
         </div>
     )

@@ -134,14 +134,15 @@ model State {
 }
 
 model User {
-  id          Int           @id @default(autoincrement())
-  username    String
-  passhash    String
-  access      Int
-  canEdit     Boolean       @default(false) @map("can_edit")
-  edits       Edit[]
-  lastLogin   DateTime?
-  Preferences Preferences[]
+  id            Int           @id @default(autoincrement())
+  username      String        @unique
+  passhash      String
+  canEdit       Boolean       @default(false) @map("can_edit")
+  isAdmin       Boolean       @default(false) @map("is_admin")
+  edits         Edit[]
+  lastLogin     DateTime?
+  preferences   Preferences[]
+  privateAccess Boolean       @default(false) @map("private_access")
 
   @@map("users")
 }

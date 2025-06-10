@@ -8,9 +8,10 @@ export type LoginCredentials = {
 export type CreateUserCredentials = {
     id?: number,
     password?: string,
-    username: string,
-    access: number,
-    canEdit: boolean
+    username?: string,
+    isAdmin?: boolean,
+    privateAccess?: boolean,
+    canEdit?: boolean
 }
 
 export type MatchMetadata = Prisma.MatchGetPayload<{

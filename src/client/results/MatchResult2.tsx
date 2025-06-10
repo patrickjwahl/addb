@@ -11,6 +11,7 @@ import { Helmet } from "react-helmet"
 import TeamPerformanceRow from "@/client/components/table/TeamPerformanceRow"
 import StudentAggregateRow from "@/client/components/table/StudentAggregateRow"
 import MatchPropertiesEdit from "@/client/components/edit/MatchPropertiesEdit"
+import { Tooltip } from "react-tooltip"
 
 type SearchParams = {
     partition?: keyof ShowMedalsOptions,
@@ -85,6 +86,7 @@ export default function MatchResult2() {
     const [showMedals, _setShowMedals] = useState((searchParams.medals !== undefined) ? searchParams.medals === 'true' : defaultShowMedals)
     const [rankBy, _setRankBy] = useState<keyof ShowMedalsOptions>(searchParams.rank || defaultRankBy)
     const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null)
+    const [error, setError] = useState<string | null>(null)
 
     const updateBrowserParams = () => {
         const newParams = new URLSearchParams(searchParams)
@@ -151,7 +153,12 @@ export default function MatchResult2() {
     const params = useParams()
 
     const fetchMatch = useCallback(async () => {
-        const result = (await api.getMatch(params.id || '')).data
+        const result = (await api.getMatch(params.id || ''))
+        if (!result.success) {
+            setError(result.message || 'An unexpected error occurred.')
+            return
+        }
+
         if (api.isLoggedIn()) {
             let preferences = (await api.getPreferences()).data
             if (preferences) {
@@ -159,7 +166,7 @@ export default function MatchResult2() {
                 setShowMedals(searchParams.medals !== undefined ? searchParams.medals == 'true' : preferences.medals)
                 let partition = preferences.partition as keyof ShowMedalsOptions
                 let rank = preferences.rank as keyof ShowMedalsOptions
-                if (result && !result.hasDivisions) {
+                if (!result.data?.hasDivisions) {
                     if (partition === 'gpa_division') {
                         preferences.partition = 'gpa'
                     } else if (partition === 'division') {
@@ -178,7 +185,7 @@ export default function MatchResult2() {
             }
         }
 
-        setMatch(result)
+        setMatch(result.data)
     }, [])
 
     const setSort = useCallback((index: number) => {
@@ -244,8 +251,9 @@ export default function MatchResult2() {
         id: perf.teamId || -1
     })) || []
 
-    const userHasAccess = !!match && match?.events.length > 0
     const canEdit = useMemo(() => api.canEdit(), [])
+    const privateAccess = useMemo(() => api.hasPrivateAccess(), [])
+    const individualsHidden = !privateAccess && match?.access == 3
 
     const hasObjs = useMemo((): boolean => {
         return _hasObjs(match?.events, match?.year)
@@ -334,6 +342,10 @@ export default function MatchResult2() {
         tip: 'Subjectives (total of all judged events)',
         sortKey: a => (a as FullStudentPerformance).subs || 0
     })
+
+    if (error) {
+        return <div className='error-message'>{error}</div>
+    }
 
     if (!match) {
         return <ColorRing
@@ -508,7 +520,7 @@ export default function MatchResult2() {
                         {match.note && <div className="info-note">{match.note}</div>}
                     </>
                 )}
-                {userHasAccess && canEdit &&
+                {canEdit &&
                     <div className='header-edit-buttons'>
                         <button className="admin-button" onClick={toggleEditMode}>{editing ? 'Leave Editing Mode' : 'Edit'}</button>
                         <button className="admin-button" onClick={deleteMatch}>Delete</button>
@@ -538,15 +550,18 @@ export default function MatchResult2() {
                             </select>
                         </div>
                     }
-                    <div className="left-align-column">
-                        <div className="title">Filter by GPA</div>
-                        <select style={{ fontWeight: gpaFilter == (userPreferences?.gpa || defaultGpaFilter) ? 'normal' : 'bold' }} value={gpaFilter} onChange={e => setGpaFilter(e.target.value)}>
-                            <option value='all'>All</option>
-                            <option value='H'>H</option>
-                            <option value='S'>S</option>
-                            <option value='V'>V</option>
-                        </select>
-                    </div>
+                    {
+                        !individualsHidden &&
+                        <div className="left-align-column">
+                            <div className="title">Filter by GPA</div>
+                            <select style={{ fontWeight: gpaFilter == (userPreferences?.gpa || defaultGpaFilter) ? 'normal' : 'bold' }} value={gpaFilter} onChange={e => setGpaFilter(e.target.value)}>
+                                <option value='all'>All</option>
+                                <option value='H'>H</option>
+                                <option value='S'>S</option>
+                                <option value='V'>V</option>
+                            </select>
+                        </div>
+                    }
                     <div className="left-align-column">
                         <div className="title">Filter by School</div>
                         <select style={{ fontWeight: schoolFilter == -1 ? 'normal' : 'bold' }} value={schoolFilter} onChange={e => setSchoolFilter(parseInt(e.target.value))}>
@@ -556,15 +571,18 @@ export default function MatchResult2() {
                             })}
                         </select>
                     </div>
-                    <div className="left-align-column">
-                        <div className="title">Rank By</div>
-                        <select style={{ fontWeight: rankBy == (userPreferences?.rank || defaultRankBy) ? 'normal' : 'bold' }} value={rankBy} onChange={e => setRankBy(e.target.value as keyof ShowMedalsOptions)}>
-                            <option value={'overall'}>Overall</option>
-                            {match.hasDivisions && <option value={'division'}>Division</option>}
-                            <option value={'gpa'}>GPA</option>
-                            {match.hasDivisions && <option value="gpa_division">Division & GPA</option>}
-                        </select>
-                    </div>
+                    {
+                        !individualsHidden &&
+                        <div className="left-align-column">
+                            <div className="title">Rank By</div>
+                            <select style={{ fontWeight: rankBy == (userPreferences?.rank || defaultRankBy) ? 'normal' : 'bold' }} value={rankBy} onChange={e => setRankBy(e.target.value as keyof ShowMedalsOptions)}>
+                                <option value={'overall'}>Overall</option>
+                                {match.hasDivisions && <option value={'division'}>Division</option>}
+                                <option value={'gpa'}>GPA</option>
+                                {match.hasDivisions && <option value="gpa_division">Division & GPA</option>}
+                            </select>
+                        </div>
+                    }
                     <div className="left-align-column">
                         <div className="title" onClick={() => setShowMedals(!showMedals)}>Show Medals</div>
                         <input type="checkbox" checked={showMedals} onChange={() => setShowMedals(!showMedals)} />
@@ -577,37 +595,46 @@ export default function MatchResult2() {
                     </div>
                 </div>
             </div>
-            <div className="info-page-section">
-                {hasStudentData &&
-                    <div className='info-page-section-header'>Individual Scores</div>}
+            {(!individualsHidden || canEdit) &&
+                <div className="info-page-section">
+                    {hasStudentData &&
+                        <div className='info-page-section-header' style={{ display: 'flex', alignItems: 'center' }}>
+                            {!privateAccess && match.access == 2 && 'Outstanding '}Individual Scores
+                            {!privateAccess && match.access == 2 &&
+                                <span data-tooltip-id='redacted-explainer' style={{ marginLeft: 5, fontSize: '13px' }}>
+                                    <Tooltip id="redacted-explainer">Only outstanding scores are available for this match. Outstanding scores are considered to be above 7,000 for Honors, 6,500 for Scholastic, and 6,000 for Varsity.</Tooltip>
+                                    (?)
+                                </span>}
+                        </div>}
 
-                {hasStudentData && Object.keys(studentPerformanceRowsByPartition).sort(partitionSort).filter(d => studentPerformanceRowsByPartition[d].length > 0).map(partition => {
-                    return (
-                        <div key={partition}>
-                            {partitionBy != 'overall' && <h3 className="info-page-subhead">{friendlyPartition(partition)}</h3>}
-                            <Table columns={studentColumns} sortIndex={sortIndex > 3 ? sortIndex + 1 : sortIndex} sortDesc={sortDesc} setSort={setSort}>
-                                {studentPerformanceRowsByPartition[partition]}
-                            </Table>
-                        </div>
-                    )
-                })}
+                    {hasStudentData && Object.keys(studentPerformanceRowsByPartition).sort(partitionSort).filter(d => studentPerformanceRowsByPartition[d].length > 0).map(partition => {
+                        return (
+                            <div key={partition}>
+                                {partitionBy != 'overall' && <h3 className="info-page-subhead">{friendlyPartition(partition)}</h3>}
+                                <Table columns={studentColumns} sortIndex={sortIndex > 3 ? sortIndex + 1 : sortIndex} sortDesc={sortDesc} setSort={setSort}>
+                                    {studentPerformanceRowsByPartition[partition]}
+                                </Table>
+                            </div>
+                        )
+                    })}
 
-                {!hasStudentData && <>
-                    <div>No student performances have been entered for this match.</div>
-                    {userHasAccess && canEdit && Object.keys(teamPerformanceRowsByDivision).length > 0 && (
-                        <div style={{ marginTop: 10 }}>
-                            <label>
-                                <b style={{ marginRight: 10 }}>Import Data</b>
-                                <input id='student-data-upload' type='file' accept='.csv' onChange={uploadStudentCSV} onClick={e => { (e.target as HTMLInputElement).value = '' }} />
-                            </label>
-                            <div style={{ marginTop: 5 }}><b>Required CSV Format:</b> Team Name | GPA | Student Name | {match.events.map(s => friendlyColumn[s]).join(' | ')}</div>
-                        </div>
-                    )}
-                    {userHasAccess && canEdit && Object.keys(teamPerformanceRowsByDivision).length == 0 && (
-                        <div><i>Please upload team performances first.</i></div>
-                    )}
-                </>}
-            </div>
+                    {(!individualsHidden || canEdit) && !hasStudentData && <>
+                        <div>No student performances have been entered for this match.</div>
+                        {canEdit && Object.keys(teamPerformanceRowsByDivision).length > 0 && (
+                            <div style={{ marginTop: 10 }}>
+                                <label>
+                                    <b style={{ marginRight: 10 }}>Import Data</b>
+                                    <input id='student-data-upload' type='file' accept='.csv' onChange={uploadStudentCSV} onClick={e => { (e.target as HTMLInputElement).value = '' }} />
+                                </label>
+                                <div style={{ marginTop: 5 }}><b>Required CSV Format:</b> Team Name | GPA | Student Name | {match.events.map(s => friendlyColumn[s]).join(' | ')}</div>
+                            </div>
+                        )}
+                        {canEdit && Object.keys(teamPerformanceRowsByDivision).length == 0 && (
+                            <div><i>Please upload team performances first.</i></div>
+                        )}
+                    </>}
+                </div>
+            }
             <div>
                 {hasTeamData &&
                     <div className='info-page-section-header'>
@@ -633,7 +660,7 @@ export default function MatchResult2() {
                             <div>
                                 No team performances have been entered for this match.
                             </div>
-                            {userHasAccess && canEdit && (
+                            {canEdit && (
                                 <div style={{ marginTop: 10 }}>
                                     <label>
                                         <b style={{ marginRight: 10 }}>Import Data</b>

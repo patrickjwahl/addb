@@ -26,7 +26,8 @@ class API {
 
         localStorage.setItem('expiresAt', (result.data.expiresIn + new Date().getTime()).toString())
         localStorage.setItem('canEdit', result.data.canEdit.toString())
-        localStorage.setItem('access', result.data.access.toString())
+        localStorage.setItem('privateAccess', result.data.privateAccess.toString())
+        localStorage.setItem('isAdmin', result.data.isAdmin.toString())
         localStorage.setItem('username', result.data.username)
         return result
     }
@@ -36,6 +37,12 @@ class API {
         const result: ApiResponse<LoginResult> = (await this.axios
             .post('/user', data)).data
 
+        return result
+    }
+
+    register = async (data: CreateUserCredentials): Promise<ApiResponse<LoginResult>> => {
+        const result = await this.upsertUser(data)
+
         if (!result.success || !result.data) {
             this.logOut()
             return result
@@ -43,25 +50,19 @@ class API {
 
         localStorage.setItem('expiresAt', (result.data.expiresIn + new Date().getTime()).toString())
         localStorage.setItem('canEdit', result.data.canEdit.toString())
-        localStorage.setItem('access', result.data.access.toString())
+        localStorage.setItem('privateAccess', result.data.privateAccess.toString())
+        localStorage.setItem('isAdmin', result.data.isAdmin.toString())
         localStorage.setItem('username', result.data.username)
         return result
     }
 
     logOut = () => {
         localStorage.removeItem('expiresAt')
-        localStorage.removeItem('access')
+        localStorage.removeItem('privateAccess')
         localStorage.removeItem('canEdit')
+        localStorage.removeItem('isAdmin')
         localStorage.removeItem('username')
         this.axios.get('/logout')
-    }
-
-    accessLevel = () => {
-        if (this.isLoggedIn()) {
-            let level = localStorage.getItem('access')
-            if (level) return parseInt(level)
-        }
-        return 1
     }
 
     username = () => {
@@ -88,6 +89,22 @@ class API {
     canEdit = () => {
         let canEdit = localStorage.getItem('canEdit')
         if (canEdit === 'true') {
+            return true
+        }
+        return false
+    }
+
+    hasPrivateAccess = () => {
+        const hasPrivateAccess = localStorage.getItem('privateAccess')
+        if (hasPrivateAccess === 'true') {
+            return true
+        }
+        return false
+    }
+
+    isAdmin = () => {
+        const isAdmin = localStorage.getItem('isAdmin')
+        if (isAdmin === 'true') {
             return true
         }
         return false
@@ -221,6 +238,10 @@ class API {
 
     setPreferences = async (data: UserPreferencesInput): Promise<ApiResponse<null>> => {
         return (await this.axios.post('/preferences', data)).data
+    }
+
+    getUsers = async (): Promise<ApiResponse<{ [id: number]: LoginResult }>> => {
+        return (await this.axios.get('/users')).data
     }
 }
 

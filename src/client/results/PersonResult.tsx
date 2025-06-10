@@ -18,6 +18,7 @@ const tableCols: Column[] = ['Year', 'Round One', 'Regionals', 'State', 'Nationa
 export default function PersonResult() {
 
     const [result, setResult] = useState<StudentPage | undefined | null>()
+    const [notFound, setNotFound] = useState(false)
     const [editing, setEditing] = useState(false)
     const [deleted, setDeleted] = useState(false)
 
@@ -27,6 +28,8 @@ export default function PersonResult() {
         const result = await api.getStudent(parseInt(params.id || '0'))
         if (result.success) {
             setResult(result.data)
+        } else {
+            setNotFound(true)
         }
     }
 
@@ -50,6 +53,10 @@ export default function PersonResult() {
     }, [])
 
     if (deleted) return <img src='/img/chigurh.jpg' />
+
+    if (notFound) {
+        return <div className='error-message'>Student not found.</div>
+    }
 
     if (!result) {
         return <ColorRing

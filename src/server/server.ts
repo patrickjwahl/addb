@@ -37,6 +37,7 @@ const pool = new Pool({
 
 import dotenv from 'dotenv'
 import { divisions, eventOrdering, gpaOptions, subs as subList } from '../shared/util/consts.js'
+import { access } from 'fs'
 dotenv.config()
 
 const __dirname = path.resolve()
@@ -50,15 +51,17 @@ declare module "express-session" {
     interface SessionData {
         username: string,
         canEdit: boolean,
-        access: number,
-        userId: number
+        userId: number,
+        isAdmin: boolean,
+        privateAccess: boolean
     }
 }
 
 interface AddbRequest<T> extends Request {
     auth?: boolean,
-    access?: number,
     canEdit?: boolean,
+    privateAccess?: boolean,
+    isAdmin?: boolean,
     username?: string,
     userId?: number,
     body: T,
@@ -121,14 +124,16 @@ app.use(session({
 router.use(async function (req: AddbRequest<any>, _, next) {
     if (req.session.username) {
         req.auth = true
-        req.access = req.session.access
+        req.privateAccess = req.session.privateAccess
         req.canEdit = req.session.canEdit
+        req.isAdmin = req.session.isAdmin
         req.username = req.session.username
         req.userId = req.session.userId
     } else {
         req.auth = false
-        req.access = 1
+        req.privateAccess = false
         req.canEdit = false
+        req.isAdmin = false
     }
     next()
 })
@@ -209,18 +214,46 @@ router.route('/authenticate')
 
 router.route('/user')
     .post(async function (req: AddbRequest<CreateUserCredentials>, res: AddbResponse<LoginResult>) {
-        // if (!req.auth || !req.access || req.access < 4) {
-        //     res.json({
-        //         success: false,
-        //         message: 'Not authorized'
-        //     })
-        //     return
-        // }
+
+        if (req.body.id) {
+            if (!req.auth || !req.isAdmin) {
+                res.json({ success: false })
+                return
+            }
+
+            const user = await prisma.user.findFirst({
+                where: {
+                    id: req.body.id
+                }
+            })
+
+            if (!user) {
+                res.json({ success: false, message: 'User not found' })
+                return
+            }
+
+            await prisma.user.update({
+                where: {
+                    id: req.body.id
+                },
+                data: {
+                    privateAccess: req.body.privateAccess || false,
+                    canEdit: req.body.canEdit || false,
+                    isAdmin: req.body.isAdmin || false
+                }
+            })
+
+            res.json({ success: true })
+            return
+        }
 
         let username = req.body.username
         let password = req.body.password
-        let access = 1
-        let canEdit = false
+
+        if (!username || !password) {
+            res.json({ success: false, message: "You must specify a username and password!" })
+            return
+        }
 
         const saltRounds = 10
         const salt = await bcrypt.genSalt(saltRounds)
@@ -240,22 +273,45 @@ router.route('/user')
         const user = await prisma.user.create({
             data: {
                 username: username,
-                passhash: hash,
-                access: access,
-                canEdit: canEdit
+                passhash: hash
             }
         })
 
-        req.session.access = user.access
+        req.session.privateAccess = user.privateAccess
         req.session.canEdit = user.canEdit
+        req.session.isAdmin = user.isAdmin
         req.session.username = user.username
         req.session.userId = user.id
-        res.json({ success: true, data: { expiresIn: 30 * 24 * 60 * 60 * 1000, canEdit: user.canEdit, access: user.access, username: user.username } })
+        res.json({ success: true, data: { expiresIn: 30 * 24 * 60 * 60 * 1000, canEdit: user.canEdit, privateAccess: user.privateAccess, isAdmin: user.isAdmin, username: user.username } })
 
         if (process.env.EMAIL_NOTIFY) {
             sendEmail(process.env.EMAIL_NOTIFY, "[AD-DB] A new user has been created!",
                 `*THIS IS AN AUTOMATED MESSAGE*\n\n${user.username} just signed up for AD-DB. Would you like to grant them special privileges?`)
         }
+    })
+
+router.route('/users')
+    .get(async function (req: AddbRequest<null>, res: AddbResponse<{ [id: number]: LoginResult }>) {
+
+        if (!req.auth || !req.isAdmin) {
+            res.json({ success: false })
+            return
+        }
+
+        const users = await prisma.user.findMany()
+        const results: { [id: number]: LoginResult } = users.reduce((prev, user) => {
+            return {
+                ...prev, [user.id]: {
+                    expiresIn: 0,
+                    username: user.username,
+                    isAdmin: user.isAdmin,
+                    privateAccess: user.privateAccess,
+                    canEdit: user.canEdit
+                }
+            }
+        }, {})
+
+        res.json({ success: true, data: results })
     })
 
 router.route('/login')
@@ -277,11 +333,12 @@ router.route('/login')
             res.json({ success: false, message: "Incorrect password!" })
             return
         } else {
-            req.session.access = user.access
+            req.session.privateAccess = user.privateAccess
+            req.session.isAdmin = user.isAdmin
             req.session.canEdit = user.canEdit
             req.session.username = user.username
             req.session.userId = user.id
-            res.json({ success: true, data: { expiresIn: 30 * 24 * 60 * 60 * 1000, canEdit: user.canEdit, access: user.access, username: user.username } })
+            res.json({ success: true, data: { expiresIn: 30 * 24 * 60 * 60 * 1000, canEdit: user.canEdit, privateAccess: user.privateAccess, isAdmin: user.isAdmin, username: user.username } })
         }
     })
 
@@ -338,13 +395,56 @@ router.route('/search')
             take: limit
         })
 
-        const students = await prisma.student.findMany({
-            where: {
-                name: {
-                    contains: query,
-                    mode: 'insensitive'
+        let studentWhere: Prisma.StudentWhereInput = {
+            name: {
+                contains: query,
+                mode: 'insensitive'
+            }
+        }
+        if (!req.privateAccess) {
+            studentWhere = {
+                ...studentWhere,
+                performances: {
+                    some: {
+                        OR: [
+                            {
+                                match: {
+                                    access: 1
+                                }
+                            },
+                            {
+                                match: {
+                                    access: 2
+                                },
+                                OR: [
+                                    {
+                                        gpa: 'H',
+                                        overall: {
+                                            gte: 7000
+                                        }
+                                    },
+                                    {
+                                        gpa: 'S',
+                                        overall: {
+                                            gte: 6500
+                                        }
+                                    },
+                                    {
+                                        gpa: 'V',
+                                        overall: {
+                                            gte: 6000
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
                 }
-            },
+            }
+        }
+
+        const students = await prisma.student.findMany({
+            where: studentWhere,
             include: {
                 performances: {
                     select: {
@@ -820,103 +920,94 @@ router.route('/match/:id')
         }))?.access
 
         if (!access) {
-            res.json({ success: false })
+            res.json({ success: false, message: 'Match not found.' })
             return
         }
 
-        const redacted = !req.access || req.access < access
-        let match: Match
-        if (redacted) {
-            match = await prisma.match.findFirst({
-                where: {
-                    id: id
-                },
-                include: {
-                    teamPerformances: {
-                        include: {
-                            team: {
-                                include: {
-                                    school: {
-                                        include: {
-                                            state: true,
-                                            region: true
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        orderBy: {
-                            rank: 'asc'
+        let studentPerformancesWhere: Prisma.StudentPerformanceWhereInput
+        if (req.privateAccess || access == 1) {
+            // either match is public or user has private access
+            studentPerformancesWhere = {}
+        } else if (access == 2) {
+            // only high scores visible
+            studentPerformancesWhere = {
+                OR: [
+                    {
+                        gpa: 'H',
+                        overall: {
+                            gte: 7000
                         }
                     },
-                    studentPerformances: {
-                        select: {
-                            student: true,
-                            studentId: true,
-                            id: true,
-                            team: true,
-                            teamId: true,
-                            gpa: true,
-                            overall: true,
-                            matchId: true,
-                            match: true
+                    {
+                        gpa: 'S',
+                        overall: {
+                            gte: 6500
                         }
                     },
-                    region: true,
-                    state: true
-                }
-            })
-            if (match) match.events = []
+                    {
+                        gpa: 'V',
+                        overall: {
+                            gte: 6000
+                        }
+                    }
+                ]
+            }
         } else {
-            match = await prisma.match.findFirst({
-                where: {
-                    id: id
-                },
-                include: {
-                    teamPerformances: {
-                        include: {
-                            team: {
-                                include: {
-                                    school: {
-                                        include: {
-                                            state: true,
-                                            region: true
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        orderBy: {
-                            rank: 'asc'
-                        }
-                    },
-                    studentPerformances: {
-                        include: {
-                            student: true,
-                            team: true,
-                            match: true
-                        }
-                    },
-                    region: true,
-                    state: true
-                }
-            })
+            // no indiv. scores visible
+            studentPerformancesWhere = {
+                id: -1 // never true
+            }
         }
 
+        let match = await prisma.match.findFirst({
+            where: {
+                id: id
+            },
+            include: {
+                teamPerformances: {
+                    include: {
+                        team: {
+                            include: {
+                                school: {
+                                    include: {
+                                        state: true,
+                                        region: true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    orderBy: {
+                        rank: 'asc'
+                    }
+                },
+                studentPerformances: {
+                    include: {
+                        student: true,
+                        team: true,
+                        match: true
+                    },
+                    where: studentPerformancesWhere
+                },
+                region: true,
+                state: true
+            }
+        })
+
+
         if (!match) {
-            res.json({ success: false })
+            res.json({ success: false, message: 'Match not found.' })
             return
         }
 
         let data: Match = { ...match }
 
-        if (!redacted) {
-            let aggs: StudentAggregates = {}
-            let cols: string[] = [...match.events]
-            cols.push('objs', 'subs', 'overall')
-            for (const c of cols) {
-                const c_ovr = (c == 'socialScience') ? 'social_science' : c
-                const query = `
+        let aggs: StudentAggregates = {}
+        let cols: string[] = [...match.events]
+        cols.push('objs', 'subs', 'overall')
+        for (const c of cols) {
+            const c_ovr = (c == 'socialScience') ? 'social_science' : c
+            const query = `
                     SELECT team_id, sum(${c_ovr}) as combinedscore
                         FROM (
                             SELECT team_id, ${c_ovr}, ROW_NUMBER() OVER (
@@ -926,15 +1017,15 @@ router.route('/match/:id')
                     GROUP BY team_id;    
                 `
 
-                const result: { team_id: number, combinedscore: number }[] = await prisma.$queryRawUnsafe(query)
-                result.forEach(entry => {
-                    if (entry.team_id in aggs) {
-                        aggs[entry.team_id][c] = entry.combinedscore
-                    } else {
-                        aggs[entry.team_id] = { [c]: entry.combinedscore }
-                    }
-                })
-            }
+            const result: { team_id: number, combinedscore: number }[] = await prisma.$queryRawUnsafe(query)
+            result.forEach(entry => {
+                if (entry.team_id in aggs) {
+                    aggs[entry.team_id][c] = entry.combinedscore
+                } else {
+                    aggs[entry.team_id] = { [c]: entry.combinedscore }
+                }
+            })
+
             data.aggregates = aggs
         }
 
@@ -1743,16 +1834,59 @@ router.route('/student/:id')
             }
         }))?.team.school
 
+        let perfWhere: Prisma.StudentPerformanceWhereInput = { studentId: id }
+        if (!req.privateAccess) {
+            perfWhere = {
+                ...perfWhere,
+                OR: [
+                    {
+                        match: {
+                            access: 1
+                        }
+                    },
+                    {
+                        match: {
+                            access: 2
+                        },
+                        OR: [
+                            {
+                                gpa: 'H',
+                                overall: {
+                                    gte: 7000
+                                }
+                            },
+                            {
+                                gpa: 'S',
+                                overall: {
+                                    gte: 6500
+                                }
+                            },
+                            {
+                                gpa: 'V',
+                                overall: {
+                                    gte: 6000
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+
         let seasons: StudentSeasons = {}
         const performances = await prisma.studentPerformance.findMany({
-            where: {
-                studentId: id
-            },
+            where: perfWhere,
             include: {
                 match: true,
                 team: true
             }
         })
+
+        if (performances.length == 0 && !req.privateAccess) {
+            res.json({ success: false })
+            return
+        }
+
         for (const perf of performances) {
             const [{ rank: rank }] = await prisma.$queryRaw<{ rank: BigInt }[]>`SELECT rank FROM (SELECT id, ROW_NUMBER() OVER (ORDER BY overall DESC NULLS LAST) AS rank FROM student_performances WHERE match_id=${perf.matchId} AND gpa=${perf.gpa}) AS sub WHERE sub.id = ${perf.id}`
             let rankedPerf = perf as Prisma.StudentPerformanceGetPayload<{ include: { team: true, match: true } }> & { rank?: number }
@@ -2178,54 +2312,65 @@ router.route('/school/:id/season/:year')
         let aggregatesByRound: { [round: string]: StudentAggregates } = {}
         for (const round of Object.keys(matchByRound)) {
             const match = matchByRound[round]
-            const redacted = !req.access || req.access < match.access
-            if (redacted) {
-                studentPerformancesByRound[round] = await prisma.studentPerformance.findMany({
-                    where: {
-                        match: {
-                            id: match.id
+            const access = match.access
+            let studentPerformancesWhere: Prisma.StudentPerformanceWhereInput
+            if (req.privateAccess || access == 1) {
+                // either match is public or user has private access
+                studentPerformancesWhere = {}
+            } else if (access == 2) {
+                // only high scores visible
+                studentPerformancesWhere = {
+                    OR: [
+                        {
+                            gpa: 'H',
+                            overall: {
+                                gte: 7000
+                            }
                         },
-                        team: {
-                            schoolId: id
+                        {
+                            gpa: 'S',
+                            overall: {
+                                gte: 6500
+                            }
+                        },
+                        {
+                            gpa: 'V',
+                            overall: {
+                                gte: 6000
+                            }
                         }
-                    },
-                    select: {
-                        student: true,
-                        studentId: true,
-                        id: true,
-                        team: true,
-                        teamId: true,
-                        gpa: true,
-                        overall: true,
-                        matchId: true,
-                        match: true
-                    }
-                })
-                matchByRound[round].events = []
+                    ]
+                }
             } else {
-                studentPerformancesByRound[round] = await prisma.studentPerformance.findMany({
-                    where: {
-                        match: {
-                            id: match.id
-                        },
-                        team: {
-                            schoolId: id
-                        }
-                    },
-                    include: {
-                        student: true,
-                        team: true,
-                        match: true
-                    }
-                })
+                // no indiv. scores visible
+                studentPerformancesWhere = {
+                    id: -1 // never true
+                }
             }
-            if (!redacted) {
-                let aggs: StudentAggregates = {}
-                let cols: string[] = [...match.events]
-                cols.push('objs', 'subs', 'overall')
-                for (const c of cols) {
-                    const c_ovr = (c == 'socialScience') ? 'social_science' : c
-                    const query = `
+
+            studentPerformancesByRound[round] = await prisma.studentPerformance.findMany({
+                where: {
+                    match: {
+                        id: match.id
+                    },
+                    team: {
+                        schoolId: id
+                    },
+                    ...studentPerformancesWhere
+                },
+                include: {
+                    student: true,
+                    team: true,
+                    match: true
+                }
+            })
+
+            let aggs: StudentAggregates = {}
+            let cols: string[] = [...match.events]
+            cols.push('objs', 'subs', 'overall')
+            for (const c of cols) {
+                const c_ovr = (c == 'socialScience') ? 'social_science' : c
+                const query = `
                         SELECT team_id, sum(${c_ovr}) as combinedscore
                             FROM (
                                 SELECT team_id, ${c_ovr}, ROW_NUMBER() OVER (
@@ -2235,17 +2380,17 @@ router.route('/school/:id/season/:year')
                         GROUP BY team_id;    
                     `
 
-                    const result: { team_id: number, combinedscore: number }[] = await prisma.$queryRawUnsafe(query)
-                    result.forEach(entry => {
-                        if (entry.team_id in aggs) {
-                            aggs[entry.team_id][c] = entry.combinedscore
-                        } else {
-                            aggs[entry.team_id] = { [c]: entry.combinedscore }
-                        }
-                    })
-                }
-                aggregatesByRound[round] = aggs
+                const result: { team_id: number, combinedscore: number }[] = await prisma.$queryRawUnsafe(query)
+                result.forEach(entry => {
+                    if (entry.team_id in aggs) {
+                        aggs[entry.team_id][c] = entry.combinedscore
+                    } else {
+                        aggs[entry.team_id] = { [c]: entry.combinedscore }
+                    }
+                })
             }
+            aggregatesByRound[round] = aggs
+
         }
         res.json({
             success: true,

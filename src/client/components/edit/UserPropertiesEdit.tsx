@@ -1,90 +1,107 @@
 import api from "@/client/API"
 import { CreateUserCredentials } from "@/shared/types/request"
-import { Prisma } from "@prisma/client"
-import { useEffect, useState } from "react"
+import { LoginResult } from "@/shared/types/response"
+import { useEffect, useRef, useState } from "react"
+import { useNavigate } from "react-router-dom"
 
-export default function UserPropertiesEdit({ user, callback }: { user?: Prisma.UserGetPayload<{}> | null, callback: (userId: number | null) => void }) {
+export default function UserPropertiesEdit() {
 
-    const [username, setUsername] = useState(user?.username || '')
-    const [password, setPassword] = useState('')
-    const [guiAccess, setGuiAccess] = useState(1)
-    const [validationError, setValidationError] = useState<string | null>(null)
     const [message, setMessage] = useState<string | null | undefined>(null)
+    const [users, setUsers] = useState<{ [id: string]: LoginResult }>({})
+    const [selectedUser, _setSelectedUser] = useState<string | null>(null)
+    const [canEdit, setCanEdit] = useState(false)
+    const [isAdmin, setIsAdmin] = useState(false)
+    const [privateAccess, setPrivateAccess] = useState(false)
 
+    const messageRef = useRef(null)
 
-    const validateInput = (): string | null => {
-        if (!username) {
-            return "Please enter a username."
+    const setSelectedUser = (id: string) => {
+        if (id == 'null') {
+            _setSelectedUser(null)
+        } else {
+            _setSelectedUser(id)
+            setIsAdmin(users[id].isAdmin)
+            setCanEdit(users[id].canEdit)
+            setPrivateAccess(users[id].privateAccess)
         }
-        if (!user && !password) {
-            return "Please enter a password"
-        }
+    }
 
-        return null
+    const navigate = useNavigate()
+
+    const fetchUsers = async () => {
+        const result = await api.getUsers()
+        if (result.success && result.data) {
+            setUsers(result.data)
+        } else {
+            navigate('/')
+        }
     }
 
     useEffect(() => {
-        if (user && user.access == 4) {
-            setGuiAccess(5)
-        } else if (user && user.access == 3 && user.canEdit) {
-            setGuiAccess(4)
-        }
+        fetchUsers()
     }, [])
 
     const submitForm = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        setValidationError(null)
-        const err = validateInput()
-        if (err) {
-            setValidationError(err)
+
+        if (!selectedUser) {
             return
         }
 
         const userMetadata: CreateUserCredentials = {
-            id: user?.id,
-            username: username,
-            access: guiAccess > 3 ? guiAccess - 1 : guiAccess,
-            canEdit: guiAccess > 3,
-            password: password
+            id: parseInt(selectedUser),
+            canEdit,
+            isAdmin,
+            privateAccess
         }
 
         const result = await api.upsertUser(userMetadata)
-        if (!result.success) {
-            setMessage(result.message)
+        if (result.success) {
+            setMessage('User updated successfully. They may have to log in and out to see the changes.')
+            fetchUsers()
         } else {
-            alert("User created successfully")
-            callback(null)
+            setMessage("Something went wrong.")
         }
+
+        setTimeout(() => {
+            setMessage(null)
+        }, 4000)
     }
 
     return (
         <form className="edit-form" onSubmit={submitForm}>
             <div className="edit-form-row">
-                <input placeholder="Username" type="text" value={username} onChange={e => setUsername(e.target.value)} />
-            </div>
-            <div className="edit-form-row">
-                <input placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} />
-            </div>
-            <div className="edit-form-row">
-                <select value={guiAccess} onChange={e => { setGuiAccess(parseInt(e.target.value)) }}>
-                    <option value={1}>No Special Access</option>
-                    <option value={2}>Private Data Access</option>
-                    <option value={3}>Top Secret Access</option>
-                    <option value={4}>Can Edit the DB</option>
-                    <option value={5}>Can Create Users</option>
+                <div>User:</div>
+                <select value={selectedUser || 'null'} onChange={e => setSelectedUser(e.target.value)}>
+                    <option value="null">Select...</option>
+                    {Object.keys(users).map(id => {
+                        return <option key={id} value={id}>{users[id].username}</option>
+                    })}
                 </select>
             </div>
-            <div style={{ marginTop: '10px' }} className="edit-form-row">
-                <input type="submit" value={!user ? "Create" : "Save"} />
-            </div>
-            {validationError && (
-                <div className="edit-form-row">
-                    <span className="validation-error">{validationError}</span>
+            {selectedUser && <>
+                <div className="edit-form-row" style={{ flexDirection: 'column', alignItems: 'flex-start', marginTop: 20, padding: '0 50px' }}>
+                    <label>
+                        <input type="checkbox" checked={privateAccess} onChange={e => setPrivateAccess(e.target.checked)} />
+                        <b>Insider:</b> can view hidden individual performances.
+                    </label>
+                    <label>
+                        <input type="checkbox" checked={canEdit} onChange={e => setCanEdit(e.target.checked)} />
+                        <b>Editor:</b> can make changes to the DB, add matches, modify scores etc.
+                    </label>
+                    <label>
+                        <input type="checkbox" checked={isAdmin} onChange={e => setIsAdmin(e.target.checked)} />
+                        <b>Admin:</b> can modify user permissions through this page.
+                    </label>
                 </div>
-            )}
+                <div style={{ marginTop: '10px' }} className="edit-form-row">
+                    <input type="submit" value={"Save"} />
+                </div>
+            </>
+            }
             {message && (
                 <div className="edit-form-row">
-                    <span className="edit-form-message">{message}</span>
+                    <span ref={messageRef}>{message}</span>
                 </div>
             )}
         </form>

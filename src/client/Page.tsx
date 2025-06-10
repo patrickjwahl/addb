@@ -67,24 +67,23 @@ export default function Page() {
         ? (
             <div style={{ display: 'inline' }}> <span>
                 Logged in as {API.username()} {' ○ '}
-            </span>{API.canEdit() ? (<div style={{ display: 'inline' }}>
-                <Link to='/matchcreate' className='page-link'>New Match</Link>
-                {' ○ '}
-                <Link to='/schoolcreate' className='page-link'>New School</Link>
-                {' ○ '}
-                <Link to='/studentcreate' className='page-link'>New Student</Link>
-                {' ○ '}
-                <Link to='/peoplemerger' className='page-link'>PeopleMerger-9000</Link>
-                {' ○ '}
-                <Link to='/potentialmerges' className='page-link'>Merge Suggestions</Link>
-                {' ○ '}
-                {API.accessLevel() == 4 && (<><Link to='/usercreate' className='page-link'>User Access Management</Link> {' ○ '}</>)}
-                {/* <Link to='/editingguide' className='page-link'>Editing Guide</Link> */}
-                {/* {' ○ '} */}
-            </div>) : (null)} {API.canEdit() ? (<div style={{ display: 'inline' }}>
-                <Link to='/edits' className='page-link'>Recent Edits</Link>
-                {' ○ '}
-            </div>) : (null)}
+            </span>
+                {API.canEdit() ? (<div style={{ display: 'inline' }}>
+                    <Link to='/matchcreate' className='page-link'>New Match</Link>
+                    {' ○ '}
+                    <Link to='/schoolcreate' className='page-link'>New School</Link>
+                    {' ○ '}
+                    <Link to='/studentcreate' className='page-link'>New Student</Link>
+                    {' ○ '}
+                    <Link to='/peoplemerger' className='page-link'>PeopleMerger-9000</Link>
+                    {' ○ '}
+                    <Link to='/potentialmerges' className='page-link'>Merge Suggestions</Link>
+                    {' ○ '}
+                </div>) : (null)} {API.canEdit() ? (<div style={{ display: 'inline' }}>
+                    <Link to='/edits' className='page-link'>Recent Edits</Link>
+                    {' ○ '}
+                </div>) : (null)}
+                {API.isAdmin() && (<><Link to='/upm' className='page-link'>User Permissions</Link> {' ○ '}</>)}
                 <span className='page-link' onClick={() => {
                     API.logOut()
                     setLogoutFlip(!logoutFlip)
@@ -138,7 +137,7 @@ export default function Page() {
             </div>
             <div className='main-part'>
                 <Routes>
-                    <Route path='/usercreate' element={<UserCreatePage />} />
+                    <Route path='/upm' element={<UserCreatePage />} />
                     <Route path='/matchcreate' element={<MatchCreatePage />} />
                     <Route path='/schoolcreate' element={<SchoolCreatePage />} />
                     <Route path='/studentcreate' element={<StudentCreatePage />} />

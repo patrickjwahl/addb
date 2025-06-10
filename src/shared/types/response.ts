@@ -9,7 +9,8 @@ export type ApiResponse<T> = {
 export type LoginResult = {
     expiresIn: number,
     canEdit: boolean,
-    access: number,
+    privateAccess: boolean,
+    isAdmin: boolean,
     username: string
 }
 

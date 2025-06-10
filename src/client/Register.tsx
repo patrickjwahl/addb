@@ -66,7 +66,7 @@ export default function Register({ loginCallback }: { loginCallback: () => void 
         if (validationResult) {
             setResult({ success: false, message: validationResult })
         } else {
-            const result = await API.upsertUser({ username: username, password: password, access: 1, canEdit: false })
+            const result = await API.register({ username: username, password: password })
             setResult(result)
             loginCallback()
         }
