@@ -1574,6 +1574,43 @@ router.route('/school/:id')
             schoolTeams.push(teamData)
         }
 
+        let studentWhere: Prisma.StudentPerformanceWhereInput = {}
+        if (!req.privateAccess) {
+            studentWhere = {
+                OR: [
+                    {
+                        match: {
+                            access: 1
+                        }
+                    },
+                    {
+                        match: {
+                            access: 2
+                        },
+                        OR: [
+                            {
+                                gpa: 'H',
+                                overall: {
+                                    gte: 7000
+                                }
+                            },
+                            {
+                                gpa: 'S',
+                                overall: {
+                                    gte: 6500
+                                }
+                            },
+                            {
+                                gpa: 'V',
+                                overall: {
+                                    gte: 6000
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
 
         const rostersMaps: { [year: number]: { [id: number]: Prisma.StudentGetPayload<{}> | null } } = (await prisma.studentPerformance.findMany({
             where: {
@@ -1582,7 +1619,8 @@ router.route('/school/:id')
                 },
                 studentId: {
                     not: null
-                }
+                },
+                ...studentWhere
             },
             include: {
                 match: true,

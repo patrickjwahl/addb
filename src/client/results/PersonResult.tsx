@@ -50,7 +50,7 @@ export default function PersonResult() {
 
     useEffect(() => {
         getPerson()
-    }, [])
+    }, [params.id])
 
     if (deleted) return <img src='/img/chigurh.jpg' />
 
