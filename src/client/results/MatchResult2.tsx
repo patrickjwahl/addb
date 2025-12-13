@@ -186,7 +186,7 @@ export default function MatchResult2() {
         }
 
         setMatch(result.data)
-    }, [])
+    }, [params.id])
 
     const setSort = useCallback((index: number) => {
         let i = index
