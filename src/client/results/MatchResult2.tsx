@@ -422,7 +422,7 @@ export default function MatchResult2() {
         return ''
     }
 
-    const hasAnyRegion = match.teamPerformances.filter(perf => perf.team.school?.regionId).length > 0
+    const hasAnyRegion = false // match.teamPerformances.filter(perf => perf.team.school?.regionId).length > 0
     let teamColumnNames = ['Rank', 'Team']
     if (match.round == 'nationals') teamColumnNames.push('State')
     if (match.round == 'state' && hasAnyRegion) teamColumnNames.push('Region')
