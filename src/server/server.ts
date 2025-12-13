@@ -1290,9 +1290,18 @@ router.route('/teamperformance')
                         id: {
                             not: studentPerf.id
                         },
-                        studentId: {
-                            not: null
-                        },
+                        AND: [
+                            {
+                                studentId: {
+                                    not: null
+                                }
+                            },
+                            {
+                                studentId: {
+                                    not: studentPerf.studentId
+                                }
+                            }
+                        ],
                         student: {
                             name: studentPerf.student?.name
                         },
@@ -1314,11 +1323,6 @@ router.route('/teamperformance')
                         }
                     })
                     if (studentPerf.studentId) {
-                        await prisma.student.delete({
-                            where: {
-                                id: studentPerf.studentId
-                            }
-                        })
                         await deleteOrphans()
                     }
                 }
