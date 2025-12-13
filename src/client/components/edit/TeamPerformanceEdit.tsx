@@ -20,19 +20,19 @@ export default function TeamPerformanceEdit({ performance, hasSq, callback, matc
     const [validationError, setValidationError] = useState<string | null>(null)
 
     const validateInput = (): string | null => {
-        if (!parseFloat(overall)) {
+        if (isNaN(parseFloat(overall))) {
             return "overall must be a number"
         }
-        if (!parseFloat(objs)) {
+        if (isNaN(parseFloat(objs))) {
             return "objs must be a number"
         }
-        if (!parseFloat(subs)) {
+        if (isNaN(parseFloat(subs))) {
             return "subs must be a number"
         }
-        if (sq && !parseFloat(sq)) {
+        if (sq && isNaN(parseFloat(sq))) {
             return "sq must be a number"
         }
-        if (!parseFloat(rank)) {
+        if (isNaN(parseFloat(rank))) {
             return "rank must be a number"
         }
 

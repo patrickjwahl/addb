@@ -32,43 +32,43 @@ export default function StudentPerformanceEdit({ performance, events, teams, tea
     const [validationError, setValidationError] = useState<string | null>(null)
 
     const validateInput = (): string | null => {
-        if (overall && !parseFloat(overall)) {
+        if (overall && isNaN(parseFloat(overall))) {
             return "overall must be a number"
         }
-        if (math && !parseFloat(math)) {
+        if (math && isNaN(parseFloat(math))) {
             return "math must be a number"
         }
-        if (music && !parseFloat(music)) {
+        if (music && isNaN(parseFloat(music))) {
             return "music must be a number"
         }
-        if (econ && !parseFloat(econ)) {
+        if (econ && isNaN(parseFloat(econ))) {
             return "econ must be a number"
         }
-        if (science && !parseFloat(science)) {
+        if (science && isNaN(parseFloat(science))) {
             return "science must be a number"
         }
-        if (lit && !parseFloat(lit)) {
+        if (lit && isNaN(parseFloat(lit))) {
             return "lit must be a number"
         }
-        if (art && !parseFloat(art)) {
+        if (art && isNaN(parseFloat(art))) {
             return "art must be a number"
         }
-        if (socialScience && !parseFloat(socialScience)) {
+        if (socialScience && isNaN(parseFloat(socialScience))) {
             return "socialScience must be a number"
         }
-        if (essay && !parseFloat(essay)) {
+        if (essay && isNaN(parseFloat(essay))) {
             return "essay must be a number"
         }
-        if (speech && !parseFloat(speech)) {
+        if (speech && isNaN(parseFloat(speech))) {
             return "speech must be a number"
         }
-        if (interview && !parseFloat(interview)) {
+        if (interview && isNaN(parseFloat(interview))) {
             return "interview must be a number"
         }
-        if (objs && !parseFloat(objs)) {
+        if (objs && isNaN(parseFloat(objs))) {
             return "objs must be a number"
         }
-        if (subs && !parseFloat(subs)) {
+        if (subs && isNaN(parseFloat(subs))) {
             return "subs must be a number"
         }
 
