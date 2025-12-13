@@ -99,18 +99,18 @@ export default function StudentPerformanceEdit({ performance, events, teams, tea
             gpa: gpa,
             studentId: parseInt(studentId?.toString()),
             overall: overall ? parseFloat(overall) : null,
-            math: math ? parseFloat(math) : undefined,
-            music: music ? parseFloat(music) : undefined,
-            econ: econ ? parseFloat(econ) : undefined,
-            science: science ? parseFloat(science) : undefined,
-            lit: lit ? parseFloat(lit) : undefined,
-            art: art ? parseFloat(art) : undefined,
-            socialScience: socialScience ? parseFloat(socialScience) : undefined,
-            essay: essay ? parseFloat(essay) : undefined,
-            speech: speech ? parseFloat(speech) : undefined,
-            interview: interview ? parseFloat(interview) : undefined,
-            objs: objs ? parseFloat(objs) : undefined,
-            subs: subs ? parseFloat(subs) : undefined,
+            math: math ? parseFloat(math) : null,
+            music: music ? parseFloat(music) : null,
+            econ: econ ? parseFloat(econ) : null,
+            science: science ? parseFloat(science) : null,
+            lit: lit ? parseFloat(lit) : null,
+            art: art ? parseFloat(art) : null,
+            socialScience: socialScience ? parseFloat(socialScience) : null,
+            essay: essay ? parseFloat(essay) : null,
+            speech: speech ? parseFloat(speech) : null,
+            interview: interview ? parseFloat(interview) : null,
+            objs: objs ? parseFloat(objs) : null,
+            subs: subs ? parseFloat(subs) : null,
             matchId: matchId
         }
 
@@ -150,7 +150,7 @@ export default function StudentPerformanceEdit({ performance, events, teams, tea
                 </td>
                 <td className="right-border">{teamRank}</td>
                 <td className="is-link table-cell-large">
-                    <PersonSelect currentName={performance?.student?.name || ''} selectedPerson={newStudent} selectPerson={selectStudent} unselectPerson={unselectStudent} />
+                    <PersonSelect currentName={performance?.student?.name || ''} selectedPerson={newStudent} selectPerson={selectStudent} unselectPerson={unselectStudent} prompt="Link new..." />
                 </td>
                 <td>
                     <select value={gpa} onChange={e => setGpa(e.target.value)}>
@@ -162,31 +162,31 @@ export default function StudentPerformanceEdit({ performance, events, teams, tea
                 <td>
                     <input type="text" size={8} value={overall} onChange={e => setOverall(e.target.value)} />
                 </td>
-                {math && eventSet.has('math') && <td>
+                {eventSet.has('math') && <td>
                     <input type="text" size={6} value={math} onChange={e => setMath(e.target.value)} />
                 </td>}
-                {music && eventSet.has('music') && <td>
+                {eventSet.has('music') && <td>
                     <input type="text" size={6} value={music} onChange={e => setMusic(e.target.value)} />
                 </td>}
-                {econ && eventSet.has('econ') && <td>
+                {eventSet.has('econ') && <td>
                     <input type="text" size={6} value={econ} onChange={e => setEcon(e.target.value)} />
                 </td>}
-                {science && eventSet.has('science') && <td>
+                {eventSet.has('science') && <td>
                     <input type="text" size={6} value={science} onChange={e => setScience(e.target.value)} />
                 </td>}
-                {lit && eventSet.has('lit') && <td>
+                {eventSet.has('lit') && <td>
                     <input type="text" size={6} value={lit} onChange={e => setLit(e.target.value)} />
                 </td>}
-                {art && eventSet.has('art') && <td>
+                {eventSet.has('art') && <td>
                     <input type="text" size={6} value={art} onChange={e => setArt(e.target.value)} />
                 </td>}
-                {socialScience && eventSet.has('socialScience') && <td>
+                {eventSet.has('socialScience') && <td>
                     <input type="text" size={6} value={socialScience} onChange={e => setSocialScience(e.target.value)} />
                 </td>}
-                {essay && eventSet.has('essay') && <td>
+                {eventSet.has('essay') && <td>
                     <input type="text" size={6} value={essay} onChange={e => setEssay(e.target.value)} />
                 </td>}
-                {speech && eventSet.has('speech') && <td>
+                {eventSet.has('speech') && <td>
                     <input type="text" size={6} value={speech} onChange={e => setSpeech(e.target.value)} />
                 </td>}
                 {eventSet.has('interview') && <td>

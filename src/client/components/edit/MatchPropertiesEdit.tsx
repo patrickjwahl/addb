@@ -200,7 +200,7 @@ export default function MatchPropertiesEdit({ match, callback }: { match: Match,
             <div className="edit-form-row">
                 <select value={access} onChange={e => setAccess(parseInt(e.target.value))}>
                     <option value={1}>Public</option>
-                    <option value={2}>Low Ind. Scores Hidden</option>
+                    <option value={2}>Ind. Breakdowns Hidden</option>
                     <option value={3}>All Ind. Scores Hidden</option>
                 </select>
                 <label>

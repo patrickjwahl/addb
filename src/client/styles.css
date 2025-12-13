@@ -12,6 +12,7 @@ body {
     color: #828282;
     text-align: center;
     height: 100%;
+    font-family: 'Lato', sans-serif;
 }
 
 #root {
@@ -44,7 +45,6 @@ input[type="submit"] {
 }
 
 .global {
-    font-family: 'Lato', sans-serif;
     min-height: 100%;
     position: relative;
     display: flex;
@@ -769,6 +769,7 @@ th {
 .selected-school {
     text-align: left;
     font-size: 14px;
+    white-space: wrap;
 }
 
 .selected-school-button {

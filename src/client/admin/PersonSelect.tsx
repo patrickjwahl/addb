@@ -1,20 +1,24 @@
 import api from '@/client/API'
 import { SearchResultStudent } from '@/shared/types/response'
-import { ChangeEventHandler, KeyboardEventHandler, useState } from 'react'
+import { ChangeEventHandler, KeyboardEventHandler, useRef, useState } from 'react'
+import QuickResult from '../components/QuickResult'
 
 var mouseDownHappened = false
 var intervalId = 0
 
-export default function PersonSelect({ currentName, selectedPerson, selectPerson, unselectPerson }: {
+export default function PersonSelect({ currentName, selectedPerson, selectPerson, unselectPerson, prompt }: {
     currentName: string,
     selectPerson: (person: SearchResultStudent) => void,
     unselectPerson: () => void,
-    selectedPerson: SearchResultStudent | null
+    selectedPerson: SearchResultStudent | null,
+    prompt?: string
 }) {
 
     const [query, setQuery] = useState('')
     const [result, setResult] = useState<SearchResultStudent[]>([])
     const [focus, setFocus] = useState(-1)
+
+    const inputRef = useRef(null)
 
     const handleResultClick = (personId: number, e: React.MouseEvent) => {
         e.stopPropagation()
@@ -86,26 +90,16 @@ export default function PersonSelect({ currentName, selectedPerson, selectPerson
     let quickResult
 
     if (result.length > 0) {
-        quickResult = (
-            <ul className='quick-result-list'>
-                {
-                    result.map((person, index) => {
-                        let liClass
-                        if (index === focus) {
-                            liClass = 'quick-result focus'
-                        } else {
-                            liClass = 'quick-result'
-                        }
-                        return (
-                            <li className={liClass} key={person.id} onMouseDown={e => handleResultClick(person.id, e)}>
-                                <div className='quick-result-title'>{person.name}</div>
-                                {person.performances.length > 0 && <div className='quick-result-subtitle'>{person.performances[0].team.school?.fullName || person.performances[0].team.school?.name}</div>}
-                            </li>
-                        )
-                    })
-                }
-            </ul>
-        )
+
+        const quickResultData = result.map(person => {
+            return {
+                title: person.name,
+                subtitle: person.performances.length > 0 ? person.performances[0].team.school?.fullName || person.performances[0].team.school?.name : null,
+                handleClick: (e: React.MouseEvent) => handleResultClick(person.id, e)
+            }
+        })
+
+        quickResult = <QuickResult anchorRef={inputRef} focus={focus} data={quickResultData} />
     } else {
         quickResult = (null)
     }
@@ -115,7 +109,8 @@ export default function PersonSelect({ currentName, selectedPerson, selectPerson
     if (selectedPerson) {
         selectedPersonDiv = (
             <div>
-                <div className='selected-school'>{selectedPerson.name} ({selectedSchool && (selectedSchool.fullName || selectedSchool.name)})
+                <div className='selected-school'>
+                    {selectedPerson.name} ({selectedSchool && (selectedSchool.fullName || selectedSchool.name)})
                     <button className='selected-school-button' type="button" onClick={() => { setQuery(''); unselectPerson() }}>x</button>
                 </div>
             </div>
@@ -128,7 +123,7 @@ export default function PersonSelect({ currentName, selectedPerson, selectPerson
         <div className='form-field'>
             <label className='form-label'>{currentName}</label>
             <div tabIndex={0} onBlur={handleOnBlur} className='quick-result-box'>
-                <input className='form-text-input' type='text' value={query} onChange={handleQueryChanged} onKeyDown={handleInputOnKeyDown} />
+                <input className='form-text-input' type='text' value={query} onChange={handleQueryChanged} onKeyDown={handleInputOnKeyDown} ref={inputRef} placeholder={prompt ?? ''} />
                 {quickResult}
             </div>
             {selectedPersonDiv}
