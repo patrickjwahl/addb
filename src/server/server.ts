@@ -199,7 +199,7 @@ router.route('/authenticate')
                     id: req.userId
                 },
                 data: {
-                    lastLogin: new Date()
+                    last_login: new Date()
                 }
             })
             res.json({
@@ -925,11 +925,13 @@ router.route('/match/:id')
         }
 
         let studentPerformancesWhere: Prisma.StudentPerformanceWhereInput
+        let studentPerformancesSelect: Prisma.StudentPerformanceSelect = {}
+        let redactEvents = false
         if (req.privateAccess || access == 1) {
             // either match is public or user has private access
             studentPerformancesWhere = {}
         } else if (access == 2) {
-            // only high scores visible
+            // only high scores visible, no breakdowns
             studentPerformancesWhere = {
                 OR: [
                     {
@@ -951,6 +953,16 @@ router.route('/match/:id')
                         }
                     }
                 ]
+            }
+
+            redactEvents = true
+            studentPerformancesSelect = {
+                id: true,
+                teamId: true,
+                studentId: true,
+                matchId: true,
+                gpa: true,
+                overall: true
             }
         } else {
             // no indiv. scores visible
@@ -1001,32 +1013,41 @@ router.route('/match/:id')
         }
 
         let data: Match = { ...match }
-
-        let aggs: StudentAggregates = {}
-        let cols: string[] = [...match.events]
-        cols.push('objs', 'subs', 'overall')
-        for (const c of cols) {
-            const c_ovr = (c == 'socialScience') ? 'social_science' : c
-            const query = `
-                    SELECT team_id, sum(${c_ovr}) as combinedscore
-                        FROM (
-                            SELECT team_id, ${c_ovr}, ROW_NUMBER() OVER (
-                                PARTITION BY team_id, gpa ORDER BY ${c_ovr} DESC NULLS LAST
-                            ) AS rank FROM student_performances WHERE match_id = ${id}) ranked 
-                    WHERE rank <= 2
-                    GROUP BY team_id;    
-                `
-
-            const result: { team_id: number, combinedscore: number }[] = await prisma.$queryRawUnsafe(query)
-            result.forEach(entry => {
-                if (entry.team_id in aggs) {
-                    aggs[entry.team_id][c] = entry.combinedscore
-                } else {
-                    aggs[entry.team_id] = { [c]: entry.combinedscore }
+        if (redactEvents) {
+            data.events = []
+            for (let i = 0; i < data.studentPerformances.length; i++) {
+                for (const category of eventOrdering(match.year)) {
+                    data.studentPerformances[i][category] = 0
                 }
-            })
+            }
+            data.aggregates = undefined
+        } else {
+            let aggs: StudentAggregates = {}
+            let cols: string[] = [...match.events]
+            cols.push('objs', 'subs', 'overall')
+            for (const c of cols) {
+                const c_ovr = (c == 'socialScience') ? 'social_science' : c
+                const query = `
+                        SELECT team_id, sum(${c_ovr}) as combinedscore
+                            FROM (
+                                SELECT team_id, ${c_ovr}, ROW_NUMBER() OVER (
+                                    PARTITION BY team_id, gpa ORDER BY ${c_ovr} DESC NULLS LAST
+                                ) AS rank FROM student_performances WHERE match_id = ${id}) ranked 
+                        WHERE rank <= 2
+                        GROUP BY team_id;    
+                    `
 
-            data.aggregates = aggs
+                const result: { team_id: number, combinedscore: number }[] = await prisma.$queryRawUnsafe(query)
+                result.forEach(entry => {
+                    if (entry.team_id in aggs) {
+                        aggs[entry.team_id][c] = entry.combinedscore
+                    } else {
+                        aggs[entry.team_id] = { [c]: entry.combinedscore }
+                    }
+                })
+
+                data.aggregates = aggs
+            }
         }
 
         res.json({ success: true, data: data })

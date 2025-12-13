@@ -1,0 +1,1 @@
+ALTER TABLE "users" RENAME "lastLogin" TO "last_login";

@@ -32,3 +32,5 @@ matches.json
 
 /dist
 *.csv
+
+*.code-workspace

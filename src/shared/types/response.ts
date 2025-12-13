@@ -106,7 +106,7 @@ export type RedactedStudentPerformance = Prisma.StudentPerformanceGetPayload<{
     }
 }>
 
-export type Match = ({ aggregates?: StudentAggregates } & (FullMatch | RedactedMatch)) | null
+export type Match = ({ aggregates?: StudentAggregates } & (FullMatch)) | null
 
 export type RedactedMatch = Prisma.MatchGetPayload<{
     include: {
