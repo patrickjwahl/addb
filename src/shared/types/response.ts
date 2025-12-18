@@ -57,10 +57,7 @@ export type SchoolSeasonRound = {
     match: Prisma.MatchGetPayload<{}>
 }
 export type SchoolSeasonPage = {
-    roundone?: SchoolSeasonRound
-    regionals?: SchoolSeasonRound
-    state?: SchoolSeasonRound
-    nationals?: SchoolSeasonRound,
+    matches: Match[]
     school: Prisma.SchoolGetPayload<{}>
 }
 

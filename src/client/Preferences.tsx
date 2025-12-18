@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
-import { ShowMedalsOptions } from './results/MatchResult2'
 import api from './API'
 import { useNavigate } from 'react-router-dom'
 import { ColorRing } from 'react-loader-spinner'
 import { UserPreferencesInput } from '@/shared/types/request'
+import { ShowMedalsOptions } from './components/MatchTablesControl'
 
 export default function Preferences() {
 

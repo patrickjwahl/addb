@@ -5,9 +5,9 @@ import SchoolResult from '@/client/results/SchoolResult'
 import PersonResult from '@/client/results/PersonResult'
 import EditsPage from '@/client/admin/EditsPage'
 import StatePage from '@/client/results/StatePage'
-import SeasonResult from '@/client/results/SeasonResult'
 import MatchResult2 from './MatchResult2'
 import { NationalsResult } from './NationalsResult'
+import SeasonResult2 from './SeasonResult2'
 
 export default function SearchContainer() {
 
@@ -19,9 +19,9 @@ export default function SearchContainer() {
                 <Route path='' element={<Navigate to="/search" replace />} />
                 <Route path='search' element={<SearchResult />} />
                 <Route path='school/:id' element={<SchoolResult />} />
-                <Route path='school/:id/season/:year' element={<SeasonResult />} />
+                <Route path='school/:id/season/:year' element={<SeasonResult2 />} />
                 <Route path='student/:id' element={<PersonResult />} />
-                <Route path='season/:schoolId/:year' element={<SeasonResult />} />
+                <Route path='season/:schoolId/:year' element={<SeasonResult2 />} />
                 <Route path='state/:name' element={<StatePage />} />
                 <Route path='match/:id' element={<MatchResult2 />} />
                 <Route path='nationals' element={<NationalsResult />} />
