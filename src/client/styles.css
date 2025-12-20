@@ -1057,7 +1057,8 @@ th {
         opacity .25s;
 }
 
-.info-title a {
+.info-title a,
+.info-subtitle a {
     display: inline;
 }
 

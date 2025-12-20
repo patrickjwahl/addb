@@ -1,4 +1,4 @@
-import { Prisma, Round } from "@prisma/client"
+import { Prisma, Round } from "../../generated/prisma/client.js"
 
 export type ApiResponse<T> = {
     success: boolean,

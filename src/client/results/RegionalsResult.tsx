@@ -50,7 +50,7 @@ export default function RegionalsResult() {
             <Helmet>
                 <title>{`${year} Regionals - ${state} | AcDecDB`}</title>
             </Helmet>
-            <div className='small-header'>REGIONALS</div>
+            <div className='small-header'>AGGREGATION</div>
             <div className='info-page-header'>
                 <div className="info-title">{year} Regionals</div>
                 <div className='info-subtitle'><Link to={`/state/${state}`}>{state} (Overall)</Link></div>

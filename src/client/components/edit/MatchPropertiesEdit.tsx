@@ -2,7 +2,7 @@ import api from "@/client/API"
 import { MatchMetadata } from "@/shared/types/request"
 import { FullState, Match } from "@/shared/types/response"
 import { friendlyRound, roundOrder, objs, subs, friendlyColumn, eventOrdering } from "@/shared/util/consts"
-import { Category, Round } from "@prisma/client"
+import { Category, Round } from "../../../generated/prisma/client"
 import { useEffect, useMemo, useState } from "react"
 
 export default function MatchPropertiesEdit({ match, callback }: { match: Match, callback: (matchId: number) => void }) {

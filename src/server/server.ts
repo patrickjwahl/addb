@@ -11,7 +11,8 @@ import levenshtein from 'js-levenshtein'
 import bodyParser from 'body-parser'
 import { CSVColumnDef, diff, parseCsv } from '../shared/util/functions.js'
 
-import { Category, ConfigurationKey, Prisma, PrismaClient } from '@prisma/client'
+import { Category, ConfigurationKey, Prisma, PrismaClient } from '../generated/prisma/client.js'
+import { PrismaPg } from '@prisma/adapter-pg'
 
 import { createTransport } from 'nodemailer'
 import { RecentMatches, ApiResponse, StateMatches, Match, StudentAggregates, FullState, SearchResult, SearchResultMatch, SearchResultStudent, FullStudentPerformance, SearchResultSchool, TeamPerformance, SchoolPage, TeamSeasons, SchoolTeam, StudentPage, StudentSeasons, SchoolSeasonPage, LoginResult, EditResult, MergeSuggestion, MatchPreviews, StudentLeaderboard, StudentLeaders, TeamLeaderboard, UserPreferences } from '../shared/types/response.js'
@@ -72,7 +73,8 @@ interface AddbResponse<T> extends Response {
     json: (value: ApiResponse<T>) => this
 }
 
-const prisma = new PrismaClient()
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
+const prisma = new PrismaClient({ adapter })
 
 type RoundMap = {
     roundone: string,
@@ -2518,7 +2520,7 @@ router.route('/potentialmerges/:state')
                 for (let j = i + 1; j < teamToStudents[teamName].length; j++) {
                     let name1Spl = new Set(teamToStudents[teamName][i].name.split(' '))
                     let name2Spl = new Set(teamToStudents[teamName][j].name.split(' '))
-                    let intersection = new Set([...name1Spl].filter(x => name2Spl.has(x)))
+                    let intersection = new Set([...Array.from(name1Spl)].filter(x => name2Spl.has(x)))
                     if (intersection.size > 0 || levenshtein(teamToStudents[teamName][i].name, teamToStudents[teamName][j].name) < 4) {
                         potentialMerges.push({
                             teamName: teamName,

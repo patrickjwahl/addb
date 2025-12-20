@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
-import { ApiResponse, EditResult, FullState, FullStudentPerformance, LoginResult, Match, MatchPreviews, MergeSuggestion, Regionals, SchoolPage, SchoolSeasonPage, SearchResult, SearchResultSchool, SearchResultStudent, StudentLeaderboard, StudentPage, TeamLeaderboard, TeamPerformance, UserPreferences } from '@/shared/types/response'
+import { ApiResponse, EditResult, FullState, FullStudentPerformance, LoginResult, Match, MatchPreviews, MergeSuggestion, SchoolPage, SchoolSeasonPage, SearchResult, SearchResultSchool, SearchResultStudent, StudentLeaderboard, StudentPage, TeamLeaderboard, TeamPerformance, UserPreferences } from '@/shared/types/response'
 import { CreateUserCredentials, MatchMetadata, SchoolMetadata, StudentMetadata, StudentPerformance, TeamPerformance as TeamPerformanceRequest, UserPreferencesInput } from '../shared/types/request'
 import { StateMatches } from '../shared/types/response'
 

@@ -31,6 +31,7 @@ schools.json
 matches.json
 
 /dist
+/src/generated
 *.csv
 
 *.code-workspace

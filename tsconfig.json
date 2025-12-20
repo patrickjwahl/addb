@@ -5,12 +5,12 @@
       "path": "./tsconfig.app.json"
     },
     {
-      "path": "./tsconfig.node.json"
+      "path": "./tsconfig.server.json"
     }
   ],
   "compilerOptions": {
     "jsx": "react-jsx",
-    "allowJs": true,
+    "allowJs": false,
     "paths": {
       "@/*": [
         "./src/*"
@@ -20,6 +20,8 @@
     "lib": [
       "ESNext",
       "ESNext.Object"
-    ]
+    ],
+    "module": "nodenext",
+    "moduleResolution": "nodenext"
   }
 }

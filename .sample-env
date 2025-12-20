@@ -1,11 +1,7 @@
 SESSIONS_SECRET=mylittlesecret
 
-DATABASE_HOST="localhost"
-DATABASE_USER="username"
-DATABASE_PW="password"
-DATABASE_PORT=5432
-DATABASE_DB="addb"
-DATABASE_URL="postgresql://${DATABASE_USER}:${DATABASE_PW}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_DB}"
-EMAIL_USER="myemail@example.com"
-EMAIL_PW="your SMTP password"
-EMAIL_NOTIFY="whotonotify@example.com"
+DATABASE_URL=postgresql://user:password@host:port/database
+
+EMAIL_USER="stinky@yahoo.gorm"
+EMAIL_PW="flarg"
+EMAIL_NOTIFY="chunk@sicknessweekly.gov"
