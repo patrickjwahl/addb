@@ -21,6 +21,9 @@ import ConnectPgSimple from 'connect-pg-simple'
 import pg from 'pg'
 const { Pool } = pg
 
+import dotenv from 'dotenv'
+dotenv.config()
+
 var app = express()
 var router = express.Router()
 
@@ -36,10 +39,8 @@ const pool = new Pool({
     port: parseInt(process.env.DATABASE_PORT || '5432')
 })
 
-import dotenv from 'dotenv'
 import { divisions, eventOrdering, gpaOptions, subs as subList } from '../shared/util/consts.js'
 import { access } from 'fs'
-dotenv.config()
 
 const __dirname = path.resolve()
 
