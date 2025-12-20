@@ -183,9 +183,9 @@ export default function MatchTablesControl({
                 setPartitionBy(searchParams.partition || preferences.partition as keyof ShowMedalsOptions)
                 setRankBy(searchParams.rank || preferences.rank as keyof ShowMedalsOptions)
                 setUserPreferences(preferences)
-                setIsInitialized(true)
             }
         }
+        setIsInitialized(true)
     }
 
     useEffect(() => {

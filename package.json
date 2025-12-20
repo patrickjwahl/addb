@@ -27,9 +27,9 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-helmet": "^6.0.0",
-    "react-loader-spinner": "^6.1.6",
-    "react-router-dom": "^7.1.5",
-    "react-tooltip": "^5.28.0"
+    "react-loader-spinner": "^8.0.0",
+    "react-router-dom": "^7.11.0",
+    "react-tooltip": "^5.30.0"
   },
   "scripts": {
     "dev": "unset HOST && nf start -p 3000",
