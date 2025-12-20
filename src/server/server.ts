@@ -15,7 +15,7 @@ import { Category, ConfigurationKey, Prisma, PrismaClient } from '../generated/p
 import { PrismaPg } from '@prisma/adapter-pg'
 
 import { createTransport } from 'nodemailer'
-import { RecentMatches, ApiResponse, StateMatches, Match, StudentAggregates, FullState, SearchResult, SearchResultMatch, SearchResultStudent, FullStudentPerformance, SearchResultSchool, TeamPerformance, SchoolPage, TeamSeasons, SchoolTeam, StudentPage, StudentSeasons, SchoolSeasonPage, LoginResult, EditResult, MergeSuggestion, MatchPreviews, StudentLeaderboard, StudentLeaders, TeamLeaderboard, UserPreferences } from '../shared/types/response.js'
+import { ApiResponse, StateMatches, Match, StudentAggregates, FullState, SearchResult, SearchResultMatch, SearchResultStudent, FullStudentPerformance, SearchResultSchool, TeamPerformance, SchoolPage, TeamSeasons, SchoolTeam, StudentPage, StudentSeasons, SchoolSeasonPage, LoginResult, EditResult, MergeSuggestion, MatchPreviews, StudentLeaderboard, StudentLeaders, TeamLeaderboard, UserPreferences } from '../shared/types/response.js'
 import { CreateUserCredentials, LoginCredentials, MatchMetadata, SchoolMetadata, StudentMetadata, StudentPerformance, TeamPerformance as TeamPerformanceRequest, UserPreferencesInput } from '../shared/types/request.js'
 import ConnectPgSimple from 'connect-pg-simple'
 import pg from 'pg'
@@ -36,10 +36,9 @@ const pool = new Pool({
     port: parseInt(process.env.DATABASE_PORT || '5432')
 })
 
-import dotenv from 'dotenv'
+import dotenv from 'dotenv/config'
 import { divisions, eventOrdering, gpaOptions, subs as subList } from '../shared/util/consts.js'
 import { access } from 'fs'
-dotenv.config()
 
 const __dirname = path.resolve()
 
