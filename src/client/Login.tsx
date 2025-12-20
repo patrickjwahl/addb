@@ -46,6 +46,7 @@ export default function Login() {
             {admonishment}
             <div className='form-container'>
                 <img src='/img/log.jpg' width={150} style={{ margin: '10px 0' }} />
+                <h3 style={{ marginTop: 0 }}>"Log" in...</h3>
                 <form className='login-form' onSubmit={handleSubmit}>
                     <div className='form-field'>
                         <label className='form-label' htmlFor="nam">Username</label>
