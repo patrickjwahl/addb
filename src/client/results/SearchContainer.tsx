@@ -8,6 +8,7 @@ import StatePage from '@/client/results/StatePage'
 import MatchResult2 from './MatchResult2'
 import { NationalsResult } from './NationalsResult'
 import SeasonResult2 from './SeasonResult2'
+import RegionalsResult from './RegionalsResult'
 
 export default function SearchContainer() {
 
@@ -21,8 +22,8 @@ export default function SearchContainer() {
                 <Route path='school/:id' element={<SchoolResult />} />
                 <Route path='school/:id/season/:year' element={<SeasonResult2 />} />
                 <Route path='student/:id' element={<PersonResult />} />
-                <Route path='season/:schoolId/:year' element={<SeasonResult2 />} />
                 <Route path='state/:name' element={<StatePage />} />
+                <Route path='regionals/:state/:year' element={<RegionalsResult />} />
                 <Route path='match/:id' element={<MatchResult2 />} />
                 <Route path='nationals' element={<NationalsResult />} />
                 <Route path='*' element={<div className='error-message'>Not a page, amigo.</div>} />

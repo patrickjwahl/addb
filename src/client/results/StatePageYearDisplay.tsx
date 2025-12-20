@@ -9,9 +9,10 @@ type MatchesByRoundType = {
     state?: StateMatches
 }
 
-export default function StatePageYearDisplay({ year, data }: {
+export default function StatePageYearDisplay({ year, data, stateName }: {
     year: number,
-    data: StateMatches
+    data: StateMatches,
+    stateName: string
 }) {
 
     const [open, setOpen] = useState(false)
@@ -119,21 +120,14 @@ export default function StatePageYearDisplay({ year, data }: {
                     {content}
                 </div>
             )
-        } else if (matchesByRound.regionals?.length == 1) {
+        } else {
             link = (
-                <Link to={`/match/${matchesByRound.regionals[0].id}`} >
+                <Link to={`/regionals/${stateName}/${year}`} >
                     <div className='state-page-link'>
                         <div className='search-result-title'>Regionals</div>
                         {content}
                     </div>
                 </Link>
-            )
-        } else {
-            link = (
-                <div className='state-page-link state-page-fake-link'>
-                    <div className='search-result-title'>Regionals</div>
-                    {content}
-                </div>
             )
         }
         regionalsBox = (

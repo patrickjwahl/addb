@@ -323,7 +323,7 @@ export default function MatchTables({
                             {!privateAccess && match.access == 2 && 'Outstanding '}Individual Scores
                             {!privateAccess && match.access == 2 &&
                                 <span data-tooltip-id='redacted-explainer' style={{ marginLeft: 5, fontSize: '13px' }}>
-                                    <Tooltip id="redacted-explainer">Only outstanding scores are available for this match. Outstanding scores are considered to be above 7,000 for Honors, 6,500 for Scholastic, and 6,000 for Varsity.</Tooltip>
+                                    <Tooltip id="redacted-explainer">Only outstanding scores are available for this data. Outstanding scores are considered to be above 7,000 for Honors, 6,500 for Scholastic, and 6,000 for Varsity.</Tooltip>
                                     (?)
                                 </span>}
                         </div>}

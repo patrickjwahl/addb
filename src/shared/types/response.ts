@@ -103,40 +103,33 @@ export type RedactedStudentPerformance = Prisma.StudentPerformanceGetPayload<{
     }
 }>
 
-export type Match = ({ aggregates?: StudentAggregates } & (FullMatch)) | null
-
-export type RedactedMatch = Prisma.MatchGetPayload<{
-    include: {
-        teamPerformances: {
-            include: {
-                team: {
-                    include: {
-                        school: {
-                            include: {
-                                state: true,
-                                region: true
-                            }
+export type Regionals = {
+    year: number,
+    state: string,
+    teamPerformances: Prisma.TeamPerformanceGetPayload<{
+        include: {
+            team: {
+                include: {
+                    school: {
+                        include: {
+                            state: true,
+                            region: true
                         }
                     }
                 }
             }
-        }, studentPerformances: {
-            select: {
-                student: true,
-                studentId: true,
-                teamId: true,
-                id: true,
-                team: true,
-                gpa: true,
-                overall: true,
-                matchId: true,
-                match: true
-            }
-        },
-        region: true,
-        state: true
-    }
-}> | undefined
+        }
+    }>[],
+    studentPerformances: Prisma.StudentPerformanceGetPayload<{
+        include: {
+            student: true,
+            team: true,
+            match: true
+        }
+    }>
+} & { aggregates?: StudentAggregates }
+
+export type Match = ({ aggregates?: StudentAggregates } & (FullMatch)) | null
 
 export type FullMatch = Prisma.MatchGetPayload<{
     include: {

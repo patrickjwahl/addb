@@ -902,16 +902,19 @@ router.route('/preferences')
         res.json({ success: true })
     })
 
-const getMatch = async (id: number, req: AddbRequest<null>): Promise<Match | null> => {
+const getMatch = async (id: number, req: AddbRequest<null>, forceAccess?: number | null): Promise<Match | null> => {
 
-    let access = (await prisma.match.findFirst({
-        where: {
-            id: id
-        },
-        select: {
-            access: true
-        }
-    }))?.access
+    let access = forceAccess
+    if (!access) {
+        access = (await prisma.match.findFirst({
+            where: {
+                id: id
+            },
+            select: {
+                access: true
+            }
+        }))?.access
+    }
 
     if (!access) {
         return null
@@ -1000,7 +1003,7 @@ const getMatch = async (id: number, req: AddbRequest<null>): Promise<Match | nul
         data.events = []
         for (let i = 0; i < data.studentPerformances.length; i++) {
             for (const category of eventOrdering(match.year)) {
-                data.studentPerformances[i][category] = 0
+                data.studentPerformances[i][category] = null
             }
         }
         data.aggregates = undefined
@@ -1076,6 +1079,85 @@ router.route('/match/:id')
             }
         })
         res.json({ success: true })
+    })
+
+router.route('/regionals/:state/:year')
+    .get(async function (req: AddbRequest<null>, res: AddbResponse<Match>) {
+        const state = req.params.state
+        const year = parseInt(req.params.year)
+
+        if (!year || !state) {
+            res.json({ success: false })
+            return
+        }
+
+        const baseMatches = await (prisma.match.findMany({
+            where: {
+                state: {
+                    name: state
+                },
+                year: year,
+                round: 'regionals'
+            }
+        }))
+
+        const maxAccessResult = await (prisma.match.aggregate({
+            where: {
+                state: {
+                    name: state
+                },
+                year: year,
+                round: 'regionals'
+            },
+            _max: {
+                access: true
+            }
+        }))
+
+        const maxAccess = maxAccessResult._max.access
+
+        const ids = baseMatches.map(match => match.id)
+        const matches = await Promise.all(ids.map(id => getMatch(id, req, maxAccess)))
+
+        if (!matches || !matches[0]) {
+            res.json({ success: false })
+            return
+        }
+
+        let fullRegionals: Match = {
+            id: -1,
+            year: year,
+            round: 'regionals',
+            regionId: -1,
+            stateId: matches[0]?.stateId || null,
+            date: new Date(),
+            hasSq: matches.some(match => match?.hasSq),
+            incompleteData: false,
+            hasDivisions: matches.some(match => match?.hasDivisions),
+            access: maxAccess || 1,
+            events: Array.from(new Set<Category>(matches.flatMap(match => match?.events || []))),
+            state: matches[0].state,
+            region: matches[0].region,
+            studentPerformances: matches.flatMap(match => match?.studentPerformances || []),
+            teamPerformances: matches.flatMap(match => match?.teamPerformances || []),
+            aggregates: matches.reduce((prev, curr) => {
+                return { ...prev, ...curr?.aggregates }
+            }, {}),
+            search1: '',
+            search2: '',
+            search3: '',
+            site: '',
+            note: ''
+        }
+
+        const sortedTeamPerformances = fullRegionals.teamPerformances.sort((a, b) => b.overall - a.overall)
+        sortedTeamPerformances.forEach((perf, rank) => {
+            perf.rank = rank
+        })
+
+        fullRegionals.teamPerformances = sortedTeamPerformances
+
+        res.json({ success: true, data: fullRegionals })
     })
 
 router.route('/school/:id/season/:year')

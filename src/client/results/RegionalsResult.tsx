@@ -1,24 +1,24 @@
 import api from "@/client/API"
-import { SchoolSeasonPage } from "@/shared/types/response"
+import { Match } from "@/shared/types/response"
 import { useCallback, useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import { hasObjs as _hasObjs, hasSubs as _hasSubs } from "@/shared/util/functions"
 import { ColorRing } from "react-loader-spinner"
 import { Helmet } from "react-helmet"
 import MatchTablesControl from "../components/MatchTablesControl"
-import { friendlyRound } from "@/shared/util/consts"
 
-export default function SeasonResult2() {
+export default function RegionalsResult() {
 
-    const [data, setData] = useState<SchoolSeasonPage | null>()
+    const [data, setData] = useState<Match | null>()
     const [error, setError] = useState<string | null>(null)
 
     const params = useParams()
     const year = params.year
+    const state = params.state?.replaceAll('_', ' ')
 
-    const fetchSeason = useCallback(async () => {
-        const result = (await api.getSeason(parseInt(params.id || '-1') || -1, parseInt(year || '-1') || -1))
-        if (!result?.success || result.data?.matches.some(match => !match)) {
+    const fetchRegionals = useCallback(async () => {
+        const result = (await api.getRegionals(state || '', parseInt(year || '-1') || -1))
+        if (!result?.success) {
             setError(result.message || 'An unexpected error occurred.')
             return
         }
@@ -27,8 +27,8 @@ export default function SeasonResult2() {
     }, [params.id])
 
     useEffect(() => {
-        fetchSeason()
-    }, [params.id])
+        fetchRegionals()
+    }, [year, state])
 
     const startLoading = useCallback(() => { setData(null) }, [])
 
@@ -48,13 +48,13 @@ export default function SeasonResult2() {
     return (
         <div className='info-page'>
             <Helmet>
-                <title>{`${year} Season - ${data.school.fullName} | AcDecDB`}</title>
+                <title>{`${year} Regionals - ${state} | AcDecDB`}</title>
             </Helmet>
-            <div className='small-header'>SEASON</div>
+            <div className='small-header'>REGIONALS</div>
             <div className='info-page-header'>
-                <div className='info-title'><Link to={`/school/${data.school.id}`}>{data.school.fullName}</Link></div>
-                <div className='info-subtitle'>{year} Season</div>
-                <MatchTablesControl matches={data.matches.filter(match => match != null).sort((a, b) => (a?.date || 0) > (b?.date || 0) ? -1 : 1).map(match => ({ title: friendlyRound[match.round], match: match }))} initSchoolFilter={data.school.id} refresh={fetchSeason} startLoading={startLoading} />
+                <div className="info-title">{year} Regionals</div>
+                <div className='info-subtitle'><Link to={`/state/${state}`}>{state} (Overall)</Link></div>
+                <MatchTablesControl matches={[{ match: data }]} refresh={fetchRegionals} startLoading={startLoading} />
             </div>
         </div >
     )

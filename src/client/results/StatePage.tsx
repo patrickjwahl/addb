@@ -24,6 +24,8 @@ export default function StatePage() {
         performSearch()
     }, [params.name])
 
+    const stateName: string = params.name || ''
+
     let retval
 
     let matchesByYear = groupBy(matches || [], match => match.year)
@@ -37,7 +39,7 @@ export default function StatePage() {
         if (matches.length > 0) {
             resultsFound = true
 
-            yearViews = Object.keys(matchesByYear).map(Number).sort((a, b) => b - a).map(year => <StatePageYearDisplay data={matchesByYear[year]} year={year} />)
+            yearViews = Object.keys(matchesByYear).map(Number).sort((a, b) => b - a).map(year => <StatePageYearDisplay data={matchesByYear[year]} year={year} stateName={stateName} />)
         }
 
         const { name } = params

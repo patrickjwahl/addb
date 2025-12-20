@@ -1061,7 +1061,8 @@ th {
     display: inline;
 }
 
-.info-title a:hover {
+.info-title a:hover,
+.info-subtitle a:hover {
     text-decoration: underline;
 }
 
