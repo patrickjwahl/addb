@@ -82,7 +82,6 @@ class API {
         if (expiresAt && new Date().getTime() < parseInt(expiresAt)) {
             return true
         }
-        this.logOut()
         return false
     }
 
