@@ -5,6 +5,7 @@ import { Link } from "react-router-dom"
 import { divisionSort } from "@/shared/util/functions"
 import { divisions } from "@/shared/util/consts"
 import MatchTables from "./MatchTables"
+import { ColorRing } from "react-loader-spinner"
 
 type MatchWithTitle = {
     title?: string,
@@ -57,7 +58,6 @@ export default function MatchTablesControl({
 
     let searchParams = Object.fromEntries(new URLSearchParams(window.location.search)) as SearchParams
 
-
     const [sortIndex, _setSortIndex] = useState(searchParams.sortIndex ? parseInt(searchParams.sortIndex) : defaultSortIndex)
     const [sortDesc, _setSortDesc] = useState(searchParams.sortDesc === 'true' || defaultSortDesc)
     const [gpaFilter, _setGpaFilter] = useState(searchParams.gpa || defaultGpaFilter)
@@ -67,6 +67,7 @@ export default function MatchTablesControl({
     const [showMedals, _setShowMedals] = useState((searchParams.medals !== undefined) ? searchParams.medals === 'true' : defaultShowMedals)
     const [rankBy, _setRankBy] = useState<keyof ShowMedalsOptions>(searchParams.rank || defaultRankBy)
     const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null)
+    const [isInitialized, setIsInitialized] = useState(false)
 
     const updateBrowserParams = () => {
         const newParams = new URLSearchParams(searchParams)
@@ -182,6 +183,7 @@ export default function MatchTablesControl({
                 setPartitionBy(searchParams.partition || preferences.partition as keyof ShowMedalsOptions)
                 setRankBy(searchParams.rank || preferences.rank as keyof ShowMedalsOptions)
                 setUserPreferences(preferences)
+                setIsInitialized(true)
             }
         }
     }
@@ -189,6 +191,15 @@ export default function MatchTablesControl({
     useEffect(() => {
         initialize()
     }, [])
+
+    if (!isInitialized) {
+        return <ColorRing
+            height={40}
+            width={40}
+            wrapperStyle={{ marginTop: '50px' }}
+            visible
+        />
+    }
 
     return (
         <div>
