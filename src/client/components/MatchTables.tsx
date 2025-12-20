@@ -1,6 +1,6 @@
 import { FullStudentPerformance, Match, StudentPerformance, TeamPerformance } from "@/shared/types/response"
 import { groupBy, partitionSort, hasObjs as _hasObjs, hasSubs as _hasSubs, divisionSort } from "@/shared/util/functions"
-import { useMemo } from "react"
+import { useMemo, JSX } from "react"
 import api from "../API"
 import { divisions, friendlyColumn, friendlyGPA, fullColumn } from "@/shared/util/consts"
 import StudentAggregateRow from "./table/StudentAggregateRow"
