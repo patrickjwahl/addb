@@ -1008,6 +1008,8 @@ const getMatch = async (id: number, req: AddbRequest<null>, forceAccess?: number
             for (const category of eventOrdering(match.year)) {
                 data.studentPerformances[i][category] = null
             }
+            data.studentPerformances[i].objs = null
+            data.studentPerformances[i].subs = null
         }
         data.aggregates = undefined
     } else {
@@ -2093,6 +2095,13 @@ router.route('/student/:id')
         }
 
         for (const perf of performances) {
+
+            for (const category of eventOrdering(perf.match.year)) {
+                perf[category] = null
+                perf.objs = null
+                perf.subs = null
+            }
+
             const [{ rank: rank }] = await prisma.$queryRaw<{ rank: BigInt }[]>`SELECT rank FROM (SELECT id, ROW_NUMBER() OVER (ORDER BY overall DESC NULLS LAST) AS rank FROM student_performances WHERE match_id=${perf.matchId} AND gpa=${perf.gpa}) AS sub WHERE sub.id = ${perf.id}`
             let rankedPerf = perf as Prisma.StudentPerformanceGetPayload<{ include: { team: true, match: true } }> & { rank?: number }
             rankedPerf.rank = Number(rank) - 1
