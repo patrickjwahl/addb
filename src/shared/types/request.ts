@@ -88,5 +88,6 @@ export type UserPreferencesInput = {
     partition: string,
     rank: string,
     gpa: string,
-    medals: boolean
+    medals: boolean,
+    sortByOverall: boolean
 }

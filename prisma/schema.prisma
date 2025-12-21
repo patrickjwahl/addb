@@ -159,13 +159,14 @@ model Edit {
 }
 
 model Preferences {
-  id        Int     @id @default(autoincrement())
-  userId    Int     @unique @map("user_id")
-  user      User    @relation(fields: [userId], references: [id])
-  partition String  @default("overall")
-  rank      String  @default("overall")
-  gpa       String  @default("all")
-  medals    Boolean @default(true)
+  id            Int     @id @default(autoincrement())
+  userId        Int     @unique @map("user_id")
+  user          User    @relation(fields: [userId], references: [id])
+  partition     String  @default("overall")
+  rank          String  @default("overall")
+  gpa           String  @default("all")
+  medals        Boolean @default(true)
+  sortByOverall Boolean @default(false) @map("sort_by_overall")
 
   @@map("preferences")
 }

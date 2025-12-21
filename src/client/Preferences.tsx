@@ -13,6 +13,7 @@ export default function Preferences() {
     const [partitionBy, setPartitionBy] = useState<keyof ShowMedalsOptions>('overall')
     const [showMedals, setShowMedals] = useState(true)
     const [rankBy, setRankBy] = useState<keyof ShowMedalsOptions>('overall')
+    const [sortByOverall, setSortByOverall] = useState(false)
     const [saved, setSaved] = useState(false)
 
     const navigate = useNavigate()
@@ -27,11 +28,13 @@ export default function Preferences() {
 
     const fetchPreferences = async () => {
         const prefs = await api.getPreferences()
+        console.log(prefs)
         if (prefs.success && prefs.data) {
             setGpaFilter(prefs.data.gpa)
             setPartitionBy(prefs.data.partition as keyof ShowMedalsOptions)
             setShowMedals(prefs.data.medals)
             setRankBy(prefs.data.rank as keyof ShowMedalsOptions)
+            setSortByOverall(prefs.data.sortByOverall)
             setLoaded(true)
         }
     }
@@ -55,7 +58,8 @@ export default function Preferences() {
             gpa: gpaFilter,
             partition: partitionBy,
             medals: showMedals,
-            rank: rankBy
+            rank: rankBy,
+            sortByOverall: sortByOverall
         }
 
         await api.setPreferences(input)
@@ -102,6 +106,13 @@ export default function Preferences() {
                     <div>
                         <div className="title" onClick={() => setShowMedals(!showMedals)}>Show Medals</div>
                         <input type="checkbox" checked={showMedals} onChange={() => setShowMedals(!showMedals)} />
+                    </div>
+                    <div>
+                        <div className="title">Sort Individuals By</div>
+                        <select value={sortByOverall ? 'true' : 'false'} onChange={e => setSortByOverall(e.target.value === 'true')}>
+                            <option value={'false'}>Team Score</option>
+                            <option value={'true'}>Individual Score</option>
+                        </select>
                     </div>
                     <input className='form-submit' type="submit" value="Save" />
                 </form>

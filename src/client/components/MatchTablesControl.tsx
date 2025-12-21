@@ -142,6 +142,8 @@ export default function MatchTablesControl({
         setPartitionBy(userPreferences?.partition as keyof ShowMedalsOptions || defaultPartitionBy)
         setShowMedals(userPreferences?.medals != undefined ? userPreferences.medals : defaultShowMedals)
         setRankBy(userPreferences?.rank as keyof ShowMedalsOptions || defaultRankBy)
+        setSortIndex(userPreferences?.sortByOverall ? 4 : 1)
+        setSortDesc(userPreferences?.sortByOverall ? true : false)
     }
 
     const schoolNameToId: { [name: string]: number } = useMemo(() => {
@@ -162,6 +164,7 @@ export default function MatchTablesControl({
     const initialize = async () => {
         if (api.isLoggedIn()) {
             let preferences = (await api.getPreferences()).data
+            console.log(preferences)
             if (preferences) {
                 setGpaFilter(searchParams.gpa || preferences.gpa)
                 setShowMedals(searchParams.medals !== undefined ? searchParams.medals == 'true' : preferences.medals)
@@ -182,6 +185,8 @@ export default function MatchTablesControl({
                 }
                 setPartitionBy(searchParams.partition || preferences.partition as keyof ShowMedalsOptions)
                 setRankBy(searchParams.rank || preferences.rank as keyof ShowMedalsOptions)
+                setSortIndex((searchParams.sortIndex && parseInt(searchParams.sortIndex)) || (preferences.sortByOverall ? 4 : 1))
+                setSortDesc((searchParams.sortDesc && searchParams.sortDesc === 'true') || (preferences.sortByOverall ? true : false))
                 setUserPreferences(preferences)
             }
         }
@@ -189,6 +194,7 @@ export default function MatchTablesControl({
     }
 
     useEffect(() => {
+        console.log("Initializing")
         initialize()
     }, [])
 
