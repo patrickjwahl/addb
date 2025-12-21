@@ -105,9 +105,15 @@ export default function TeamPerformanceEdit({ performance, hasSq, callback, matc
                         </label>
                     </div>
                 </td>
+                {
+                    match?.round === 'nationals' && <td></td> // state
+                }
                 <td>
                     <input type="text" size={8} value={overall} onChange={e => setOverall(e.target.value)} />
                 </td>
+                {
+                    match && match?.events.length < 10 && <td></td> // overall/10
+                }
                 <td className="table-cell-large">
                     <input type="text" size={8} value={objs} onChange={e => setObs(e.target.value)} />
                 </td>

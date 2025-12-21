@@ -18,10 +18,12 @@ export default function StudentPerformanceEdit({ performance, events, teams, tea
     const [overall, setOverall] = useState(performance?.overall?.toString())
     const [math, setMath] = useState(performance?.math?.toString())
     const [music, setMusic] = useState(performance?.music?.toString())
+    const [fine, setFine] = useState(performance?.fine?.toString())
     const [econ, setEcon] = useState(performance?.econ?.toString())
     const [science, setScience] = useState(performance?.science?.toString())
     const [lit, setLit] = useState(performance?.lit?.toString())
     const [art, setArt] = useState(performance?.art?.toString())
+    const [sq, setSq] = useState(performance?.sq?.toString())
     const [socialScience, setSocialScience] = useState(performance?.socialScience?.toString())
     const [essay, setEssay] = useState(performance?.essay?.toString())
     const [speech, setSpeech] = useState(performance?.speech?.toString())
@@ -38,6 +40,9 @@ export default function StudentPerformanceEdit({ performance, events, teams, tea
         if (math && isNaN(parseFloat(math))) {
             return "math must be a number"
         }
+        if (fine && isNaN(parseFloat(fine))) {
+            return "fine art must be a number"
+        }
         if (music && isNaN(parseFloat(music))) {
             return "music must be a number"
         }
@@ -52,6 +57,9 @@ export default function StudentPerformanceEdit({ performance, events, teams, tea
         }
         if (art && isNaN(parseFloat(art))) {
             return "art must be a number"
+        }
+        if (sq && isNaN(parseFloat(sq))) {
+            return "SQ must be a number"
         }
         if (socialScience && isNaN(parseFloat(socialScience))) {
             return "socialScience must be a number"
@@ -103,6 +111,8 @@ export default function StudentPerformanceEdit({ performance, events, teams, tea
             music: music ? parseFloat(music) : null,
             econ: econ ? parseFloat(econ) : null,
             science: science ? parseFloat(science) : null,
+            fine: fine ? parseFloat(fine) : null,
+            sq: sq ? parseFloat(sq) : null,
             lit: lit ? parseFloat(lit) : null,
             art: art ? parseFloat(art) : null,
             socialScience: socialScience ? parseFloat(socialScience) : null,
@@ -162,8 +172,14 @@ export default function StudentPerformanceEdit({ performance, events, teams, tea
                 <td>
                     <input type="text" size={8} value={overall} onChange={e => setOverall(e.target.value)} />
                 </td>
+                {
+                    events.length < 10 && <td></td>
+                }
                 {eventSet.has('math') && <td>
                     <input type="text" size={6} value={math} onChange={e => setMath(e.target.value)} />
+                </td>}
+                {eventSet.has('fine') && <td>
+                    <input type="text" size={6} value={fine} onChange={e => setFine(e.target.value)} />
                 </td>}
                 {eventSet.has('music') && <td>
                     <input type="text" size={6} value={music} onChange={e => setMusic(e.target.value)} />
@@ -182,6 +198,9 @@ export default function StudentPerformanceEdit({ performance, events, teams, tea
                 </td>}
                 {eventSet.has('socialScience') && <td>
                     <input type="text" size={6} value={socialScience} onChange={e => setSocialScience(e.target.value)} />
+                </td>}
+                {eventSet.has('sq') && <td>
+                    <input type="text" size={6} value={sq} onChange={e => setSq(e.target.value)} />
                 </td>}
                 {eventSet.has('essay') && <td>
                     <input type="text" size={6} value={essay} onChange={e => setEssay(e.target.value)} />
