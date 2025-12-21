@@ -108,7 +108,8 @@ export default function Home() {
                     }
                 </div>
                 <div className='home-column' style={{ marginTop: '10px' }}>
-                    <h3 className='home-column-title'>{topStudents.year} Top Individual Scores</h3>
+                    <h3 className='home-column-title' style={{ marginBottom: '2px' }}>{topStudents.year} Top Individual Scores</h3>
+                    <div style={{ fontStyle: 'italic', fontSize: '11px', marginBottom: '10px' }}>Rankings are based on available data and may not be accurate</div>
                     <div className='home-row'>
                         {
                             Object.keys(topStudents.leaders).sort().map(gpa => (
