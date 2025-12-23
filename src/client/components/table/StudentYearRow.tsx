@@ -30,7 +30,7 @@ const StudentYearRow: React.FunctionComponent<StudentYearRowProps> = ({ year, da
             <td className={`is-link ${rankToClass(data[round].rank) || ''}`}>
                 <Link to={`/match/${data[round].matchId}?school=${data[round].team.schoolId}`}>
                     {ftoa(data[round].overall)} ({data[round].gpa})
-                    {data[round].match.events.length < 10 &&
+                    {data[round].match.events.length > 0 && data[round].match.events.length < 10 &&
                         <>
                             <br />
                             <span className="small-font">{ftoa(data[round].overall * (10.0 / data[round].match.events.length))} ({data[round].match.events.length} → 10)</span>
