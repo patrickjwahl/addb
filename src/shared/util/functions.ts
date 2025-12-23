@@ -77,6 +77,47 @@ export const divisionSort = (a: string, b: string) => {
     return divisionsOrder.indexOf(a) - divisionsOrder.indexOf(b)
 }
 
+function romanToInt(s: string) {
+    // Map Roman symbols to their integer values
+    const sym: { [letter: string]: number } = {
+        'I': 1,
+        'V': 5,
+        'X': 10,
+        'L': 50,
+        'C': 100,
+        'D': 500,
+        'M': 1000
+    }
+
+    let result = 0
+
+    for (let i = 0; i < s.length; i++) {
+        const cur = sym[s[i]]
+        const next = sym[s[i + 1]]
+
+        // If the current symbol is less than the next, it's a subtractive case (e.g., IV)
+        if (cur < next) {
+            result += next - cur // Add the difference (5 - 1 = 4)
+            i++ // Skip the next character as it's already accounted for
+        } else {
+            result += cur // Otherwise, add the current symbol's value
+        }
+    }
+
+    return result
+}
+
+export const regionSort = (a: string, b: string) => {
+    const romanRegex = /Region ([IVX]+)/
+    const aMatch = romanRegex.exec(a)
+    const bMatch = romanRegex.exec(b)
+    if (aMatch && bMatch) {
+        return romanToInt(aMatch[1]) - romanToInt(bMatch[1])
+    }
+
+    return a.localeCompare(b)
+}
+
 export const partitionsOrder =
     divisionsOrder.map(key => `_d${key}`)
         .concat(Object.keys(friendlyGPA)

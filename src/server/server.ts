@@ -15,7 +15,7 @@ import { Category, ConfigurationKey, Prisma, PrismaClient } from '../generated/p
 import { PrismaPg } from '@prisma/adapter-pg'
 
 import { createTransport } from 'nodemailer'
-import { RecentMatches, ApiResponse, StateMatches, Match, StudentAggregates, FullState, SearchResult, SearchResultMatch, SearchResultStudent, FullStudentPerformance, SearchResultSchool, TeamPerformance, SchoolPage, TeamSeasons, SchoolTeam, StudentPage, StudentSeasons, SchoolSeasonPage, LoginResult, EditResult, MergeSuggestion, MatchPreviews, StudentLeaderboard, StudentLeaders, TeamLeaderboard, UserPreferences } from '../shared/types/response.js'
+import { RecentMatches, ApiResponse, StateMatches, Match, StudentAggregates, FullState, SearchResult, SearchResultMatch, SearchResultStudent, FullStudentPerformance, SearchResultSchool, TeamPerformance, SchoolPage, TeamSeasons, SchoolTeam, StudentPage, StudentSeasons, SchoolSeasonPage, LoginResult, EditResult, MergeSuggestion, MatchPreviews, StudentLeaderboard, StudentLeaders, TeamLeaderboard, UserPreferences, RegionalsAggregate } from '../shared/types/response.js'
 import { CreateUserCredentials, LoginCredentials, MatchMetadata, SchoolMetadata, StudentMetadata, StudentPerformance, TeamPerformance as TeamPerformanceRequest, UserPreferencesInput } from '../shared/types/request.js'
 import ConnectPgSimple from 'connect-pg-simple'
 import pg from 'pg'
@@ -1087,7 +1087,7 @@ router.route('/match/:id')
     })
 
 router.route('/regionals/:state/:year')
-    .get(async function (req: AddbRequest<null>, res: AddbResponse<Match>) {
+    .get(async function (req: AddbRequest<null>, res: AddbResponse<RegionalsAggregate>) {
         const state = req.params.state
         const year = parseInt(req.params.year)
 
@@ -1129,7 +1129,7 @@ router.route('/regionals/:state/:year')
             return
         }
 
-        let fullRegionals: Match = {
+        let fullRegionals: RegionalsAggregate = {
             id: -1,
             year: year,
             round: 'regionals',
@@ -1152,7 +1152,22 @@ router.route('/regionals/:state/:year')
             search2: '',
             search3: '',
             site: '',
-            note: ''
+            note: '',
+            matches: matches.map(match => ({
+                id: match?.id || -1,
+                region: match?.region?.name || 'Unknown'
+            })),
+            teamIdToRegion: matches.reduce((prev, curr) => {
+                let next: { [teamId: number]: { id: number, name: string } } = { ...prev }
+                if (!curr) return prev
+                for (const perf of curr.teamPerformances) {
+                    next[perf.teamId] = {
+                        id: curr.regionId || -1,
+                        name: curr.region?.name || "Unknown"
+                    }
+                }
+                return next
+            }, {})
         }
 
         const sortedTeamPerformances = fullRegionals.teamPerformances.sort((a, b) => b.overall - a.overall)

@@ -17,7 +17,13 @@ type MatchTablesControlProps = {
     editing?: boolean,
     startLoading: () => void,
     refresh: () => void,
-    initSchoolFilter?: number
+    initSchoolFilter?: number,
+    teamIdToRegion?: {
+        [teamId: number]: {
+            id: number,
+            name: string
+        }
+    }
 }
 
 export type ShowMedalsOptions = {
@@ -53,7 +59,8 @@ export default function MatchTablesControl({
     editing,
     startLoading,
     refresh,
-    initSchoolFilter
+    initSchoolFilter,
+    teamIdToRegion
 }: MatchTablesControlProps) {
 
     let searchParams = Object.fromEntries(new URLSearchParams(window.location.search)) as SearchParams
@@ -282,7 +289,7 @@ export default function MatchTablesControl({
                     return (
                         <div key={index}>
                             {match.title && <div className="info-page-section-uberheader"><Link to={`/match/${match.match?.id}`}>{match.title}</Link></div>}
-                            <MatchTables match={match.match} editing={editing} sortIndex={sortIndex} sortDesc={sortDesc} gpaFilter={gpaFilter} schoolFilter={schoolFilter} divisionFilter={divisionFilter} partitionBy={partitionBy} showMedals={showMedals} rankBy={rankBy} setSort={setSort} startLoading={startLoading} refreshMatch={refresh} />
+                            <MatchTables match={match.match} editing={editing} sortIndex={sortIndex} sortDesc={sortDesc} gpaFilter={gpaFilter} schoolFilter={schoolFilter} divisionFilter={divisionFilter} partitionBy={partitionBy} showMedals={showMedals} rankBy={rankBy} setSort={setSort} startLoading={startLoading} refreshMatch={refresh} teamIdToRegion={teamIdToRegion} />
                             {(index < matches.length - 1) && <div style={{ display: 'flex', justifyContent: 'center' }}>
                                 <div style={{ width: '100%', borderBottom: '1px solid #ff3b3f', marginTop: 40 }}></div>
                             </div>}

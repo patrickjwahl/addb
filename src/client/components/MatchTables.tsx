@@ -23,7 +23,13 @@ type MatchTablesProps = {
     rankBy: string,
     setSort: (index: number) => void,
     startLoading: () => void,
-    refreshMatch: () => void
+    refreshMatch: () => void,
+    teamIdToRegion?: {
+        [teamId: number]: {
+            id: number,
+            name: string
+        }
+    }
 }
 
 type StudentPerformanceColumn = {
@@ -68,7 +74,8 @@ export default function MatchTables({
     rankBy,
     setSort,
     startLoading,
-    refreshMatch
+    refreshMatch,
+    teamIdToRegion
 }: MatchTablesProps) {
 
     if (!match) return (null)
@@ -252,10 +259,10 @@ export default function MatchTables({
         return ''
     }
 
-    const hasAnyRegion = false // match.teamPerformances.filter(perf => perf.team.school?.regionId).length > 0
+    // const hasAnyRegion = false // match.teamPerformances.filter(perf => perf.team.school?.regionId).length > 0
     let teamColumnNames = ['Rank', 'Team']
     if (match.round == 'nationals') teamColumnNames.push('State')
-    if (match.round == 'state' && hasAnyRegion) teamColumnNames.push('Region')
+    if (teamIdToRegion) teamColumnNames.push('Region')
     teamColumnNames.push('Overall')
     match.events.length > 0 && match.events.length < 10 && teamColumnNames.push('Overall/10')
     teamColumnNames.push('Obj', 'Sub')
@@ -273,7 +280,7 @@ export default function MatchTables({
         const teamPerformanceRows = sortedTeamPerformances.map((performance, index) => {
             const rank = schoolFilter == -1 ? index + 1 : performance.rank
             teamIdToPartitionRank[performance.teamId] = rank
-            return <TeamPerformanceRow data={performance} rank={rank} editCallback={refreshMatch} editingEnabled={editing ?? false} events={match.events} hasSq={match.hasSq} key={performance.id} match={match} showMedals={showMedals} showRegion={hasAnyRegion} />
+            return <TeamPerformanceRow data={performance} rank={rank} editCallback={refreshMatch} editingEnabled={editing ?? false} events={match.events} hasSq={match.hasSq} key={performance.id} match={match} showMedals={showMedals} region={teamIdToRegion && teamIdToRegion[performance.teamId]} />
         })
         return { ...prev, [division]: teamPerformanceRows }
     }, {})

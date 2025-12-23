@@ -129,6 +129,18 @@ export type Regionals = {
     }>
 } & { aggregates?: StudentAggregates }
 
+export type RegionalsAggregate = Match & {
+    matches: {
+        id: number,
+        region: string
+    }[],
+    teamIdToRegion: {
+        [teamId: number]: {
+            id: number,
+            name: string
+        }
+    }
+}
 export type Match = ({ aggregates?: StudentAggregates } & (FullMatch)) | null
 
 export type FullMatch = Prisma.MatchGetPayload<{
