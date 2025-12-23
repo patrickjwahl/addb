@@ -60,10 +60,10 @@ export type TeamPerformance = {
     schoolId: number,
     teamName: string,
     overall: number,
-    objs: number,
-    subs: number,
+    objs?: number | null,
+    subs?: number | null,
     division: string,
-    sq?: number,
+    sq?: number | null,
     matchId: number
 }
 

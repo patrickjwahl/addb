@@ -4,13 +4,14 @@ import shimGroupBy from 'object.groupby'
 
 export type CSVColumnDef = {
     name: string,
-    type: 'string' | 'int' | 'float'
+    type: 'string' | 'int' | 'float',
+    nullAllowed?: boolean
 }
 
 export type CSVParseResult = {
     success: boolean,
     message?: string,
-    data?: { [colName: string]: string | number }[]
+    data?: { [colName: string]: string | number | null }[]
 }
 
 export const groupBy = <K extends PropertyKey, T>(arr: Iterable<T>, keySelector: (item: T, index: number) => K): Partial<Record<K, T[]>> => {
@@ -151,7 +152,7 @@ export const parseCsv = (csvStr: string, cols: CSVColumnDef[]): CSVParseResult =
     let i = 0
     for (const line of lines) {
         i += 1
-        let lineResult: { [key: string]: string | number } = {}
+        let lineResult: { [key: string]: string | number | null } = {}
         const lineSpl = line.split(',')
         if (lineSpl.length < 2 && i == lines.length) {
             continue
@@ -165,8 +166,12 @@ export const parseCsv = (csvStr: string, cols: CSVColumnDef[]): CSVParseResult =
             if (cols[j].type == 'string') {
                 lineResult[cols[j].name] = lineSpl[j]
             } else if (cols[j].type == 'float') {
+                if (cols[j].nullAllowed && !lineSpl[j]) {
+                    lineResult[cols[j].name] = null
+                    continue
+                }
                 const fl = parseFloat(lineSpl[j])
-                if (!fl && fl != 0) {
+                if (!fl && fl != 0 && !cols[j]) {
                     return { success: false, message: `Row ${i} column ${j + 1} could not be parsed as decimal number` }
                 }
                 lineResult[cols[j].name] = fl

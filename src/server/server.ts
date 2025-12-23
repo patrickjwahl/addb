@@ -551,7 +551,7 @@ router.route('/match/:id/studentcsv')
         let studentCols: CSVColumnDef[] = [
             {
                 name: 'teamName',
-                type: 'string'
+                type: 'string',
             },
             {
                 name: 'gpa',
@@ -611,12 +611,12 @@ router.route('/match/:id/studentcsv')
                 else objs += row[event] as number
             })
 
-            if (!(row.gpa.toString().toUpperCase() in gpaOptions)) {
-                res.json({ success: false, message: `Encountered unsupported GPA ${row.gpa.toString().toUpperCase()} in row ${i}. GPA must be H, S, V, A, B, or C.` })
+            if (!(row.gpa?.toString().toUpperCase() || '' in gpaOptions)) {
+                res.json({ success: false, message: `Encountered unsupported GPA ${row.gpa?.toString().toUpperCase()} in row ${i}. GPA must be H, S, V, A, B, or C.` })
                 return
             }
 
-            row.gpa = gpaOptions[row.gpa.toString().toUpperCase()]
+            row.gpa = gpaOptions[row.gpa?.toString().toUpperCase() || '']
 
             const team = (await prisma.teamPerformance.findFirst({
                 where: {
@@ -803,7 +803,7 @@ router.route('/match/:id/teamcsv')
         const teamData = csvParseResult.data || []
 
         for (const row of teamData) {
-            if (match.hasDivisions && !(row.division in divisions)) {
+            if (match.hasDivisions && row.division && !(row.division in divisions)) {
                 res.json({ success: false, message: `Encountered unsupported division label ${row.division}.` })
                 return
             }
@@ -1053,7 +1053,6 @@ router.route('/match/:id')
         }
 
         const data = await getMatch(id, req)
-
 
         if (!data) {
             res.json({ success: false, message: 'Match not found.' })
@@ -1375,6 +1374,9 @@ router.route('/teamperformance')
             sq: req.body.sq,
             teamId: -1
         }
+
+        console.log(data)
+
         if (id != undefined) {
             const perfToEdit = await prisma.teamPerformance.findFirst({
                 where: {

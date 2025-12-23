@@ -71,8 +71,8 @@ const TeamPerformanceRow: React.FunctionComponent<TeamPerformanceRowProps> = ({ 
                 {match && match.events.length > 0 && match.events.length < 10 &&
                     <td className={`${rankClass}`}>{ftoa(performance.overall * (10.0 / match.events.length))}</td>
                 }
-                {<td>{ftoa(performance.objs)}</td>}
-                {<td>{ftoa(performance.subs)}</td>}
+                {<td>{performance.objs != null ? ftoa(performance.objs) : ''}</td>}
+                {<td>{performance.subs != null ? ftoa(performance.subs) : ''}</td>}
                 {hasSq && <td>{ftoa(performance.sq)}</td>}
                 {editingEnabled && <td>{performance.division == 'null' ? '' : performance.division}</td>}
                 {editingEnabled && <td><button onClick={() => setEditing(true)}>Edit</button></td>}

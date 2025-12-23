@@ -7,13 +7,16 @@ import { useState } from "react"
 
 export default function TeamPerformanceEdit({ performance, hasSq, callback, match }:
     { performance?: TeamPerformance, hasSq: boolean, callback: () => void, match?: Match }) {
+
+    console.log(performance)
+
     const [rank, setRank] = useState(performance?.rank.toString() || '0')
     const [schoolId, setSchoolId] = useState(performance?.team.schoolId)
     const [newSchool, setNewSchool] = useState<SearchResultSchool | null>(null)
     const [teamName, setTeamName] = useState(performance?.team.name || '')
     const [overall, setOverall] = useState(performance?.overall?.toString() || '0')
-    const [objs, setObs] = useState(performance?.objs?.toString() || '0')
-    const [subs, setSubs] = useState(performance?.subs?.toString() || '0')
+    const [objs, setObs] = useState(performance?.objs?.toString() || '')
+    const [subs, setSubs] = useState(performance?.subs?.toString() || '')
     const [sq, setSq] = useState(performance?.sq?.toString())
     const [division, setDivision] = useState(performance?.division || 'null')
 
@@ -23,10 +26,10 @@ export default function TeamPerformanceEdit({ performance, hasSq, callback, matc
         if (isNaN(parseFloat(overall))) {
             return "overall must be a number"
         }
-        if (isNaN(parseFloat(objs))) {
+        if (objs && isNaN(parseFloat(objs))) {
             return "objs must be a number"
         }
-        if (isNaN(parseFloat(subs))) {
+        if (subs && isNaN(parseFloat(subs))) {
             return "subs must be a number"
         }
         if (sq && isNaN(parseFloat(sq))) {
@@ -55,15 +58,15 @@ export default function TeamPerformanceEdit({ performance, hasSq, callback, matc
             return
         }
 
-        if (!overall || !objs || !subs || !performance?.matchId || !schoolId) return
+        if (!overall || !performance?.matchId || !schoolId) return
 
         const data: TeamPerformanceRequest = {
             id: performance?.id,
             overall: parseFloat(overall),
-            objs: parseFloat(objs),
-            subs: parseFloat(subs),
+            objs: objs ? parseFloat(objs) : null,
+            subs: subs ? parseFloat(subs) : null,
             division: division,
-            sq: (sq) ? parseFloat(sq) : undefined,
+            sq: (sq) ? parseFloat(sq) : null,
             matchId: performance?.matchId,
             rank: parseInt(rank || '0'),
             schoolId: schoolId,
