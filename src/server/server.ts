@@ -606,6 +606,7 @@ router.route('/match/:id/studentcsv')
             let teamId: number
             let studentId: number | null = null
             match.events.forEach(event => {
+                if (!row[event]) return
                 overall += row[event] as number
                 if (subList.includes(event)) subs += row[event] as number
                 else objs += row[event] as number
