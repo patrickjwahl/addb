@@ -70,9 +70,9 @@ export default function MatchPropertiesEdit({ match, callback }: { match: Match,
         if (isNaN(new Date(date).valueOf())) {
             return "Please enter a valid date."
         }
-        if (events.size == 0) {
-            return "Please select at least one event."
-        }
+        // if (events.size == 0) {
+        //     return "Please select at least one event."
+        // }
 
         return null
     }
