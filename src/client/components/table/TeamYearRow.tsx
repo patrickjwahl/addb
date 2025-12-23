@@ -29,7 +29,7 @@ const TeamYearRow: React.FunctionComponent<TeamYearRowProps> = ({ year, data, sc
             <td className={`is-link ${rankToClass(data[round].rank - 1) || ''}`}>
                 <Link to={`/match/${data[round].matchId}?school=${schoolId}`}>
                     {ftoa(data[round].overall)} ({data[round].rank})
-                    {data[round].match.events.length < 10 &&
+                    {data[round].match.events.length > 0 && data[round].match.events.length < 10 &&
                         <>
                             <br />
                             <span className="small-font">{ftoa(data[round].overall * (10.0 / data[round].match.events.length))} ({data[round].match.events.length} → 10)</span>
