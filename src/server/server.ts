@@ -376,6 +376,12 @@ router.route('/search')
         let limit = req.query.limit ? parseInt(req.query.limit.toString()) : 100
         const schools = await prisma.school.findMany({
             where: {
+                name: {
+                    not: {
+                        contains: 'individual'
+                    },
+                    mode: 'insensitive'
+                },
                 OR: [
                     {
                         name: {
@@ -450,6 +456,16 @@ router.route('/search')
             where: studentWhere,
             include: {
                 performances: {
+                    where: {
+                        team: {
+                            name: {
+                                not: {
+                                    contains: 'individual',
+                                },
+                                mode: 'insensitive'
+                            }
+                        }
+                    },
                     select: {
                         team: {
                             select: {
