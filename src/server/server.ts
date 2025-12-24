@@ -2053,7 +2053,15 @@ router.route('/student/:id')
 
         const school = (await prisma.studentPerformance.findFirst({
             where: {
-                studentId: student.id
+                studentId: student.id,
+                team: {
+                    name: {
+                        not: {
+                            contains: 'individual',
+                        },
+                        mode: 'insensitive'
+                    }
+                }
             },
             orderBy: {
                 match: {
