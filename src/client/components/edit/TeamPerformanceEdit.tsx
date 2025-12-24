@@ -84,6 +84,7 @@ export default function TeamPerformanceEdit({ performance, hasSq, callback, matc
     const selectSchool = (school: SearchResultSchool) => {
         setNewSchool(school)
         setSchoolId(school.id)
+        setTeamName(school.name)
     }
 
     const unselectSchool = () => {

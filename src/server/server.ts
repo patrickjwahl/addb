@@ -1376,8 +1376,6 @@ router.route('/teamperformance')
             teamId: -1
         }
 
-        console.log(data)
-
         if (id != undefined) {
             const perfToEdit = await prisma.teamPerformance.findFirst({
                 where: {
