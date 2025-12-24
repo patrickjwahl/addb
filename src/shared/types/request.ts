@@ -57,12 +57,12 @@ export type StudentPerformance = Prisma.StudentPerformanceGetPayload<{
 export type TeamPerformance = {
     id?: number,
     rank: number,
-    schoolId: number,
+    schoolId?: number,
     teamName: string,
     overall: number,
     objs?: number | null,
     subs?: number | null,
-    division: string,
+    division?: string,
     sq?: number | null,
     matchId: number
 }

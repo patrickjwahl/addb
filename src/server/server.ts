@@ -1488,6 +1488,22 @@ router.route('/teamperformance')
                 }
             }
 
+            await prisma.$executeRaw`
+                WITH ranked AS (
+                    SELECT
+                    id,
+                    ROW_NUMBER() OVER (
+                        ORDER BY overall DESC
+                    ) AS new_rank
+                    FROM team_performances
+                    WHERE match_id = ${perfToEdit.matchId}
+                )
+                UPDATE team_performances
+                SET rank = ranked.new_rank
+                FROM ranked
+                WHERE team_performances.id = ranked.id;
+                `
+
             const { team, match, ...oldPerf } = perfToEdit
             await prisma.edit.create({
                 data: {

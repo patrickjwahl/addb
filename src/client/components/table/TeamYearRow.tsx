@@ -25,7 +25,7 @@ const TeamYearRow: React.FunctionComponent<TeamYearRowProps> = ({ year, data, sc
 
     let cells = []
     for (const round of ['roundone', 'regionals', 'state', 'nationals'] as (keyof TeamYearData)[]) {
-        let cell = data[round] && data[round].overall ? (
+        let cell = data[round] && data[round].overall != null ? (
             <td className={`is-link ${rankToClass(data[round].rank - 1) || ''}`}>
                 <Link to={`/match/${data[round].matchId}?school=${schoolId}`}>
                     {ftoa(data[round].overall)} ({data[round].rank})

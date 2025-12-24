@@ -3,6 +3,7 @@ import { groupBy, partitionSort, hasObjs as _hasObjs, hasSubs as _hasSubs, divis
 import { useMemo, JSX } from "react"
 import api from "../API"
 import { divisions, friendlyColumn, friendlyGPA, fullColumn } from "@/shared/util/consts"
+import { TeamPerformance as TeamPerformanceRequest } from '@/shared/types/request'
 import StudentAggregateRow from "./table/StudentAggregateRow"
 import StudentPerformanceRow from "./table/StudentPerformanceRow"
 import TeamPerformanceRow from "./table/TeamPerformanceRow"
@@ -104,6 +105,22 @@ export default function MatchTables({
             alert(result.message)
         }
         refreshMatch()
+    }
+
+    const addTeamPerformance = async () => {
+        const data: TeamPerformanceRequest = {
+            rank: match.teamPerformances.length + 1,
+            teamName: "New Team",
+            overall: 0,
+            matchId: match.id
+        }
+
+        const result = await api.upsertTeamPerformance(data)
+        if (!result.success) {
+            alert(result.message)
+        } else {
+            refreshMatch()
+        }
     }
 
     const canEdit = useMemo(() => api.canEdit(), [])
@@ -367,6 +384,7 @@ export default function MatchTables({
                 {hasTeamData &&
                     <div className='info-page-section-header'>
                         Team Scores
+                        {editing && <button style={{ marginLeft: '10px' }} onClick={addTeamPerformance}>Add Row</button>}
                     </div>
                 }
                 {
