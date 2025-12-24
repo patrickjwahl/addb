@@ -1,6 +1,6 @@
 import api from "@/client/API"
 import { StudentMetadata } from "@/shared/types/request"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "../../../generated/prisma/client.js"
 import { useState } from "react"
 
 export default function StudentPropertiesEdit({ student, callback }: { student?: Prisma.StudentGetPayload<{}> | null, callback: (schoolId: number) => void }) {

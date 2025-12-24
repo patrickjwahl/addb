@@ -1,6 +1,6 @@
 import { StudentAggregate } from "@/shared/types/response"
 import { hasObjs as _hasObjs, hasSubs as _hasSubs, ftoa } from "@/shared/util/functions"
-import { Category } from "@prisma/client"
+import { Category } from "../../../generated/prisma/client.js"
 import { useMemo } from "react"
 import { TableRowProps } from "./Table"
 

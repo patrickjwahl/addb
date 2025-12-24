@@ -1,7 +1,7 @@
 import api from "@/client/API"
 import { SchoolMetadata } from "@/shared/types/request"
 import { FullState } from "@/shared/types/response"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "../../../generated/prisma/client.js"
 import { useEffect, useMemo, useState } from "react"
 
 export default function SchoolPropertiesEdit({ school, callback }: { school?: Prisma.SchoolGetPayload<{ include: { region: true } }> | null, callback: (schoolId: number) => void }) {

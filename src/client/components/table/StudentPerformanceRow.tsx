@@ -1,6 +1,6 @@
 import { FullStudentPerformance, StudentPerformance } from "@/shared/types/response"
 import { hasObjs as _hasObjs, hasSubs as _hasSubs, ftoa, possiblyShorten, rankToClass } from "@/shared/util/functions"
-import { Category } from "@prisma/client"
+import { Category } from "../../../generated/prisma/client.js"
 import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { TableRowProps } from "./Table"

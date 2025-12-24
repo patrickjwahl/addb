@@ -1,6 +1,6 @@
 import { Match, TeamPerformance } from "@/shared/types/response"
 import { TableRowProps } from "./Table"
-import { Category } from "@prisma/client"
+import { Category } from "../../../generated/prisma/client.js"
 import { useMemo, useState } from "react"
 import { hasObjs as _hasObjs, hasSubs as _hasSubs, ftoa, rankToClass } from "@/shared/util/functions"
 import { Link } from "react-router-dom"

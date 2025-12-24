@@ -3,7 +3,7 @@ import api from "@/client/API"
 import { StudentPerformance } from "@/shared/types/request"
 import { FullStudentPerformance, SearchResultStudent } from "@/shared/types/response"
 import { hasObjs, hasSubs } from "@/shared/util/functions"
-import { Category } from "@prisma/client"
+import { Category } from "../../../generated/prisma/client.js"
 import { useState } from "react"
 
 export default function StudentPerformanceEdit({ performance, events, teams, teamRank, matchId, rank, year, callback }:

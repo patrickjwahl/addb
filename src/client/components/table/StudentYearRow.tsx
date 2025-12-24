@@ -1,6 +1,6 @@
 
 import { hasObjs as _hasObjs, hasSubs as _hasSubs, ftoa, rankToClass } from "@/shared/util/functions"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "../../../generated/prisma/client.js"
 import { Link } from "react-router-dom"
 import { TableRowProps } from "./Table"
 

@@ -1,4 +1,4 @@
-import { Category, Prisma } from "@prisma/client"
+import { Category, Prisma } from "../../generated/prisma/client.js"
 import { divisionsOrder, friendlyGPA, friendlyRound, objs, roundOrder, subs } from "./consts.js"
 import shimGroupBy from 'object.groupby'
 
