@@ -870,14 +870,14 @@ th {
     background-color: white;
     margin-bottom: 10px;
     display: flex;
+    flex-direction: column;
     gap: 10px;
-    align-items: flex-start;
+    align-items: stretch;
     min-width: 70vw;
     margin-left: 80px;
     margin-right: 80px;
     padding: 20px;
     color: black;
-    cursor: pointer;
     border: 1px solid #ff3b3f;
 }
 
@@ -916,24 +916,21 @@ th {
     text-overflow: ellipsis;
 }
 
-.state-page-link:hover {
-    background-color: #ff3b3f;
-    color: white;
-}
-
 .state-page-fake-link:hover {
     background-color: #ff7b7f;
     color: black;
 }
 
 .state-page-link-disabled {
-    background-color: #e2e2e2;
-    color: #525252;
+    background-color: #e2e2e2 !important;
+    color: #525252 !important;
+    flex: 1;
+    cursor: default;
 }
 
 .state-page-link-disabled:hover {
-    background-color: #e2e2e2;
-    color: #525252;
+    background-color: #e2e2e2 !important;
+    color: #525252 !important;
 }
 
 .state-page-stack {
@@ -1202,6 +1199,18 @@ th {
     margin-bottom: 20px;
 }
 
+.state-page-year-row {
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+}
+
+.state-page-year-row a {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+}
+
 @media screen and (max-width: 1200px) {
     .search-submit {
         display: none;
@@ -1238,6 +1247,10 @@ th {
 
     .state-page-year-bar-year span {
         border-radius: 100px;
+    }
+
+    .state-page-year-row {
+        flex-direction: column;
     }
 
     .state-page-year-bar-open .state-page-year-bar-year span {

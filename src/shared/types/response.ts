@@ -37,6 +37,11 @@ export type FullState = Prisma.StateGetPayload<{
     }
 }>
 
+export type StatePage = {
+    matches: StateMatches,
+    nationals: Prisma.TeamPerformanceGetPayload<{ include: { team: true, match: true } }>[]
+}
+
 export type StateMatches = {
     id: number,
     year: number,

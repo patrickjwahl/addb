@@ -24,7 +24,7 @@ export default function Home() {
     }
 
     const getNationals = async () => {
-        const result = (await API.getNationalsResults(3)).data
+        const result = (await API.getNationalsResults(10)).data
         setNationals(result || [])
     }
 

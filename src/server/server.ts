@@ -15,7 +15,7 @@ import { Category, ConfigurationKey, Prisma, PrismaClient } from '../generated/p
 import { PrismaPg } from '@prisma/adapter-pg'
 
 import { createTransport } from 'nodemailer'
-import { RecentMatches, ApiResponse, StateMatches, Match, StudentAggregates, FullState, SearchResult, SearchResultMatch, SearchResultStudent, FullStudentPerformance, SearchResultSchool, TeamPerformance, SchoolPage, TeamSeasons, SchoolTeam, StudentPage, StudentSeasons, SchoolSeasonPage, LoginResult, EditResult, MergeSuggestion, MatchPreviews, StudentLeaderboard, StudentLeaders, TeamLeaderboard, UserPreferences, RegionalsAggregate } from '../shared/types/response.js'
+import { RecentMatches, ApiResponse, StateMatches, Match, StudentAggregates, FullState, SearchResult, SearchResultMatch, SearchResultStudent, FullStudentPerformance, SearchResultSchool, TeamPerformance, SchoolPage, TeamSeasons, SchoolTeam, StudentPage, StudentSeasons, SchoolSeasonPage, LoginResult, EditResult, MergeSuggestion, MatchPreviews, StudentLeaderboard, StudentLeaders, TeamLeaderboard, UserPreferences, RegionalsAggregate, StatePage } from '../shared/types/response.js'
 import { CreateUserCredentials, LoginCredentials, MatchMetadata, SchoolMetadata, StudentMetadata, StudentPerformance, TeamPerformance as TeamPerformanceRequest, UserPreferencesInput } from '../shared/types/request.js'
 import ConnectPgSimple from 'connect-pg-simple'
 import pg from 'pg'
@@ -2487,7 +2487,7 @@ router.route('/recent')
     })
 
 router.route('/state/:name')
-    .get(async function (req: AddbRequest<null>, res: AddbResponse<StateMatches>) {
+    .get(async function (req: AddbRequest<null>, res: AddbResponse<StatePage>) {
         let name = req.params.name.replace('_', ' ')
         const matches = await prisma.match.findMany({
             where: {
@@ -2509,7 +2509,7 @@ router.route('/state/:name')
             }
         })
 
-        const results: StateMatches = matches.map(r => ({
+        const stateMatches: StateMatches = matches.map(r => ({
             id: r.id,
             year: r.year,
             round: r.round,
@@ -2521,9 +2521,33 @@ router.route('/state/:name')
             third: r.teamPerformances.length > 2 ? r.teamPerformances[2].team.name : null,
             thirdScore: r.teamPerformances.length > 2 ? r.teamPerformances[2].overall : null
         }))
+
+
+        const nationals = await prisma.teamPerformance.findMany({
+            where: {
+                team: {
+                    school: {
+                        state: {
+                            name: name
+                        }
+                    }
+                },
+                match: {
+                    round: 'nationals'
+                }
+            },
+            include: {
+                team: true,
+                match: true
+            }
+        })
+
         res.json({
             success: true,
-            data: results
+            data: {
+                matches: stateMatches,
+                nationals: nationals
+            }
         })
     })
 

@@ -173,7 +173,7 @@ export default function StudentPerformanceEdit({ performance, events, teams, tea
                     <input type="text" size={8} value={overall} onChange={e => setOverall(e.target.value)} />
                 </td>
                 {
-                    events.length < 10 && <td></td>
+                    events.length < 10 && events.length > 0 && <td></td>
                 }
                 {eventSet.has('math') && <td>
                     <input type="text" size={6} value={math} onChange={e => setMath(e.target.value)} />
