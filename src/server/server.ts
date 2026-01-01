@@ -2546,6 +2546,9 @@ router.route('/state/:name')
             include: {
                 team: true,
                 match: true
+            },
+            orderBy: {
+                overall: 'desc'
             }
         })
 
