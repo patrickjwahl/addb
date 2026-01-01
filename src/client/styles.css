@@ -1122,6 +1122,10 @@ th {
     grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
 }
 
+.home-column-content-grid a>div {
+    height: 100%;
+}
+
 .nationals-grid {
     padding: 0 200px;
 }
