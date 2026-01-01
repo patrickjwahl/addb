@@ -40,7 +40,7 @@ export default function StatePageYearDisplay({ year, matches, nationalsPerforman
             <div className='info-page-header'>
                 <div className='info-title'>{year}</div>
             </div>
-            <div className='state-page-year-row'>
+            <div className='state-page-year-row' style={{ textAlign: 'center' }}>
                 {
                     nationalsPerformances.length > 0 ? (
                         <Link to={`/match/${nationalsPerformances[0].matchId}`}>
@@ -52,7 +52,7 @@ export default function StatePageYearDisplay({ year, matches, nationalsPerforman
                                     {
                                         nationalsPerformances.map((perf, index) => (
                                             <div key={index} className={'match-preview-team ' + rankToClass(perf.rank - 1)}>
-                                                {perf.team.name} - {ftoa(perf.overall)}
+                                                {perf.team.name} - {ftoa(perf.overall)} ({perf.rank})
                                             </div>
                                         ))
                                     }
