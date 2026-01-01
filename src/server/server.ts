@@ -610,7 +610,7 @@ router.route('/match/:id/studentcsv')
         }
 
         const studentData = csvParseResult.data || []
-        let perfsToCreate: (StudentPerformanceInput & { name: string })[] = []
+        let perfsToCreate: (StudentPerformanceInput & { name?: string })[] = []
         let teamNumberToObj: { [number: number]: Prisma.TeamGetPayload<{}> } = {}
         let teamNumberToName: { [number: number]: string } = {}
         let i = 0
@@ -701,7 +701,7 @@ router.route('/match/:id/studentcsv')
                 }
             }
 
-            let perfToCreate: StudentPerformanceInput & { name: string } = {
+            let perfToCreate: StudentPerformanceInput & { name?: string } = {
                 studentId: studentId || undefined,
                 teamId: teamId,
                 matchId: match.id,
@@ -721,9 +721,11 @@ router.route('/match/:id/studentcsv')
             if (!perf.studentId) {
                 perf.studentId = (await prisma.student.create({
                     data: {
-                        name: perf.name
+                        name: perf.name || ''
                     }
                 })).id
+
+                delete perf.name
             }
 
             return prisma.studentPerformance.create({
