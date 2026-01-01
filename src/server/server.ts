@@ -725,8 +725,9 @@ router.route('/match/:id/studentcsv')
                     }
                 })).id
 
-                delete perf.name
             }
+
+            delete perf.name
 
             return prisma.studentPerformance.create({
                 data: perf
