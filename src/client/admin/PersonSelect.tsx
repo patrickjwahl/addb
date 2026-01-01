@@ -72,7 +72,7 @@ export default function PersonSelect({ currentName, selectedPerson, selectPerson
     }
 
     const quickSearch = async (query: string) => {
-        const result = (await api.search(query, 3)).data
+        const result = (await api.search(query, 5)).data
         setResult(result?.students || [])
     }
 
