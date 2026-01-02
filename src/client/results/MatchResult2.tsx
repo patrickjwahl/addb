@@ -96,7 +96,7 @@ export default function MatchResult2() {
                         <div className='info-title'>{match.year} {friendlyRound[match.round]}</div>
                         <div className='info-subtitle'>{subtitle}</div>
                         <div className='info-third-title'>{thirdTitle}</div>
-                        {match.note && <div className="info-note">{match.note}</div>}
+                        {match.note && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}><p className="info-note">{match.note}</p></div>}
                     </>
                 )}
                 {canEdit &&
