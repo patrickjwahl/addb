@@ -3,7 +3,7 @@ import { groupBy, partitionSort, hasObjs as _hasObjs, hasSubs as _hasSubs, divis
 import { useMemo, JSX } from "react"
 import api from "../API"
 import { divisions, friendlyColumn, friendlyGPA, fullColumn } from "@/shared/util/consts"
-import { TeamPerformance as TeamPerformanceRequest } from '@/shared/types/request'
+import { TeamPerformance as TeamPerformanceRequest, StudentPerformance as StudentPerformanceRequest } from '@/shared/types/request'
 import StudentAggregateRow from "./table/StudentAggregateRow"
 import StudentPerformanceRow from "./table/StudentPerformanceRow"
 import TeamPerformanceRow from "./table/TeamPerformanceRow"
@@ -105,6 +105,21 @@ export default function MatchTables({
             alert(result.message)
         }
         refreshMatch()
+    }
+
+    const addStudentPerformance = async () => {
+        const data: StudentPerformanceRequest = {
+            teamId: match.teamPerformances[0].teamId,
+            matchId: match.id,
+            gpa: 'H'
+        }
+
+        const result = await api.upsertStudentPerformance(data)
+        if (!result.success) {
+            alert(result.message)
+        } else {
+            refreshMatch()
+        }
     }
 
     const addTeamPerformance = async () => {
@@ -350,6 +365,7 @@ export default function MatchTables({
                                     <Tooltip id="redacted-explainer">Only outstanding scores are available for this data. Outstanding scores are considered to be above 7,000 for Honors, 6,500 for Scholastic, and 6,000 for Varsity.</Tooltip>
                                     (?)
                                 </span>}
+                            {editing && <button style={{ marginLeft: '10px' }} onClick={addStudentPerformance}>Add Row</button>}
                         </div>}
 
                     {hasStudentData && Object.keys(studentPerformanceRowsByPartition).sort(partitionSort).filter(d => studentPerformanceRowsByPartition[d].length > 0).map(partition => {
