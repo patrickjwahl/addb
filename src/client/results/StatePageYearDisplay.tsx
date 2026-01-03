@@ -42,28 +42,34 @@ export default function StatePageYearDisplay({ year, matches, nationalsPerforman
             </div>
             <div className='state-page-year-row' style={{ textAlign: 'center' }}>
                 {
-                    nationalsPerformances.length > 0 ? (
-                        <Link to={`/match/${nationalsPerformances[0].matchId}`}>
+                    allRegionals.length > 0 ? (
+                        <Link to={`/regionals/${stateName}/${year}`}>
                             <div className='match-preview state-page-link'>
                                 <div className='match-preview-title-container'>
-                                    <div className='match-preview-title'>Nationals</div>
+                                    <div className='match-preview-title'>Regionals</div>
                                 </div>
                                 <div className='match-preview-team-container'>
+                                    <div className='match-preview-team gold'>
+                                        {allRegionals[0].name} - {ftoa(allRegionals[0].score)}
+                                    </div>
+                                    <div className='match-preview-team silver'>
+                                        {allRegionals[1].name} - {ftoa(allRegionals[1].score)}
+                                    </div>
                                     {
-                                        nationalsPerformances.map((perf, index) => (
-                                            <div key={index} className={'match-preview-team ' + rankToClass(perf.rank - 1)}>
-                                                {perf.team.name} - {ftoa(perf.overall)} ({perf.rank})
+                                        allRegionals.length > 2 && (
+                                            <div className='match-preview-team bronze'>
+                                                {allRegionals[2].name} - {ftoa(allRegionals[2].score)}
                                             </div>
-                                        ))
+                                        )
                                     }
                                 </div>
                             </div>
                         </Link>
                     ) : (
-                        <Link to="#">
+                        <Link to={'#'}>
                             <div className='match-preview state-page-link-disabled'>
                                 <div className='match-preview-title-container'>
-                                    <div className='match-preview-title'>Nationals</div>
+                                    <div className='match-preview-title'>Regionals</div>
                                 </div>
                                 <div className='match-preview-team-container'>
                                     No data!
@@ -118,34 +124,28 @@ export default function StatePageYearDisplay({ year, matches, nationalsPerforman
                     )
                 }
                 {
-                    allRegionals.length > 0 ? (
-                        <Link to={`/regionals/${stateName}/${year}`}>
+                    nationalsPerformances.length > 0 ? (
+                        <Link to={`/match/${nationalsPerformances[0].matchId}`}>
                             <div className='match-preview state-page-link'>
                                 <div className='match-preview-title-container'>
-                                    <div className='match-preview-title'>Regionals</div>
+                                    <div className='match-preview-title'>Nationals</div>
                                 </div>
                                 <div className='match-preview-team-container'>
-                                    <div className='match-preview-team gold'>
-                                        {allRegionals[0].name} - {ftoa(allRegionals[0].score)}
-                                    </div>
-                                    <div className='match-preview-team silver'>
-                                        {allRegionals[1].name} - {ftoa(allRegionals[1].score)}
-                                    </div>
                                     {
-                                        allRegionals.length > 2 && (
-                                            <div className='match-preview-team bronze'>
-                                                {allRegionals[2].name} - {ftoa(allRegionals[2].score)}
+                                        nationalsPerformances.map((perf, index) => (
+                                            <div key={index} className={'match-preview-team ' + rankToClass(perf.rank - 1)}>
+                                                {perf.team.name} - {ftoa(perf.overall)} ({perf.rank})
                                             </div>
-                                        )
+                                        ))
                                     }
                                 </div>
                             </div>
                         </Link>
                     ) : (
-                        <Link to={'#'}>
+                        <Link to="#">
                             <div className='match-preview state-page-link-disabled'>
                                 <div className='match-preview-title-container'>
-                                    <div className='match-preview-title'>Regionals</div>
+                                    <div className='match-preview-title'>Nationals</div>
                                 </div>
                                 <div className='match-preview-team-container'>
                                     No data!
