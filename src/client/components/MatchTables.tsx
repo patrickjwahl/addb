@@ -111,7 +111,9 @@ export default function MatchTables({
         const data: StudentPerformanceRequest = {
             teamId: match.teamPerformances[0].teamId,
             matchId: match.id,
-            gpa: 'H'
+            gpa: 'H',
+            overall: null,
+            studentId: null
         }
 
         const result = await api.upsertStudentPerformance(data)
