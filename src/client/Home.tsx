@@ -223,6 +223,24 @@ export default function Home() {
         )
     }
 
+    const seasonYears = [...Array(19).keys()].map(i => i + 2007).toReversed()
+    let seasonsCol = (
+        <div className='home-column' style={{ minWidth: '150px' }}>
+            <h3 className='home-column-title'>Seasons</h3>
+            <div className='home-column-content'>
+                {seasonYears.map(year => (
+                    <Link key={year} to={`/season/${year}`}>
+                        <div key={year} className='match-preview'>
+                            <div className='match-preview-title-container'>
+                                <div className='match-preview-title'>{year}</div>
+                            </div>
+                        </div>
+                    </Link>
+                ))}
+            </div>
+        </div>
+    )
+
     return (
         <div className='home-container'>
             <Helmet><title>AcDecDB | The world's #1 database for Academic Decathlon</title></Helmet>
@@ -231,6 +249,7 @@ export default function Home() {
                 {recentsCol}
                 {topTeamsCol}
                 {nationalsCol}
+                {seasonsCol}
             </div>
         </div>
     )

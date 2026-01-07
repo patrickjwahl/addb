@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
-import { ApiResponse, EditResult, FullState, FullStudentPerformance, LoginResult, Match, MatchPreviews, MergeSuggestion, RegionalsAggregate, SchoolPage, SchoolSeasonPage, SearchResult, SearchResultSchool, SearchResultStudent, StatePage, StudentLeaderboard, StudentPage, TeamLeaderboard, TeamPerformance, UserPreferences } from '@/shared/types/response'
+import { ApiResponse, EditResult, FullState, FullStudentPerformance, LoginResult, Match, MatchPreviews, MergeSuggestion, RegionalsAggregate, SchoolPage, SchoolSeasonPage, SearchResult, SearchResultSchool, SearchResultStudent, Season, StatePage, StudentLeaderboard, StudentPage, TeamLeaderboard, TeamPerformance, UserPreferences } from '@/shared/types/response'
 import { CreateUserCredentials, MatchMetadata, SchoolMetadata, StudentMetadata, StudentPerformance, TeamPerformance as TeamPerformanceRequest, UserPreferencesInput } from '../shared/types/request'
 
 class API {
@@ -140,6 +140,10 @@ class API {
 
     getTeamLeaderboard = async (): Promise<ApiResponse<null | TeamLeaderboard>> => {
         return (await this.axios.get('/season_top_teams')).data
+    }
+
+    getFullSeason = async (year: number): Promise<ApiResponse<null | Season>> => {
+        return (await this.axios.get(`/season/${year}`)).data
     }
 
     getTeamPerformance = async (id: number): Promise<ApiResponse<null | undefined | TeamPerformance>> => {

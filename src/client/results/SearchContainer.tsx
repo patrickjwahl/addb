@@ -9,6 +9,7 @@ import MatchResult2 from './MatchResult2'
 import { NationalsResult } from './NationalsResult'
 import SeasonResult2 from './SeasonResult2'
 import RegionalsResult from './RegionalsResult'
+import FullSeasonResult from './FullSeasonResult'
 
 export default function SearchContainer() {
 
@@ -25,6 +26,7 @@ export default function SearchContainer() {
                 <Route path='state/:name' element={<StatePage />} />
                 <Route path='regionals/:state/:year' element={<RegionalsResult />} />
                 <Route path='match/:id' element={<MatchResult2 />} />
+                <Route path='season/:year' element={<FullSeasonResult />} />
                 <Route path='nationals' element={<NationalsResult />} />
                 <Route path='*' element={<div className='error-message'>Not a page, amigo.</div>} />
             </Routes>

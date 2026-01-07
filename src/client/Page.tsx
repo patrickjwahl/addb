@@ -10,7 +10,7 @@ import API from '@/client/API'
 import Register from '@/client/Register'
 import EditingGuide from '@/client/admin/EditingGuide'
 import { Helmet } from 'react-helmet'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import StudentCreatePage from './admin/StudentCreatePage'
 import UserCreatePage from '@/client/admin/UserCreatePage'
 import { FullState } from '@/shared/types/response'
@@ -21,7 +21,10 @@ export default function Page() {
 
     const [logoutFlip, setLogoutFlip] = useState(false)
     const [statesOpen, setStatesOpen] = useState(false)
+    const [seasonsOpen, setSeasonsOpen] = useState(false)
     const [states, setStates] = useState<{ [id: number]: FullState }>({})
+
+    const seasons = [2025, 2024, 2023, 2022, 2021, 2020, 2019]
 
     const checkAuth = async () => {
         const result = await API.authenticate()
@@ -48,7 +51,10 @@ export default function Page() {
         setLogoutFlip(!logoutFlip)
     }, [logoutFlip])
 
-    const dropdownRef = useRef<HTMLDivElement>(null)
+    const closeAllDropdowns = () => {
+        setStatesOpen(false)
+        setSeasonsOpen(false)
+    }
 
     useEffect(() => {
         checkAuth()
@@ -57,7 +63,7 @@ export default function Page() {
 
     useEffect(() => {
         document.addEventListener('click', () => {
-            setStatesOpen(false)
+            closeAllDropdowns()
         })
     }, [])
 
@@ -119,15 +125,28 @@ export default function Page() {
                     <h1 className='header-main'>AD-DB</h1>
                 </Link>
                 <div className='menu-bar'>
+                    <div className='menu-bar-item' onClick={e => { e.stopPropagation(); closeAllDropdowns(); setSeasonsOpen(!seasonsOpen) }}>
+                        Seasons
+                    </div>
+                    {
+                        seasonsOpen &&
+                        <div className='menu-bar-states-dropdown menu-bar-seasons-dropdown'>
+                            {seasons.map(year => (
+                                <Link key={year} className='menu-bar-item' to={`/season/${year}`}>
+                                    {year}
+                                </Link>
+                            ))}
+                        </div>
+                    }
                     <Link className='menu-bar-item' to="/nationals">Nationals</Link>
-                    <div className='menu-bar-item menu-bar-states' onClick={e => { e.stopPropagation(); setStatesOpen(!statesOpen) }}>
+                    <div className='menu-bar-item menu-bar-states' onClick={e => { e.stopPropagation(); closeAllDropdowns(); setStatesOpen(!statesOpen) }}>
                         States
                     </div>
                     {
                         statesOpen &&
-                        <div className='menu-bar-states-dropdown' ref={dropdownRef} tabIndex={-1} onBlur={() => setStatesOpen(false)}>
+                        <div className='menu-bar-states-dropdown'>
                             {Object.values(states).map(state => state.name).sort().map(state => (
-                                <Link key={state} className='menu-bar-item' to={`/state/${state.replaceAll(' ', '_')}`}>
+                                <Link key={state} className='menu-bar-item' to={`/ state / ${state.replaceAll(' ', '_')}`}>
                                     {state}
                                 </Link>
                             ))}
@@ -153,7 +172,7 @@ export default function Page() {
             <div className='header-links'>
                 {loginLink}
             </div>
-        </div>
+        </div >
     )
 }
 

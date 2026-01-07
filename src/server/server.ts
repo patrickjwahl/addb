@@ -15,7 +15,7 @@ import { Category, ConfigurationKey, Prisma, PrismaClient } from '../generated/p
 import { PrismaPg } from '@prisma/adapter-pg'
 
 import { createTransport } from 'nodemailer'
-import { RecentMatches, ApiResponse, StateMatches, Match, StudentAggregates, FullState, SearchResult, SearchResultMatch, SearchResultStudent, FullStudentPerformance, SearchResultSchool, TeamPerformance, SchoolPage, TeamSeasons, SchoolTeam, StudentPage, StudentSeasons, SchoolSeasonPage, LoginResult, EditResult, MergeSuggestion, MatchPreviews, StudentLeaderboard, StudentLeaders, TeamLeaderboard, UserPreferences, RegionalsAggregate, StatePage } from '../shared/types/response.js'
+import { RecentMatches, ApiResponse, StateMatches, Match, StudentAggregates, FullState, SearchResult, SearchResultMatch, SearchResultStudent, FullStudentPerformance, SearchResultSchool, TeamPerformance, SchoolPage, TeamSeasons, SchoolTeam, StudentPage, StudentSeasons, SchoolSeasonPage, LoginResult, EditResult, MergeSuggestion, MatchPreviews, StudentLeaderboard, StudentLeaders, TeamLeaderboard, UserPreferences, RegionalsAggregate, StatePage, Season } from '../shared/types/response.js'
 import { CreateUserCredentials, LoginCredentials, MatchMetadata, SchoolMetadata, StudentMetadata, StudentPerformance, TeamPerformance as TeamPerformanceRequest, UserPreferencesInput } from '../shared/types/request.js'
 import ConnectPgSimple from 'connect-pg-simple'
 import pg from 'pg'
@@ -1201,6 +1201,114 @@ router.route('/regionals/:state/:year')
         fullRegionals.teamPerformances = sortedTeamPerformances
 
         res.json({ success: true, data: fullRegionals })
+    })
+
+router.route('/season/:year')
+    .get(async function (req: AddbRequest<null>, res: AddbResponse<Season>) {
+        const year = parseInt(req.params.year)
+        if (!year) {
+            res.json({ success: false })
+            return
+        }
+
+        const matches = await prisma.match.findMany({
+            where: {
+                year: year
+            },
+            include: {
+                state: true,
+                region: true,
+                teamPerformances: {
+                    orderBy: {
+                        rank: 'asc'
+                    },
+                    include: {
+                        team: {
+                            include: {
+                                school: {
+                                    include: {
+                                        state: true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    take: 3
+                }
+            },
+            orderBy: {
+                date: 'desc'
+            }
+        })
+
+
+        const studentLeaders: StudentLeaders = {
+            H: [],
+            S: [],
+            V: []
+        }
+        for (const gpa of ['H', 'S', 'V']) {
+            studentLeaders[gpa as keyof StudentLeaders] = await prisma.studentPerformance.findMany({
+                where: {
+                    match: {
+                        year: year
+                    },
+                    gpa: gpa
+                },
+                include: {
+                    student: true,
+                    team: {
+                        include: {
+                            school: {
+                                include: {
+                                    state: true
+                                }
+                            }
+                        }
+                    },
+                    match: {
+                        include: {
+                            region: true,
+                            state: true
+                        }
+                    }
+                },
+                orderBy: {
+                    overall: 'desc'
+                },
+                take: 10
+            })
+        }
+
+        const teamLeaders = await prisma.teamPerformance.findMany({
+            where: {
+                match: {
+                    year: year
+                }
+            },
+            include: {
+                team: {
+                    include: {
+                        school: {
+                            include: {
+                                state: true
+                            }
+                        }
+                    }
+                },
+                match: true
+            },
+            orderBy: {
+                overall: 'desc'
+            },
+            take: 10
+        })
+
+        res.json({
+            success: true, data: {
+                year, matches, studentLeaders, teamLeaders
+            }
+        })
     })
 
 router.route('/school/:id/season/:year')

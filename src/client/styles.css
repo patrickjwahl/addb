@@ -107,6 +107,15 @@ input[type="submit"] {
     padding: 2px;
 }
 
+.menu-bar-seasons-dropdown {
+    left: 0;
+    right: unset;
+    columns: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
 .top-bar a {
     display: inline;
 }
@@ -1222,7 +1231,16 @@ th {
 .state-page-year-row a {
     flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: stretch;
+}
+
+.season-page-round-row {
+    width: 70vw;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
 @media screen and (max-width: 1200px) {

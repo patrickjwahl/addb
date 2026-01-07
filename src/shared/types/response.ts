@@ -298,3 +298,10 @@ export type TeamLeaderboard = {
 }
 
 export type UserPreferences = Prisma.PreferencesGetPayload<{}>
+
+export type Season = {
+    year: number,
+    matches: MatchPreviews,
+    studentLeaders: StudentLeaders,
+    teamLeaders: TeamLeaders
+}
