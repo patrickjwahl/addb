@@ -116,7 +116,7 @@ export default function TeamPerformanceEdit({ performance, hasSq, callback, matc
                     <input type="text" size={8} value={overall} onChange={e => setOverall(e.target.value)} />
                 </td>
                 {
-                    match && match?.events.length < 10 && <td></td> // overall/10
+                    match && match.events.length > 0 && match.events.length < 10 && <td></td> // overall/10
                 }
                 <td className="table-cell-large">
                     <input type="text" size={8} value={objs} onChange={e => setObs(e.target.value)} />
