@@ -27,7 +27,7 @@ export default function FullSeasonResult() {
 
     useEffect(() => {
         fetchSeason()
-    }, [])
+    }, [params.year])
 
     if (error) {
         return <div className='error-message'>{error}</div>
