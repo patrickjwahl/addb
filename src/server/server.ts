@@ -1274,7 +1274,10 @@ router.route('/season/:year')
                     }
                 },
                 orderBy: {
-                    overall: 'desc'
+                    overall: {
+                        sort: 'desc',
+                        nulls: 'last'
+                    }
                 },
                 take: 10
             })
@@ -2412,7 +2415,10 @@ router.route('/season_top_students')
                     gpa: gpa
                 },
                 orderBy: {
-                    overall: 'desc'
+                    overall: {
+                        sort: 'desc',
+                        nulls: 'last'
+                    }
                 },
                 include: {
                     student: true,
