@@ -146,7 +146,7 @@ export default function Page() {
                         statesOpen &&
                         <div className='menu-bar-states-dropdown'>
                             {Object.values(states).map(state => state.name).sort().map(state => (
-                                <Link key={state} className='menu-bar-item' to={`/state/ ${state.replaceAll(' ', '_')}`}>
+                                <Link key={state} className='menu-bar-item' to={`/state/${state.replaceAll(' ', '_')}`}>
                                     {state}
                                 </Link>
                             ))}
@@ -172,7 +172,7 @@ export default function Page() {
             <div className='header-links'>
                 {loginLink}
             </div>
-        </div >
+        </div>
     )
 }
 
