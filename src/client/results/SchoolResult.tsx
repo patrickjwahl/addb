@@ -79,7 +79,7 @@ export default function SchoolResult() {
                 <div key={year} className='roster-container'>
                     <div className={'roster-link' + (rostersOpen[year] ? ' roster-link-open' : '')} onClick={() => handleRosterYearClicked(year)}>{year}</div>
                     <ul className={!rostersOpen[year] ? 'roster-closed' : ''}>
-                        {result.rosters[year] && result.rosters[year].map(student => {
+                        {result.rosters[year] && result.rosters[year].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true })).map(student => {
                             return <li key={student.id}><Link to={`/student/${student.id}`}>{student.name}</Link></li>
                         })}
                     </ul>
