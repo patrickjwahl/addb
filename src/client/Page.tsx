@@ -24,7 +24,7 @@ export default function Page() {
     const [seasonsOpen, setSeasonsOpen] = useState(false)
     const [states, setStates] = useState<{ [id: number]: FullState }>({})
 
-    const seasons = [...Array(19).keys()].map(i => i + 2007).toReversed()
+    const seasons = [...Array(20).keys()].map(i => i + 2007).toReversed()
 
     const checkAuth = async () => {
         const result = await API.authenticate()

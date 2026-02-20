@@ -163,20 +163,21 @@ export const parseCsv = (csvStr: string, cols: CSVColumnDef[]): CSVParseResult =
             }
         }
         for (let j = 0; j < cols.length; j++) {
+            const val = lineSpl[j].trim()
             if (cols[j].type == 'string') {
-                lineResult[cols[j].name] = lineSpl[j]
+                lineResult[cols[j].name] = val
             } else if (cols[j].type == 'float') {
-                if (cols[j].nullAllowed && !lineSpl[j]) {
+                if (cols[j].nullAllowed && !val) {
                     lineResult[cols[j].name] = null
                     continue
                 }
-                const fl = parseFloat(lineSpl[j])
+                const fl = parseFloat(val)
                 if (!fl && fl != 0 && !cols[j]) {
                     return { success: false, message: `Row ${i} column ${j + 1} could not be parsed as decimal number` }
                 }
                 lineResult[cols[j].name] = fl
             } else {
-                const integ = parseInt(lineSpl[j])
+                const integ = parseInt(val)
                 if (!integ && integ != 0) {
                     return { success: false, message: `Row ${i} column ${j + 1} could not be parsed as integer` }
                 }

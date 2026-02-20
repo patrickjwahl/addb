@@ -1,4 +1,4 @@
-import { MutableRefObject, useLayoutEffect, useState } from "react"
+import { RefObject, useLayoutEffect, useState } from "react"
 import { createPortal } from "react-dom"
 
 type QuickResultRow = {
@@ -8,7 +8,7 @@ type QuickResultRow = {
     handleClick: (e: React.MouseEvent) => void
 }
 
-export default function QuickResult({ anchorRef, data, focus }: { anchorRef: MutableRefObject<HTMLInputElement | null>, data: QuickResultRow[], focus: number }) {
+export default function QuickResult({ anchorRef, data, focus }: { anchorRef: RefObject<HTMLInputElement | null>, data: QuickResultRow[], focus: number }) {
 
     const [style, setStyle] = useState({})
 
