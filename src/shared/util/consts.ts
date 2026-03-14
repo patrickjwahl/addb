@@ -100,6 +100,14 @@ export const divisions: { [key: string]: string } = {
     'White': 'White Division',
     'Nittany': 'Nittany',
     'Susquehanna': 'Susquehanna',
+    'TEAM': 'Team',
+    'IND': 'Individual',
+    'SAL': 'San Antonio Large',
+    'SAM': 'San Antonio Medium',
+    'SAS': 'San Antonio Small',
+    'FL': 'Frisco Large',
+    'FM': 'Frisco Medium',
+    'FS': 'Frisco Small',
     'null': "No Division Specified",
     'all': ''
 }
